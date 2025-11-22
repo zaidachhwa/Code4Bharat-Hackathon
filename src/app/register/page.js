@@ -115,16 +115,16 @@ export default function HackathonRegistration() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="min-h-screen bg-linear-to-br from-purple-900 via-indigo-900 to-blue-900 flex items-center justify-center p-4 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-20 left-10 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
         </div>
         <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-12 max-w-lg w-full text-center relative z-10 border-4 border-green-400">
-          <div className="bg-gradient-to-r from-green-400 to-emerald-500 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 animate-bounce">
+          <div className="bg-linear-to-r from-green-400 to-emerald-500 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 animate-bounce">
             <CheckCircle className="w-16 h-16 text-white" />
           </div>
-          <h2 className="text-4xl font-black bg-gradient-to-r from-green-600 to-emerald-600 text-transparent bg-clip-text mb-4">Success!</h2>
+          <h2 className="text-4xl font-black bg-linear-to-r from-green-600 to-emerald-600 text-transparent bg-clip-text mb-4">Success!</h2>
           <p className="text-gray-700 text-lg mb-8">Your registration has been submitted successfully. We'll contact you soon with further details!</p>
           <button
             onClick={() => {
@@ -135,7 +135,7 @@ export default function HackathonRegistration() {
                 username: '', password: '', confirmPassword: '', agreeTerms: false, confirmInfo: false
               });
             }}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="bg-linear-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
             Register Another Participant
           </button>
@@ -145,7 +145,7 @@ export default function HackathonRegistration() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 py-12 px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-purple-900 via-indigo-900 to-blue-900 py-12 px-4 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
@@ -156,23 +156,23 @@ export default function HackathonRegistration() {
       <div className="max-w-5xl mx-auto bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-10 lg:p-12 relative z-10 border-2 border-purple-300">
         <div className="text-center mb-12">
           <div className="inline-block mb-4">
-            <h1 className="text-6xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-transparent bg-clip-text animate-gradient">
+            <h1 className="text-6xl font-black bg-linear-to-r from-purple-600 via-pink-600 to-blue-600 text-transparent bg-clip-text animate-linear">
               HACKATHON 2025
             </h1>
           </div>
           <p className="text-2xl text-gray-700 font-bold mb-2">Registration Portal</p>
           <p className="text-gray-600">Join the ultimate coding challenge!</p>
-          <div className="mt-6 h-1.5 w-40 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 mx-auto rounded-full"></div>
+          <div className="mt-6 h-1.5 w-40 bg-linear-to-r from-purple-600 via-pink-600 to-blue-600 mx-auto rounded-full"></div>
         </div>
 
         <div onClick={handleSubmit} className="space-y-8">
           {/* Personal Information */}
-          <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-8 border-2 border-purple-200 shadow-lg">
+          <div className="bg-linear-to-r from-purple-50 to-blue-50 rounded-2xl p-8 border-2 border-purple-200 shadow-lg">
             <div className="flex items-center mb-6">
-              <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl mr-4 shadow-lg">
+              <div className="bg-linear-to-r from-purple-600 to-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl mr-4 shadow-lg">
                 <User className="w-6 h-6" />
               </div>
-              <h2 className="text-3xl font-black bg-gradient-to-r from-purple-600 to-blue-600 text-transparent bg-clip-text">Personal Information</h2>
+              <h2 className="text-3xl font-black bg-linear-to-r from-purple-600 to-blue-600 text-transparent bg-clip-text">Personal Information</h2>
             </div>
             
             <div className="space-y-5">
@@ -269,12 +269,12 @@ export default function HackathonRegistration() {
           </div>
 
           {/* Academic Information */}
-          <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-8 border-2 border-pink-200 shadow-lg">
+          <div className="bg-linear-to-r from-pink-50 to-purple-50 rounded-2xl p-8 border-2 border-pink-200 shadow-lg">
             <div className="flex items-center mb-6">
-              <div className="bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl mr-4 shadow-lg">
+              <div className="bg-linear-to-r from-pink-600 to-purple-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl mr-4 shadow-lg">
                 <BookOpen className="w-6 h-6" />
               </div>
-              <h2 className="text-3xl font-black bg-gradient-to-r from-pink-600 to-purple-600 text-transparent bg-clip-text">Academic Information</h2>
+              <h2 className="text-3xl font-black bg-linear-to-r from-pink-600 to-purple-600 text-transparent bg-clip-text">Academic Information</h2>
             </div>
             
             <div className="space-y-5">
@@ -327,12 +327,12 @@ export default function HackathonRegistration() {
           </div>
 
           {/* Hackathon Details */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 border-2 border-blue-200 shadow-lg">
+          <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 border-2 border-blue-200 shadow-lg">
             <div className="flex items-center mb-6">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl mr-4 shadow-lg">
+              <div className="bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl mr-4 shadow-lg">
                 <Target className="w-6 h-6" />
               </div>
-              <h2 className="text-3xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">Hackathon Details</h2>
+              <h2 className="text-3xl font-black bg-linear-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">Hackathon Details</h2>
             </div>
             
             <div className="space-y-5">
@@ -370,12 +370,12 @@ export default function HackathonRegistration() {
           </div>
 
           {/* Account Details */}
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-8 border-2 border-indigo-200 shadow-lg">
+          <div className="bg-linear-to-r from-indigo-50 to-purple-50 rounded-2xl p-8 border-2 border-indigo-200 shadow-lg">
             <div className="flex items-center mb-6">
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl mr-4 shadow-lg">
+              <div className="bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl mr-4 shadow-lg">
                 <Lock className="w-6 h-6" />
               </div>
-              <h2 className="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">Account Details</h2>
+              <h2 className="text-3xl font-black bg-linear-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">Account Details</h2>
             </div>
             
             <div className="space-y-5">
@@ -423,7 +423,7 @@ export default function HackathonRegistration() {
           </div>
 
           {/* Checkboxes */}
-          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-8 border-2 border-yellow-200 shadow-lg space-y-4">
+          <div className="bg-linear-to-r from-yellow-50 to-orange-50 rounded-2xl p-8 border-2 border-yellow-200 shadow-lg space-y-4">
             <div className="bg-white rounded-xl p-5 border-2 border-yellow-200">
               <label className="flex items-start cursor-pointer">
                 <input
@@ -462,7 +462,7 @@ export default function HackathonRegistration() {
             <button
               type="button"
               onClick={handleSubmit}
-              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white py-5 px-8 rounded-2xl font-black text-xl hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105 uppercase tracking-wider"
+              className="w-full bg-linear-to-r from-purple-600 via-pink-600 to-blue-600 text-white py-5 px-8 rounded-2xl font-black text-xl hover:from-purple-700 hover:via-pink-700 hover:to-blue-700 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105 uppercase tracking-wider"
             >
               Register Now 🚀
             </button>
