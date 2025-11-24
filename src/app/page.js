@@ -226,9 +226,7 @@ export default function Code4BharatLanding() {
                   onClick={() => scrollToSection(id)}
                   className="relative text-slate-600 hover:text-indigo-600 transition-colors"
                 >
-                  {id === "terms"
-                    ? "Terms"
-                    : id[0].toUpperCase() + id.slice(1)}
+                  {id === "terms" ? "Terms" : id[0].toUpperCase() + id.slice(1)}
                   <span className="absolute left-0 right-0 -bottom-1 h-[2px] scale-x-0 bg-indigo-500/80 rounded-full transition-transform origin-left hover:scale-x-100" />
                 </button>
               ))}
@@ -265,9 +263,7 @@ export default function Code4BharatLanding() {
                   onClick={() => scrollToSection(id)}
                   className="text-left text-slate-700 hover:bg-slate-100 px-3 py-2 rounded-md text-sm font-medium"
                 >
-                  {id === "terms"
-                    ? "Terms"
-                    : id[0].toUpperCase() + id.slice(1)}
+                  {id === "terms" ? "Terms" : id[0].toUpperCase() + id.slice(1)}
                 </button>
               ))}
               <button
@@ -429,30 +425,37 @@ export default function Code4BharatLanding() {
       </section>
 
       {/* About */}
-      <section id="about" className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16">
+      <section
+        id="about"
+        className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
+      >
         <div className="max-w-7xl mx-auto">
           <div className="card-soft p-8 sm:p-10 md:p-12">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-5">
               About CODE4BHARAT
             </h2>
             <p className="text-base sm:text-lg text-slate-600 max-w-4xl leading-relaxed">
-              CODE4BHARAT is a national-level solo hackathon focused on real-world
-              problem solving. Participants ideate, design, build, and present
-              solutions individually in a structured and professional format,
-              mirroring how modern product teams work with ownership and clarity.
+              CODE4BHARAT is a national-level solo hackathon focused on
+              real-world problem solving. Participants ideate, design, build,
+              and present solutions individually in a structured and
+              professional format, mirroring how modern product teams work with
+              ownership and clarity.
             </p>
             <p className="mt-4 text-sm text-slate-500 max-w-3xl">
-              Whether you&apos;re just starting your coding journey or you&apos;re an
-              experienced developer, this hackathon gives you a platform to
-              independently own an idea, execute it end-to-end, and present it
-              to experienced judges.
+              Whether you&apos;re just starting your coding journey or
+              you&apos;re an experienced developer, this hackathon gives you a
+              platform to independently own an idea, execute it end-to-end, and
+              present it to experienced judges.
             </p>
           </div>
         </div>
       </section>
 
       {/* Domains */}
-      <section id="domains" className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16">
+      <section
+        id="domains"
+        className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
+      >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-3">
@@ -479,8 +482,8 @@ export default function Code4BharatLanding() {
               <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
                 Build responsive, accessible, and scalable web applications.
                 Focus on user experience, clean architecture, and real-world
-                business use cases. You can work on dashboards, portals,
-                landing pages, or end-to-end web experiences.
+                business use cases. You can work on dashboards, portals, landing
+                pages, or end-to-end web experiences.
               </p>
               <ul className="mt-2 space-y-2 text-sm text-slate-600">
                 <li className="flex items-start gap-2">
@@ -595,7 +598,10 @@ export default function Code4BharatLanding() {
       </section>
 
       {/* Rules */}
-      <section id="rules" className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16">
+      <section
+        id="rules"
+        className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
+      >
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-3 text-center">
             Rules &amp; Guidelines
@@ -679,7 +685,10 @@ export default function Code4BharatLanding() {
       </section>
 
       {/* Prizes */}
-      <section id="prizes" className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16">
+      <section
+        id="prizes"
+        className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
+      >
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-3 text-center">
             Prizes &amp; Recognition
@@ -1067,9 +1076,9 @@ export default function Code4BharatLanding() {
         </div>
       </section>
 
-          {/* Footer – Hackathon styled */}
-        {/* Footer – Hackathon style */}
-            {/* Footer – Hackathon styled */}
+      {/* Footer – Hackathon styled */}
+      {/* Footer – Hackathon style */}
+      {/* Footer – Hackathon styled */}
       <footer className="mt-8 border-t border-slate-200 bg-white/90 backdrop-blur">
         {/* Gradient accent bar */}
         <div className="h-1 w-full bg-gradient-to-r from-indigo-600 via-sky-500 to-violet-500" />
@@ -1152,7 +1161,9 @@ export default function Code4BharatLanding() {
                 <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
                   <Clock className="w-4 h-4 text-indigo-600" />
                   <div>
-                    <p className="font-semibold text-slate-800">6-Hour Sprint</p>
+                    <p className="font-semibold text-slate-800">
+                      6-Hour Sprint
+                    </p>
                     <p className="text-xs text-slate-500">
                       Build and ship in a focused window.
                     </p>
@@ -1161,7 +1172,9 @@ export default function Code4BharatLanding() {
                 <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
                   <Users className="w-4 h-4 text-sky-600" />
                   <div>
-                    <p className="font-semibold text-slate-800">Solo Hackathon</p>
+                    <p className="font-semibold text-slate-800">
+                      Solo Hackathon
+                    </p>
                     <p className="text-xs text-slate-500">
                       One participant, one project, full ownership.
                     </p>
@@ -1242,9 +1255,6 @@ export default function Code4BharatLanding() {
           </div>
         </div>
       </footer>
-
-
-
     </div>
   );
 }
