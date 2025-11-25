@@ -40,26 +40,30 @@ export default function Code4BharatLanding() {
     "terms",
   ];
 
-  // Header scroll state
+  /* ================================================================
+      HEADER SCROLL STATE
+  ================================================================= */
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 50);
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Mouse position for subtle spotlight
+  /* ================================================================
+      MOUSE SPOTLIGHT
+  ================================================================= */
   useEffect(() => {
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e) =>
       setMousePosition({ x: e.clientX, y: e.clientY });
-    };
+
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // Smooth scroll to sections
+  /* ================================================================
+      SMOOTH SCROLL TO SECTIONS
+  ================================================================= */
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -67,32 +71,31 @@ export default function Code4BharatLanding() {
     setMobileMenuOpen(false);
   };
 
-  // Fade-in on scroll
+  /* ================================================================
+      FADE-IN ON SCROLL
+  ================================================================= */
   useEffect(() => {
-    const els = document.querySelectorAll(".fade-in-section");
+    const elements = document.querySelectorAll(".fade-in-section");
     const observer = new IntersectionObserver(
-      (entries) => {
+      (entries) =>
         entries.forEach((entry) => {
           if (entry.isIntersecting) entry.target.classList.add("visible");
-        });
-      },
+        }),
       { threshold: 0.12 }
     );
-    els.forEach((el) => observer.observe(el));
+    elements.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, []);
 
-  // Hero parallax effect
+  /* ================================================================
+      HERO PARALLAX EFFECT
+  ================================================================= */
   useEffect(() => {
     const handler = () => {
-      const scrolledY = window.pageYOffset;
-      const hero = heroRef.current;
-      if (hero && scrolledY < 600) {
-        hero.style.transform = `translateY(${scrolledY * 0.15}px)`;
-        hero.style.opacity = `${Math.max(0.45, 1 - scrolledY * 0.0012)}`;
-      } else if (hero) {
-        hero.style.transform = "";
-        hero.style.opacity = "";
+      const y = window.pageYOffset;
+      if (heroRef.current && y < 600) {
+        heroRef.current.style.transform = `translateY(${y * 0.15}px)`;
+        heroRef.current.style.opacity = `${Math.max(0.45, 1 - y * 0.0012)}`;
       }
     };
     window.addEventListener("scroll", handler, { passive: true });
@@ -167,22 +170,14 @@ export default function Code4BharatLanding() {
           border-color: rgba(79, 70, 229, 0.45);
         }
 
-        .stat-card {
-          background: #ffffff;
-          border-radius: 1.25rem;
-          border: 1px solid rgba(226, 232, 240, 1);
-          box-shadow: 0 14px 30px rgba(15, 23, 42, 0.05);
-          transition: transform 0.18s ease, box-shadow 0.18s ease,
-            border-color 0.18s ease;
-        }
-        .stat-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 22px 45px rgba(15, 23, 42, 0.1);
-          border-color: rgba(79, 70, 229, 0.5);
+        button {
+          cursor: pointer !important;
         }
       `}</style>
 
-      {/* Subtle background spotlight */}
+      {/* ------------------------------------------------------------
+          Background Spotlight
+      ------------------------------------------------------------- */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <div
           className="absolute -top-40 left-1/2 w-[600px] h-[600px] rounded-full bg-indigo-200/50 blur-3xl"
@@ -193,7 +188,9 @@ export default function Code4BharatLanding() {
         />
       </div>
 
-      {/* Header */}
+      {/* ------------------------------------------------------------
+          HEADER
+      ------------------------------------------------------------- */}
       <header
         className={`fixed w-full z-50 transition-all duration-300 ${
           scrolled
@@ -203,9 +200,9 @@ export default function Code4BharatLanding() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
           <div className="flex items-center justify-between gap-6">
-            {/* Logo / Brand */}
+            {/* LOGO */}
             <div className="flex items-center gap-3">
-              <div className="relative w-11 h-11 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/25 animate-[floatYSoft_4s_ease-in-out_infinite]">
+              <div className="relative w-11 h-11 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg animate-[floatYSoft_4s_ease-in-out_infinite]">
                 <span className="text-xl">🇮🇳</span>
               </div>
               <div>
@@ -218,7 +215,7 @@ export default function Code4BharatLanding() {
               </div>
             </div>
 
-            {/* Desktop Nav */}
+            {/* DESKTOP NAV */}
             <nav className="hidden md:flex items-center gap-7 text-sm font-medium">
               {NAV_SECTIONS.map((id) => (
                 <button
@@ -227,24 +224,33 @@ export default function Code4BharatLanding() {
                   className="relative text-slate-600 hover:text-indigo-600 transition-colors"
                 >
                   {id === "terms" ? "Terms" : id[0].toUpperCase() + id.slice(1)}
-                  <span className="absolute left-0 right-0 -bottom-1 h-[2px] scale-x-0 bg-indigo-500/80 rounded-full transition-transform origin-left hover:scale-x-100" />
+                  <span className="absolute left-0 right-0 -bottom-1 h-0.5 scale-x-0 bg-indigo-500/80 rounded-full transition-transform origin-left hover:scale-x-100" />
                 </button>
               ))}
+
+              {/* NEW: Ambassador Register */}
+              <Link
+                href="/ambassador-register"
+                className="px-5 py-2.5 rounded-full bg-white border border-indigo-300 text-indigo-700 hover:bg-indigo-50 transition-colors font-semibold"
+              >
+                Ambassador Register
+              </Link>
             </nav>
 
             {/* Actions */}
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => scrollToSection("submission")}
-                className="hidden sm:inline-flex items-center gap-2 btn-shimmer relative bg-indigo-600 text-white px-5 py-2.5 rounded-full text-sm font-semibold shadow-md shadow-indigo-500/30 hover:bg-indigo-700 transition-colors"
+              {/* Register Now Button */}
+              <Link
+                href="/register"
+                className="hidden sm:inline-flex items-center gap-2 btn-shimmer relative bg-indigo-600 text-white px-5 py-2.5 rounded-full text-sm font-semibold shadow-md hover:bg-indigo-700 transition-colors"
               >
                 <Rocket className="w-4 h-4" />
                 Register Now
-              </button>
+              </Link>
 
-              {/* Mobile Menu Toggle */}
+              {/* Mobile menu toggle */}
               <button
-                className="md:hidden text-slate-700 p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                className="md:hidden text-slate-700 p-2 rounded-lg hover:bg-slite-100 transition-colors"
                 onClick={() => setMobileMenuOpen((s) => !s)}
               >
                 {mobileMenuOpen ? <X /> : <Menu />}
@@ -253,10 +259,10 @@ export default function Code4BharatLanding() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* MOBILE MENU */}
         {mobileMenuOpen && (
           <div className="md:hidden bg-white border-t border-slate-200 shadow-sm">
-            <div className="px-4 py-3 flex flex-col gap-1">
+            <div className="px-4 py-3 flex flex-col gap-2">
               {NAV_SECTIONS.map((id) => (
                 <button
                   key={id}
@@ -266,13 +272,23 @@ export default function Code4BharatLanding() {
                   {id === "terms" ? "Terms" : id[0].toUpperCase() + id.slice(1)}
                 </button>
               ))}
-              <button
-                onClick={() => scrollToSection("submission")}
+
+              {/* Register Button Mobile */}
+              <Link
+                href="/register"
                 className="mt-2 inline-flex items-center justify-center gap-2 bg-indigo-600 text-white px-3 py-2.5 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-colors"
               >
                 <Rocket className="w-4 h-4" />
                 Register Now
-              </button>
+              </Link>
+
+              {/* NEW: Ambassador Register Mobile */}
+              <Link
+                href="/ambassador-register"
+                className="inline-flex items-center justify-center gap-2 bg-white border border-indigo-300 text-indigo-700 px-3 py-2.5 rounded-full text-sm font-semibold hover:bg-indigo-50 transition-colors"
+              >
+                Ambassador Register
+              </Link>
             </div>
           </div>
         )}

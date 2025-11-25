@@ -1,527 +1,623 @@
+"use client";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FormSection } from "@/components/FormSection";
-import { toast } from "sonner";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import toast, { Toaster } from "react-hot-toast";
 
-const formSchema = z.object({
-  fullName: z.string().min(2, "Full name must be at least 2 characters").max(100),
-  email: z.string().email("Invalid email address").max(255),
-  phone: z.string().min(10, "Phone number must be at least 10 digits").max(15),
-  dob: z.string().min(1, "Date of birth is required"),
-  college: z.string().min(2, "College name is required").max(200),
-  courseYear: z.string().min(2, "Course and year is required").max(100),
-  city: z.string().min(2, "City/State is required").max(100),
-  gender: z.enum(["male", "female", "prefer-not-to-say"]),
-  instagram: z.string().min(1, "Instagram username is required"),
-  linkedin: z.string().optional(),
-  instagramFollowers: z.string().min(1, "Please select a range"),
-  postActivity: z.string().min(1, "Please select an option"),
-  motivation: z.string().min(10, "Please provide more details (at least 10 characters)").max(500),
-  previousExperience: z.enum(["yes", "no"]),
-  experienceDescription: z.string().min(10, "Please provide details about your experience (at least 10 characters)").max(500),
-  skills: z.array(z.string()).min(1, "Please select at least one skill"),
-  responsibilities: z.array(z.string()).min(1, "Please select at least one responsibility"),
-  hoursPerWeek: z.string().min(1, "Please select hours per week"),
-  availability: z.string().min(1, "Please select availability"),
-  studentIdCard: z.any().optional(),
-  profilePhoto: z.any().optional(),
-  additionalInfo: z.string().optional(),
-  agreement: z.boolean().refine((val) => val === true, "You must agree to the terms"),
+// ------------------------------------
+// VALIDATION SCHEMA
+// ------------------------------------
+const schema = yup.object().shape({
+  fullName: yup.string().required("Full name is required"),
+  dob: yup.string().required("Date of birth is required"),
+  gender: yup.string().required("Gender is required"),
+  address: yup.string().required("Address is required"),
+  email: yup.string().email("Invalid email").required("Email is required"),
+  phone: yup
+    .string()
+    .matches(/^\d{10}$/, "Enter a valid 10-digit number")
+    .required("Phone number is required"),
+
+  college: yup.string().required("College name is required"),
+  course: yup.string().required("Course is required"),
+  year: yup.string().required("Year is required"),
+  domain: yup.string().required("Domain is required"),
+  skills: yup.string().required("Skills are required"),
+
+  username: yup.string().min(4).required("Username is required"),
+  password: yup.string().min(6).required("Password must be at least 6 chars"),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref("password")], "Passwords must match"),
+
+  agreeTerms: yup.bool().oneOf([true], "You must agree to terms"),
+  confirmInfo: yup.bool().oneOf([true], "You must confirm information"),
 });
 
-type FormData = z.infer<typeof formSchema>;
+export default function Register() {
+  const [step, setStep] = useState(1);
 
-const Index = () => {
   const {
     register,
     handleSubmit,
+    trigger,
     formState: { errors },
-    setValue,
-    watch,
-  } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      skills: [],
-      responsibilities: [],
-      agreement: false,
-    },
+  } = useForm({
+    resolver: yupResolver(schema),
+    mode: "onBlur",
   });
 
-  const selectedSkills = watch("skills") || [];
-  const selectedResponsibilities = watch("responsibilities") || [];
+  const next = async () => {
+    let fieldsToValidate = [];
 
-  const onSubmit = (data: FormData) => {
-    console.log("Form submitted:", data);
-    toast.success("Application submitted successfully!");
+    if (step === 1) {
+      fieldsToValidate = [
+        "fullName",
+        "dob",
+        "gender",
+        "address",
+        "email",
+        "phone",
+      ];
+    } else if (step === 2) {
+      fieldsToValidate = ["college", "course", "year", "domain", "skills"];
+    } else if (step === 3) {
+      fieldsToValidate = ["username", "password", "confirmPassword"];
+    }
+
+    const isValid = await trigger(fieldsToValidate);
+
+    if (isValid) {
+      setStep(step + 1);
+    } else {
+      toast.error("Please fill all required fields correctly");
+    }
   };
 
-  const toggleSkill = (skill: string) => {
-    const current = selectedSkills;
-    const updated = current.includes(skill)
-      ? current.filter((s) => s !== skill)
-      : [...current, skill];
-    setValue("skills", updated);
+  const prev = () => setStep(step - 1);
+
+  const onSubmit = (data) => {
+    console.log("=== HACKATHON REGISTRATION DATA ===");
+    console.log("Full Name:", data.fullName);
+    console.log("Date of Birth:", data.dob);
+    console.log("Gender:", data.gender);
+    console.log("Address:", data.address);
+    console.log("Email:", data.email);
+    console.log("Phone:", data.phone);
+    console.log("College:", data.college);
+    console.log("Course:", data.course);
+    console.log("Year:", data.year);
+    console.log("Domain:", data.domain);
+    console.log("Skills:", data.skills);
+    console.log("Username:", data.username);
+    console.log("=====================================");
+    console.log("Complete Data Object:", data);
+
+    toast.success("Registration Successful! Check console for data.", {
+      duration: 4000,
+      style: {
+        background: "#10b981",
+        color: "#fff",
+      },
+    });
   };
 
-  const toggleResponsibility = (responsibility: string) => {
-    const current = selectedResponsibilities;
-    const updated = current.includes(responsibility)
-      ? current.filter((r) => r !== responsibility)
-      : [...current, responsibility];
-    setValue("responsibilities", updated);
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    handleSubmit(onSubmit)(e);
   };
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-card rounded-lg shadow-sm p-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            InnovateX Campus Ambassador Application
-          </h1>
-          <p className="text-muted-foreground mb-8">
-            Fill out the details below to apply as a Campus Ambassador for the InnovateX hackathon.
-          </p>
+    <div className="min-h-screen px-4 py-12 flex justify-center bg-gradient-to-br from-indigo-50 to-indigo-100">
+      <Toaster position="top-right" />
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            {/* Section 1: Personal Details */}
-            <FormSection
-              title="Section 1: Personal Details"
-              description="Tell us a bit about yourself and your college information."
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="w-full max-w-4xl bg-white shadow-xl rounded-2xl overflow-hidden">
+        {/* HEADER */}
+        <div className="bg-gradient-to-r from-indigo-800 to-indigo-900 px-8 py-8 text-white">
+          <h1 className="text-3xl font-bold mb-2">Hackathon Registration</h1>
+          <p className="text-indigo-300">
+            Complete all steps to register for the hackathon event
+          </p>
+        </div>
+
+        {/* STEP INDICATOR */}
+        <div className="px-8 py-6 bg-indigo-50 border-b border-indigo-200">
+          <div className="flex items-center justify-between max-w-2xl mx-auto">
+            {[
+              { num: 1, label: "Personal" },
+              { num: 2, label: "Academic" },
+              { num: 3, label: "Account" },
+              { num: 4, label: "Confirm" },
+            ].map((item, idx) => (
+              <div key={item.num} className="flex items-center flex-1">
+                <div className="flex flex-col items-center flex-1">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
+                      step >= item.num
+                        ? "bg-indigo-800 text-white"
+                        : "bg-indigo-200 text-indigo-500"
+                    }`}
+                  >
+                    {item.num}
+                  </div>
+                  <span
+                    className={`text-xs mt-2 font-medium ${
+                      step >= item.num ? "text-indigo-800" : "text-indigo-400"
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                </div>
+                {idx < 3 && (
+                  <div
+                    className={`h-0.5 flex-1 mx-2 transition-all ${
+                      step > item.num ? "bg-indigo-800" : "bg-indigo-200"
+                    }`}
+                  ></div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* FORM */}
+        <div className="px-8 py-10">
+          <div className="max-w-3xl mx-auto">
+            {/* ================================================================== */}
+            {/* STEP 1 — PERSONAL DETAILS */}
+            {/* ================================================================== */}
+            {step === 1 && (
+              <div className="space-y-6">
+                <div className="mb-8">
+                  <h2 className="text-2xl font-semibold text-indigo-800 mb-2">
+                    Personal Information
+                  </h2>
+                  <p className="text-indigo-500 text-sm">
+                    Tell us about yourself
+                  </p>
+                </div>
+
+                {/* Full Name */}
                 <div>
-                  <Label htmlFor="fullName">
-                    Full Name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="fullName"
-                    placeholder="Enter your full name"
+                  <label className="block font-medium text-indigo-700 mb-2">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
                     {...register("fullName")}
+                    className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none"
+                    placeholder="Enter your full name"
                   />
                   {errors.fullName && (
-                    <p className="text-destructive text-sm mt-1">{errors.fullName.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.fullName.message}
+                    </p>
                   )}
                 </div>
 
+                {/* DOB & Gender */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block font-medium text-indigo-700 mb-2">
+                      Date of Birth <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      {...register("dob")}
+                      className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none"
+                    />
+                    {errors.dob && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.dob.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block font-medium text-indigo-700 mb-2">
+                      Gender <span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex gap-6 mt-3">
+                      {["male", "female", "other"].map((g) => (
+                        <label
+                          key={g}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <input
+                            type="radio"
+                            {...register("gender")}
+                            value={g}
+                            className="w-4 h-4 accent-indigo-800"
+                          />
+                          <span className="text-indigo-700">
+                            {g.charAt(0).toUpperCase() + g.slice(1)}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                    {errors.gender && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.gender.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Address */}
                 <div>
-                  <Label htmlFor="email">
-                    Email Address <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    {...register("email")}
-                  />
-                  {errors.email && (
-                    <p className="text-destructive text-sm mt-1">{errors.email.message}</p>
+                  <label className="block font-medium text-indigo-700 mb-2">
+                    Address <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    {...register("address")}
+                    rows={3}
+                    className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none resize-none"
+                    placeholder="Enter your complete address"
+                  ></textarea>
+                  {errors.address && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.address.message}
+                    </p>
                   )}
                 </div>
 
-                <div>
-                  <Label htmlFor="phone">
-                    Phone Number <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="phone"
-                    placeholder="+91-XXXXX-XXXXX"
-                    {...register("phone")}
-                  />
-                  {errors.phone && (
-                    <p className="text-destructive text-sm mt-1">{errors.phone.message}</p>
-                  )}
+                {/* Email & Phone */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block font-medium text-indigo-700 mb-2">
+                      Email <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      {...register("email")}
+                      className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none"
+                      placeholder="you@example.com"
+                    />
+                    {errors.email && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.email.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block font-medium text-indigo-700 mb-2">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      {...register("phone")}
+                      maxLength={10}
+                      className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none"
+                      placeholder="9876543210"
+                    />
+                    {errors.phone && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.phone.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="dob">
-                    Date of Birth <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="dob"
-                    type="date"
-                    placeholder="dd-mm-yyyy"
-                    {...register("dob")}
-                  />
-                  {errors.dob && (
-                    <p className="text-destructive text-sm mt-1">{errors.dob.message}</p>
-                  )}
+                <div className="flex justify-end pt-6">
+                  <button
+                    type="button"
+                    onClick={next}
+                    className="px-8 py-3 bg-indigo-800 text-white font-medium rounded-lg hover:bg-indigo-900 transition-colors"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ================================================================== */}
+            {/* STEP 2 — ACADEMIC INFO */}
+            {/* ================================================================== */}
+            {step === 2 && (
+              <div className="space-y-6">
+                <div className="mb-8">
+                  <h2 className="text-2xl font-semibold text-indigo-800 mb-2">
+                    Academic Information
+                  </h2>
+                  <p className="text-indigo-500 text-sm">
+                    Share your educational background
+                  </p>
                 </div>
 
+                {/* College */}
                 <div>
-                  <Label htmlFor="college">
-                    College / Institute Name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="college"
-                    placeholder="Enter your college or institute"
+                  <label className="block font-medium text-indigo-700 mb-2">
+                    College Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
                     {...register("college")}
+                    className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none"
+                    placeholder="Your college name"
                   />
                   {errors.college && (
-                    <p className="text-destructive text-sm mt-1">{errors.college.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.college.message}
+                    </p>
                   )}
                 </div>
 
-                <div>
-                  <Label htmlFor="courseYear">
-                    Course & Year <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="courseYear"
-                    placeholder="e.g., B.Voc - 1st Year"
-                    {...register("courseYear")}
-                  />
-                  {errors.courseYear && (
-                    <p className="text-destructive text-sm mt-1">{errors.courseYear.message}</p>
-                  )}
+                {/* Course & Year */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block font-medium text-indigo-700 mb-2">
+                      Course <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      {...register("course")}
+                      className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none"
+                      placeholder="B.Tech, BCA, etc."
+                    />
+                    {errors.course && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.course.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block font-medium text-indigo-700 mb-2">
+                      Year <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      {...register("year")}
+                      className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none cursor-pointer"
+                    >
+                      <option value="">Select Year</option>
+                      <option value="1st">1st Year</option>
+                      <option value="2nd">2nd Year</option>
+                      <option value="3rd">3rd Year</option>
+                      <option value="4th">4th Year</option>
+                    </select>
+                    {errors.year && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.year.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
+                {/* Domain */}
                 <div>
-                  <Label htmlFor="city">City / State</Label>
-                  <Input
-                    id="city"
-                    placeholder="Enter your city and state"
-                    {...register("city")}
-                  />
-                  {errors.city && (
-                    <p className="text-destructive text-sm mt-1">{errors.city.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <Label>Gender</Label>
-                  <RadioGroup
-                    onValueChange={(value) => setValue("gender", value as any)}
-                    className="mt-2"
+                  <label className="block font-medium text-indigo-700 mb-2">
+                    Domain of Interest <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    {...register("domain")}
+                    className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none cursor-pointer"
                   >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="male" id="male" />
-                      <Label htmlFor="male" className="font-normal">Male</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="female" id="female" />
-                      <Label htmlFor="female" className="font-normal">Female</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="prefer-not-to-say" id="prefer-not-to-say" />
-                      <Label htmlFor="prefer-not-to-say" className="font-normal">Prefer not to say</Label>
-                    </div>
-                  </RadioGroup>
-                  {errors.gender && (
-                    <p className="text-destructive text-sm mt-1">{errors.gender.message}</p>
+                    <option value="">Select Domain</option>
+                    <option value="web">Web Development</option>
+                    <option value="mobile">
+                      Mobile Application Development
+                    </option>
+                    <option value="ai">
+                      Artificial Intelligence / Machine Learning
+                    </option>
+                    <option value="blockchain">Blockchain Technology</option>
+                    <option value="iot">Internet of Things (IoT)</option>
+                    <option value="cybersecurity">Cybersecurity</option>
+                  </select>
+                  {errors.domain && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.domain.message}
+                    </p>
                   )}
                 </div>
-              </div>
-            </FormSection>
 
-            {/* Section 2: Social Media Presence */}
-            <FormSection
-              title="Section 2: Social Media Presence"
-              description="Share your online presence so we can understand your outreach."
-            >
-              <div>
-                <Label htmlFor="instagram">Instagram Username</Label>
-                <Input
-                  id="instagram"
-                  placeholder="@username"
-                  {...register("instagram")}
-                />
-                <p className="text-muted-foreground text-xs mt-1">
-                  We may reach out or view your profile to understand your content style.
-                </p>
-                {errors.instagram && (
-                  <p className="text-destructive text-sm mt-1">{errors.instagram.message}</p>
-                )}
-              </div>
-
-              <div>
-                <Label htmlFor="linkedin">LinkedIn Profile (optional)</Label>
-                <Input
-                  id="linkedin"
-                  placeholder="https://www.linkedin.com/in/your-profile"
-                  {...register("linkedin")}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Skills */}
                 <div>
-                  <Label htmlFor="instagramFollowers">Instagram Followers (approx.)</Label>
-                  <Select onValueChange={(value) => setValue("instagramFollowers", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a range" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0-500">0-500</SelectItem>
-                      <SelectItem value="500-1000">500-1,000</SelectItem>
-                      <SelectItem value="1000-5000">1,000-5,000</SelectItem>
-                      <SelectItem value="5000+">5,000+</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.instagramFollowers && (
-                    <p className="text-destructive text-sm mt-1">{errors.instagramFollowers.message}</p>
+                  <label className="block font-medium text-indigo-700 mb-2">
+                    Technical Skills <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    {...register("skills")}
+                    rows={3}
+                    className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none resize-none"
+                    placeholder="List your technical skills (e.g., React, Python, Node.js)"
+                  ></textarea>
+                  {errors.skills && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.skills.message}
+                    </p>
                   )}
                 </div>
 
+                <div className="flex justify-between pt-6">
+                  <button
+                    type="button"
+                    onClick={prev}
+                    className="px-8 py-3 border-2 border-indigo-300 text-indigo-700 font-medium rounded-lg hover:bg-indigo-50 transition-colors"
+                  >
+                    Back
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={next}
+                    className="px-8 py-3 bg-indigo-800 text-white font-medium rounded-lg hover:bg-indigo-900 transition-colors"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ================================================================== */}
+            {/* STEP 3 — ACCOUNT SETUP */}
+            {/* ================================================================== */}
+            {step === 3 && (
+              <div className="space-y-6">
+                <div className="mb-8">
+                  <h2 className="text-2xl font-semibold text-indigo-800 mb-2">
+                    Account Setup
+                  </h2>
+                  <p className="text-indigo-500 text-sm">
+                    Create your login credentials
+                  </p>
+                </div>
+
+                {/* Username */}
                 <div>
-                  <Label htmlFor="postActivity">Do you post actively on social media?</Label>
-                  <Select onValueChange={(value) => setValue("postActivity", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose an option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="yes">Yes</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                      <SelectItem value="sometimes">Sometimes</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.postActivity && (
-                    <p className="text-destructive text-sm mt-1">{errors.postActivity.message}</p>
+                  <label className="block font-medium text-indigo-700 mb-2">
+                    Username <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    {...register("username")}
+                    className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none"
+                    placeholder="Choose a username (min. 4 characters)"
+                  />
+                  {errors.username && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.username.message}
+                    </p>
                   )}
                 </div>
-              </div>
-            </FormSection>
 
-            {/* Section 3: Skills & Experience */}
-            <FormSection
-              title="Section 3: Skills & Experience"
-              description="Tell us why you are a good fit for this Ambassador role."
-            >
-              <div>
-                <Label htmlFor="motivation">
-                  Why do you want to become ambassadors? <span className="text-destructive">*</span>
-                </Label>
-                <Textarea
-                  id="motivation"
-                  placeholder="Share your motivation, what excites you about this role, and how you plan to contribute."
-                  rows={4}
-                  {...register("motivation")}
-                />
-                <p className="text-muted-foreground text-xs mt-1">
-                  A few short paragraphs are enough. Be specific and concise.
-                </p>
-                {errors.motivation && (
-                  <p className="text-destructive text-sm mt-1">{errors.motivation.message}</p>
-                )}
-              </div>
+                {/* Password */}
+                <div>
+                  <label className="block font-medium text-indigo-700 mb-2">
+                    Password <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    {...register("password")}
+                    className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none"
+                    placeholder="Create a strong password (min. 6 characters)"
+                  />
+                  {errors.password && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.password.message}
+                    </p>
+                  )}
+                </div>
 
-              <div>
-                <Label>Previous ambassador/leadership experience?</Label>
-                <RadioGroup
-                  onValueChange={(value) => setValue("previousExperience", value as any)}
-                  className="mt-2"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="yes" id="exp-yes" />
-                    <Label htmlFor="exp-yes" className="font-normal">Yes</Label>
+                {/* Confirm Password */}
+                <div>
+                  <label className="block font-medium text-indigo-700 mb-2">
+                    Confirm Password <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    {...register("confirmPassword")}
+                    className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none"
+                    placeholder="Re-enter your password"
+                  />
+                  {errors.confirmPassword && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.confirmPassword.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex justify-between pt-6">
+                  <button
+                    onClick={prev}
+                    type="button"
+                    className="px-8 py-3 border-2 border-indigo-300 text-indigo-700 font-medium rounded-lg hover:bg-indigo-50 transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={next}
+                    className="px-8 py-3 bg-indigo-800 text-white font-medium rounded-lg hover:bg-indigo-900 transition-colors"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ================================================================== */}
+            {/* STEP 4 — CONFIRMATION */}
+            {/* ================================================================== */}
+            {step === 4 && (
+              <div className="space-y-6">
+                <div className="mb-8">
+                  <h2 className="text-2xl font-semibold text-indigo-800 mb-2">
+                    Confirmation
+                  </h2>
+                  <p className="text-indigo-500 text-sm">
+                    Review and confirm your registration
+                  </p>
+                </div>
+
+                <div className="bg-indigo-50 p-6 rounded-lg space-y-4">
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      {...register("agreeTerms")}
+                      className="w-5 h-5 mt-1 accent-indigo-800 cursor-pointer"
+                    />
+                    <label className="text-indigo-700 cursor-pointer">
+                      I agree to the{" "}
+                      <span className="font-semibold text-indigo-800">
+                        terms and conditions
+                      </span>{" "}
+                      of the hackathon
+                    </label>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="exp-no" />
-                    <Label htmlFor="exp-no" className="font-normal">No</Label>
+                  {errors.agreeTerms && (
+                    <p className="text-red-500 text-sm ml-8">
+                      {errors.agreeTerms.message}
+                    </p>
+                  )}
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      {...register("confirmInfo")}
+                      className="w-5 h-5 mt-1 accent-indigo-800 cursor-pointer"
+                    />
+                    <label className="text-indigo-700 cursor-pointer">
+                      I confirm that all the information provided is{" "}
+                      <span className="font-semibold text-indigo-800">
+                        accurate and correct
+                      </span>
+                    </label>
                   </div>
-                </RadioGroup>
-                {errors.previousExperience && (
-                  <p className="text-destructive text-sm mt-1">{errors.previousExperience.message}</p>
-                )}
-              </div>
-
-              <div>
-                <Label htmlFor="experienceDescription">
-                  Reason why you applied for ambassadors <span className="text-destructive">*</span>
-                </Label>
-                <Textarea
-                  id="experienceDescription"
-                  placeholder="Mention any ambassador, club leadership, or event organizing experience."
-                  rows={3}
-                  {...register("experienceDescription")}
-                />
-                {errors.experienceDescription && (
-                  <p className="text-destructive text-sm mt-1">{errors.experienceDescription.message}</p>
-                )}
-              </div>
-
-              <div>
-                <Label>Skills (select all that apply)</Label>
-                <div className="mt-2 space-y-2">
-                  {[
-                    "Communication",
-                    "Social Media Marketing",
-                    "Public Speaking",
-                    "Designing (Canva/Figma)",
-                    "Team Leadership",
-                    "Event Management",
-                  ].map((skill) => (
-                    <div key={skill} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={skill}
-                        checked={selectedSkills.includes(skill)}
-                        onCheckedChange={() => toggleSkill(skill)}
-                      />
-                      <Label htmlFor={skill} className="font-normal">
-                        {skill}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-                {errors.skills && (
-                  <p className="text-destructive text-sm mt-1">{errors.skills.message}</p>
-                )}
-              </div>
-            </FormSection>
-
-            {/* Section 4: Responsibilities & Availability */}
-            <FormSection
-              title="Section 4: Responsibilities & Availability"
-              description="Help us understand how you can support the campaign."
-            >
-              <div>
-                <Label>Willing to do the following?</Label>
-                <div className="mt-2 space-y-2">
-                  {[
-                    "Promote on social media",
-                    "Share in WhatsApp groups",
-                    "Help students register",
-                    "Represent the hackathon in your class",
-                    "Give feedback to organizers",
-                  ].map((responsibility) => (
-                    <div key={responsibility} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={responsibility}
-                        checked={selectedResponsibilities.includes(responsibility)}
-                        onCheckedChange={() => toggleResponsibility(responsibility)}
-                      />
-                      <Label htmlFor={responsibility} className="font-normal">
-                        {responsibility}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-                {errors.responsibilities && (
-                  <p className="text-destructive text-sm mt-1">{errors.responsibilities.message}</p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="hoursPerWeek">Hours per week commitment</Label>
-                  <Select onValueChange={(value) => setValue("hoursPerWeek", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1-3">1-3 hours</SelectItem>
-                      <SelectItem value="3-5">3-5 hours</SelectItem>
-                      <SelectItem value="5-10">5-10 hours</SelectItem>
-                      <SelectItem value="10+">10+ hours</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.hoursPerWeek && (
-                    <p className="text-destructive text-sm mt-1">{errors.hoursPerWeek.message}</p>
+                  {errors.confirmInfo && (
+                    <p className="text-red-500 text-sm ml-8">
+                      {errors.confirmInfo.message}
+                    </p>
                   )}
                 </div>
 
-                <div>
-                  <Label htmlFor="availability">Available till the event completes?</Label>
-                  <Select onValueChange={(value) => setValue("availability", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="yes">Yes</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                      <SelectItem value="maybe">Maybe</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.availability && (
-                    <p className="text-destructive text-sm mt-1">{errors.availability.message}</p>
-                  )}
-                </div>
-              </div>
-            </FormSection>
-
-            {/* Section 5: Uploads & Agreement */}
-            <FormSection
-              title="Section 5: Uploads & Agreement"
-              description="Add your documents and accept the terms of the program."
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="studentIdCard">Upload Student ID Card (optional)</Label>
-                  <Input
-                    id="studentIdCard"
-                    type="file"
-                    accept="image/*,.pdf"
-                    {...register("studentIdCard")}
-                    className="cursor-pointer"
-                  />
+                <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                  <p className="text-blue-800 text-sm">
+                    <span className="font-semibold">Note:</span> Once submitted,
+                    you will receive a confirmation email with further
+                    instructions.
+                  </p>
                 </div>
 
-                <div>
-                  <Label htmlFor="profilePhoto">
-                    Upload Profile Photo <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="profilePhoto"
-                    type="file"
-                    accept="image/*"
-                    {...register("profilePhoto")}
-                    className="cursor-pointer"
-                  />
+                {/* SUBMIT */}
+                <div className="flex justify-between pt-6">
+                  <button
+                    type="button"
+                    onClick={prev}
+                    className="px-8 py-3 border-2 border-indigo-300 text-indigo-700 font-medium rounded-lg hover:bg-indigo-50 transition-colors"
+                  >
+                    Back
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleFormSubmit}
+                    className="px-8 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors shadow-lg"
+                  >
+                    Submit Registration
+                  </button>
                 </div>
               </div>
-
-              <div>
-                <Label htmlFor="additionalInfo">Any additional information (optional)</Label>
-                <Textarea
-                  id="additionalInfo"
-                  placeholder="Add anything else you would like us to know (availability, special constraints, ideas, etc.)."
-                  rows={3}
-                  {...register("additionalInfo")}
-                />
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-start space-x-2">
-                  <Checkbox
-                    id="agreement"
-                    checked={watch("agreement")}
-                    onCheckedChange={(checked) => setValue("agreement", checked as boolean)}
-                  />
-                  <Label htmlFor="agreement" className="font-normal text-sm leading-relaxed">
-                    <span className="text-destructive">*</span> I confirm that the information provided is
-                    true and I agree to follow the rules of the Campus Ambassador program.
-                  </Label>
-                </div>
-                {errors.agreement && (
-                  <p className="text-destructive text-sm">{errors.agreement.message}</p>
-                )}
-                <p className="text-muted-foreground text-xs">
-                  By submitting, you apply for the InnovateX Campus Ambassador role.
-                </p>
-              </div>
-            </FormSection>
-
-            <div className="flex justify-end">
-              <Button type="submit" size="lg" className="px-8">
-                Submit Application
-              </Button>
-            </div>
-
-            <p className="text-muted-foreground text-xs text-center">
-              Please review your details before submitting. Fields marked with{" "}
-              <span className="text-destructive">*</span> are required.
-            </p>
-          </form>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default Index;
+}
