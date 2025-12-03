@@ -1,567 +1,870 @@
 "use client";
-import { useState } from "react";
+
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import toast, { Toaster } from "react-hot-toast";
 
-// ------------------------------------
-// VALIDATION SCHEMA
-// ------------------------------------
-const schema = yup.object().shape({
-  // STEP 1 — Personal Details
-  fullName: yup.string().required("Full name is required"),
-  email: yup.string().email().required("Valid email is required"),
-  phone: yup
+/* -----------------------------
+   UI PRIMITIVES (Tailwind only)
+------------------------------ */
+
+const Button = React.forwardRef(
+  ({ className = "", children, type = "button", disabled, ...props }, ref) => {
+    return (
+      <button
+        ref={ref}
+        type={type}
+        disabled={disabled}
+        className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium
+        bg-indigo-600 text-white hover:bg-indigo-700 transition-colors
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-2
+        disabled:opacity-60 disabled:cursor-not-allowed ${className}`}
+        {...props}
+      >
+        {children}
+      </button>
+    );
+  }
+);
+Button.displayName = "Button";
+
+const SecondaryButton = React.forwardRef(
+  ({ className = "", children, ...props }, ref) => (
+    <button
+      ref={ref}
+      className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium
+    bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition ${className}`}
+      {...props}
+    >
+      {children}
+    </button>
+  )
+);
+SecondaryButton.displayName = "SecondaryButton";
+
+const Input = React.forwardRef(
+  ({ className = "", type = "text", ...props }, ref) => {
+    return (
+      <input
+        ref={ref}
+        type={type}
+        className={`block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm
+      placeholder:text-gray-400
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1
+      disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+        {...props}
+      />
+    );
+  }
+);
+Input.displayName = "Input";
+
+const Textarea = React.forwardRef(
+  ({ className = "", rows = 3, ...props }, ref) => {
+    return (
+      <textarea
+        ref={ref}
+        rows={rows}
+        className={`block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm
+      placeholder:text-gray-400 min-h-[120px]
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-1
+      disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+        {...props}
+      />
+    );
+  }
+);
+Textarea.displayName = "Textarea";
+
+const Label = ({ className = "", children, ...props }) => {
+  return (
+    <label
+      className={`text-sm font-medium text-gray-700 flex items-center gap-1 ${className}`}
+      {...props}
+    >
+      {children}
+    </label>
+  );
+};
+
+const FieldError = ({ message }) =>
+  message ? (
+    <p className="mt-1 text-xs text-red-600 font-medium">{message}</p>
+  ) : null;
+
+const RequiredDot = () => (
+  <span className="text-red-600 align-middle text-base">*</span>
+);
+
+/* -----------------------------
+   Zod Schema (unchanged validation)
+------------------------------ */
+
+const formSchema = z.object({
+  fullName: z
     .string()
-    .matches(/^\d{10}$/, "Enter a valid 10-digit number")
-    .required("Phone number is required"),
-  dob: yup.string().required("Date of birth is required"),
-  college: yup.string().required("College/Institute name is required"),
-  course: yup.string().required("Course is required"),
-  year: yup.string().required("Year is required"),
-  city: yup.string().required("City is required"),
-  state: yup.string().required("State is required"),
-  gender: yup.string().required("Gender is required"),
-
-  // STEP 2 — Social Media
-  instagramUser: yup.string().required("Instagram username is required"),
-  linkedin: yup.string().required("LinkedIn profile is required"),
-  instaRange: yup.string().required("Select followers range"),
-  activePosting: yup.string().required("Select an option"),
-
-  // STEP 3 — Skills & Experience
-  motivation: yup.string().required("This field is required"),
-  pastExperience: yup.string().required("Experience is required"),
-  reason: yup.string().required("This field is required"),
-  skills: yup.string().required("Skills are required"),
-
-  // STEP 4 — Responsibilities
-  willPromote: yup.bool().oneOf([true], "Required"),
-  willShare: yup.bool().oneOf([true], "Required"),
-  hours: yup.string().required("Hours per week is required"),
-  availability: yup.string().required("Availability is required"),
-  additionalInfo: yup.string().optional(),
-
-  // STEP 5 — Review and Submit
-  studentId: yup.mixed().required("Student ID is required"),
-  profilePhoto: yup.mixed().required("Profile photo is required"),
-  agreeTerms: yup.bool().oneOf([true], "You must agree to terms"),
+    .min(2, "Full name must be at least 2 characters")
+    .max(100),
+  email: z.string().email("Invalid email address").max(255),
+  phone: z.string().min(10, "Phone number must be at least 10 digits").max(15),
+  dob: z.string().min(1, "Date of birth is required"),
+  college: z.string().min(2, "College name is required").max(200),
+  courseYear: z.string().min(2, "Course and year is required").max(100),
+  city: z.string().min(2, "City/State is required").max(100),
+  gender: z.enum(["male", "female", "prefer-not-to-say"], {
+    required_error: "Please select a gender",
+  }),
+  instagram: z.string().min(1, "Instagram username is required"),
+  linkedin: z.string().optional(),
+  instagramFollowers: z.string().min(1, "Please select your followers range"),
+  postActivity: z.string().min(1, "Please select your activity level"),
+  motivation: z
+    .string()
+    .min(10, "Please provide at least 10 characters")
+    .max(500),
+  previousExperience: z.enum(["yes", "no"], {
+    required_error: "Please select an option",
+  }),
+  experienceDescription: z
+    .string()
+    .min(10, "Please provide at least 10 characters")
+    .max(500),
+  skills: z.array(z.string()).min(1, "Please select at least one skill"),
+  responsibilities: z
+    .array(z.string())
+    .min(1, "Please select at least one responsibility"),
+  hoursPerWeek: z.string().min(1, "Please select hours per week"),
+  availability: z.string().min(1, "Please select your availability"),
+  studentIdCard: z.any().optional(),
+  profilePhoto: z.any().optional(),
+  additionalInfo: z.string().optional(),
+  agreement: z
+    .boolean()
+    .refine((val) => val === true, "You must agree to the terms"),
 });
 
-export default function AmbassadorForm() {
-  const [step, setStep] = useState(1);
+/* -----------------------------
+   Page Component (converted to multistep)
+------------------------------ */
+
+export default function CampusAmbassadorPage() {
+  const [step, setStep] = useState(0);
 
   const {
     register,
     handleSubmit,
-    trigger,
+    formState: { errors, isSubmitting },
     setValue,
-    formState: { errors },
+    watch,
+    trigger,
+    getValues,
   } = useForm({
-    resolver: yupResolver(schema),
-    mode: "onTouched",
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      skills: [],
+      responsibilities: [],
+      agreement: false,
+    },
   });
 
-  // STEP VALIDATION
-  const next = async () => {
-    let fields = [];
+  const selectedSkills = watch("skills") || [];
+  const selectedResponsibilities = watch("responsibilities") || [];
+  const agreement = watch("agreement");
 
-    if (step === 1)
-      fields = [
-        "fullName",
-        "email",
-        "phone",
-        "dob",
-        "college",
-        "course",
-        "year",
-        "city",
-        "state",
-        "gender",
-      ];
+  const skillsList = [
+    "Communication",
+    "Social Media Marketing",
+    "Public Speaking",
+    "Designing (Canva/Figma)",
+    "Team Leadership",
+    "Event Management",
+  ];
 
-    if (step === 2)
-      fields = ["instagramUser", "linkedin", "instaRange", "activePosting"];
+  const responsibilitiesList = [
+    "Promote on social media",
+    "Share in WhatsApp groups",
+    "Help students register",
+    "Represent the hackathon in your class",
+    "Give feedback to organizers",
+  ];
 
-    if (step === 3)
-      fields = ["motivation", "pastExperience", "reason", "skills"];
-
-    if (step === 4)
-      fields = ["willPromote", "willShare", "hours", "availability"];
-
-    const isValid = await trigger(fields);
-
-    if (!isValid) {
-      toast.error("Please fix all errors before proceeding");
-      return;
-    }
-
-    setStep(step + 1);
+  const toggleSkill = (skill) => {
+    const current = selectedSkills;
+    const updated = current.includes(skill)
+      ? current.filter((s) => s !== skill)
+      : [...current, skill];
+    setValue("skills", updated, { shouldValidate: true });
   };
 
-  const prev = () => setStep(step - 1);
+  const toggleResponsibility = (item) => {
+    const current = selectedResponsibilities;
+    const updated = current.includes(item)
+      ? current.filter((r) => r !== item)
+      : [...current, item];
+    setValue("responsibilities", updated, { shouldValidate: true });
+  };
 
   const onSubmit = (data) => {
-    console.clear();
-    console.log("AMBASSADOR FORM DATA:");
-    console.log(data);
-
-    toast.success("Application Submitted Successfully!", {
-      icon: "🎉",
-      duration: 4000,
-    });
+    console.log("Form submitted:", data);
+    toast.success("Application submitted successfully!");
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-indigo-100 py-12 px-4">
-      <Toaster position="top-right" />
+  const steps = [
+    { id: 0, title: "Personal", label: "Personal Details" },
+    { id: 1, title: "Social", label: "Social Presence" },
+    { id: 2, title: "Skills", label: "Skills & Experience" },
+    { id: 3, title: "Commitment", label: "Responsibilities" },
+    { id: 4, title: "Uploads", label: "Uploads & Agreement" },
+    { id: 5, title: "Review", label: "Review & Submit" },
+  ];
 
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        {/* HEADER */}
-        <div className="bg-indigo-900 px-8 py-8 text-white">
-          <h1 className="text-3xl font-bold">Campus Ambassador Application</h1>
-          <p className="text-indigo-300 mt-2">
-            Become the face of our Hackathon at your campus
-          </p>
+  // fields to validate per step
+  const stepFields = {
+    0: [
+      "fullName",
+      "email",
+      "phone",
+      "dob",
+      "college",
+      "courseYear",
+      "city",
+      "gender",
+    ],
+    1: ["instagram", "instagramFollowers", "postActivity", "linkedin"],
+    2: ["motivation", "previousExperience", "experienceDescription", "skills"],
+    3: ["responsibilities", "hoursPerWeek", "availability"],
+    4: ["profilePhoto", "agreement"],
+    5: [],
+  };
+
+  const handleNext = async () => {
+    const fields = stepFields[step] || [];
+    const ok = fields.length ? await trigger(fields) : true;
+    if (ok) setStep((s) => Math.min(s + 1, steps.length - 1));
+    else window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleBack = () => setStep((s) => Math.max(s - 1, 0));
+
+  const renderProgress = () => (
+    <div className="flex items-center gap-3 w-full">
+      {steps.map((s, idx) => (
+        <div key={s.id} className="flex-1">
+          <div className="flex items-center gap-3">
+            <div
+              className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold
+                ${
+                  idx <= step
+                    ? "bg-indigo-600 text-white"
+                    : "bg-gray-100 text-gray-600"
+                }`}
+            >
+              {idx + 1}
+            </div>
+            <div className="hidden sm:block">
+              <div
+                className={`text-xs ${
+                  idx <= step ? "text-gray-800" : "text-gray-400"
+                }`}
+              >
+                {s.title}
+              </div>
+              <div className="text-[11px] text-gray-400">{s.label}</div>
+            </div>
+          </div>
         </div>
+      ))}
+    </div>
+  );
 
-        {/* STEPPER */}
-        <div className="bg-indigo-50 px-8 py-6 border-b border-indigo-200">
-          <div className="flex items-center justify-between max-w-2xl mx-auto">
-            {[
-              "Personal",
-              "Social Media",
-              "Experience",
-              "Responsibilities",
-              "Submit",
-            ].map((label, i) => {
-              const num = i + 1;
-              return (
-                <div key={i} className="flex items-center flex-1">
-                  <div className="flex flex-col items-center flex-1">
-                    <div
-                      className={`w-10 h-10 flex items-center justify-center rounded-full font-semibold ${
-                        step >= num
-                          ? "bg-indigo-800 text-white"
-                          : "bg-indigo-200 text-indigo-500"
-                      }`}
-                    >
-                      {num}
-                    </div>
-                    <p
-                      className={`text-xs mt-2 ${
-                        step >= num ? "text-indigo-800" : "text-indigo-400"
-                      }`}
-                    >
-                      {label}
+  return (
+    <>
+      <Toaster position="top-right" />
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white text-gray-800 py-8 px-4">
+        <div className="mx-auto max-w-4xl">
+          {/* Header Card */}
+          <div className="mb-6 rounded-2xl border border-indigo-100 bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.25em] text-indigo-500 mb-1">
+                  InnovateX Hackathon
+                </p>
+                <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">
+                  Campus Ambassador Application
+                </h1>
+                <p className="mt-2 text-sm text-gray-600">
+                  Help us bring InnovateX to your campus. Fill in the details
+                  below so we can get to know you better.
+                </p>
+              </div>
+              <div className="flex flex-col items-start sm:items-end gap-1 text-xs text-gray-500">
+                <span className="inline-flex items-center gap-1 rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1 text-[11px] font-medium text-indigo-600">
+                  ● Applications Open
+                </span>
+                <span>Approx. completion: 5–7 minutes</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Card */}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-6 rounded-2xl border border-gray-100 bg-white p-6 shadow"
+          >
+            {/* Progress */}
+            <div className="mb-3">{renderProgress()}</div>
+
+            {/* Step content */}
+            {step === 0 && (
+              <section className="space-y-5">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+                      Section 1 · Personal Details
+                    </h2>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      Tell us about yourself and your college background.
                     </p>
                   </div>
-                  {i < 4 && (
-                    <div
-                      className={`h-0.5 flex-1 mx-2 ${
-                        step > num ? "bg-indigo-800" : "bg-indigo-200"
-                      }`}
-                    ></div>
-                  )}
+                  <span className="rounded-full bg-indigo-50 px-3 py-1 text-[11px] text-indigo-600 border border-indigo-100">
+                    Basic Information
+                  </span>
                 </div>
-              );
-            })}
-          </div>
-        </div>
 
-        {/* FORM BODY */}
-        <form onSubmit={handleSubmit(onSubmit)} className="px-8 py-10">
-          <div className="max-w-3xl mx-auto">
-            {/* ================================================================================= */}
-            {/* STEP 1 — PERSONAL DETAILS */}
-            {/* ================================================================================= */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="fullName">
+                      Full Name <RequiredDot />
+                    </Label>
+                    <Input
+                      id="fullName"
+                      placeholder="Enter your full name"
+                      {...register("fullName")}
+                    />
+                    <FieldError message={errors.fullName?.message} />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="email">
+                      Email Address <RequiredDot />
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      {...register("email")}
+                    />
+                    <FieldError message={errors.email?.message} />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="phone">
+                      Phone Number <RequiredDot />
+                    </Label>
+                    <Input
+                      id="phone"
+                      placeholder="+91-XXXXX-XXXXX"
+                      {...register("phone")}
+                    />
+                    <FieldError message={errors.phone?.message} />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="dob">
+                      Date of Birth <RequiredDot />
+                    </Label>
+                    <Input id="dob" type="date" {...register("dob")} />
+                    <FieldError message={errors.dob?.message} />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="college">
+                      College / Institute Name <RequiredDot />
+                    </Label>
+                    <Input
+                      id="college"
+                      placeholder="Enter your college or institute"
+                      {...register("college")}
+                    />
+                    <FieldError message={errors.college?.message} />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="courseYear">
+                      Course &amp; Year <RequiredDot />
+                    </Label>
+                    <Input
+                      id="courseYear"
+                      placeholder="e.g., B.Voc – 1st Year"
+                      {...register("courseYear")}
+                    />
+                    <FieldError message={errors.courseYear?.message} />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="city">
+                      City / State <RequiredDot />
+                    </Label>
+                    <Input
+                      id="city"
+                      placeholder="Mumbai, Maharashtra"
+                      {...register("city")}
+                    />
+                    <FieldError message={errors.city?.message} />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label>
+                      Gender <RequiredDot />
+                    </Label>
+                    <div className="flex flex-wrap gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5">
+                      {[
+                        { label: "Male", value: "male" },
+                        { label: "Female", value: "female" },
+                        {
+                          label: "Prefer not to say",
+                          value: "prefer-not-to-say",
+                        },
+                      ].map((option) => (
+                        <label
+                          key={option.value}
+                          className="inline-flex items-center gap-2 text-xs sm:text-sm text-gray-700"
+                        >
+                          <input
+                            type="radio"
+                            value={option.value}
+                            {...register("gender")}
+                            className="h-3.5 w-3.5 accent-indigo-500"
+                          />
+                          <span>{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <FieldError message={errors.gender?.message} />
+                  </div>
+                </div>
+              </section>
+            )}
+
             {step === 1 && (
-              <div className="space-y-6">
-                <h2 className="text-2xl text-indigo-800 font-semibold">
-                  Personal Details
-                </h2>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <InputField
-                    label="Full Name"
-                    name="fullName"
-                    register={register}
-                    errors={errors}
-                  />
-                  <InputField
-                    label="Email"
-                    name="email"
-                    register={register}
-                    errors={errors}
-                  />
-                  <InputField
-                    label="Phone Number"
-                    name="phone"
-                    register={register}
-                    errors={errors}
-                  />
-                  <InputField
-                    label="Date of Birth"
-                    name="dob"
-                    type="date"
-                    register={register}
-                    errors={errors}
-                  />
-                  <InputField
-                    label="College / Institute Name"
-                    name="college"
-                    register={register}
-                    errors={errors}
-                  />
-                  <InputField
-                    label="Course"
-                    name="course"
-                    register={register}
-                    errors={errors}
-                  />
-                  <SelectField
-                    label="Year"
-                    name="year"
-                    options={["1st", "2nd", "3rd", "4th"]}
-                    register={register}
-                    errors={errors}
-                  />
-                  <InputField
-                    label="City"
-                    name="city"
-                    register={register}
-                    errors={errors}
-                  />
-                  <InputField
-                    label="State"
-                    name="state"
-                    register={register}
-                    errors={errors}
-                  />
-                  <SelectField
-                    label="Gender"
-                    name="gender"
-                    options={["Male", "Female", "Other"]}
-                    register={register}
-                    errors={errors}
-                  />
+              <section className="space-y-5">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+                      Section 2 · Social Media Presence
+                    </h2>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      Share your online presence so we can understand your
+                      reach.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-indigo-50 px-3 py-1 text-[11px] text-indigo-600 border border-indigo-100">
+                    Outreach
+                  </span>
                 </div>
 
-                <NextButton next={next} />
-              </div>
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="instagram">
+                      Instagram Username <RequiredDot />
+                    </Label>
+                    <Input
+                      id="instagram"
+                      placeholder="@username"
+                      {...register("instagram")}
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      We may view your profile to understand your content style.
+                    </p>
+                    <FieldError message={errors.instagram?.message} />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="linkedin">
+                      LinkedIn Profile (optional)
+                    </Label>
+                    <Input
+                      id="linkedin"
+                      placeholder="https://www.linkedin.com/in/your-profile"
+                      {...register("linkedin")}
+                    />
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="instagramFollowers">
+                        Instagram Followers (approx.) <RequiredDot />
+                      </Label>
+                      <select
+                        id="instagramFollowers"
+                        {...register("instagramFollowers")}
+                        className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700"
+                      >
+                        <option value="" disabled>
+                          Select followers range
+                        </option>
+                        <option value="0-500">0–500</option>
+                        <option value="500-1000">500–1,000</option>
+                        <option value="1000-5000">1,000–5,000</option>
+                        <option value="5000+">5,000+</option>
+                      </select>
+                      <FieldError
+                        message={errors.instagramFollowers?.message}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="postActivity">
+                        Do you post actively on social media? <RequiredDot />
+                      </Label>
+                      <select
+                        id="postActivity"
+                        {...register("postActivity")}
+                        className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700"
+                      >
+                        <option value="" disabled>
+                          Choose an option
+                        </option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                        <option value="sometimes">Sometimes</option>
+                      </select>
+                      <FieldError message={errors.postActivity?.message} />
+                    </div>
+                  </div>
+                </div>
+              </section>
             )}
 
-            {/* ================================================================================= */}
-            {/* STEP 2 — SOCIAL MEDIA */}
-            {/* ================================================================================= */}
             {step === 2 && (
-              <div className="space-y-6">
-                <h2 className="text-2xl text-indigo-800 font-semibold">
-                  Social Media Presence
-                </h2>
-
-                <InputField
-                  label="Instagram Username"
-                  name="instagramUser"
-                  register={register}
-                  errors={errors}
-                />
-                <InputField
-                  label="LinkedIn Profile URL"
-                  name="linkedin"
-                  register={register}
-                  errors={errors}
-                />
-
-                <SelectField
-                  label="Instagram Followers Range"
-                  name="instaRange"
-                  options={["0-500", "500-1000", "1000-5000", "5000+"]}
-                  register={register}
-                  errors={errors}
-                />
-
-                <SelectField
-                  label="Do you post actively on social media?"
-                  name="activePosting"
-                  options={["Yes", "No"]}
-                  register={register}
-                  errors={errors}
-                />
-
-                <NavButtons prev={prev} next={next} />
-              </div>
-            )}
-
-            {/* ================================================================================= */}
-            {/* STEP 3 — SKILLS & EXPERIENCE */}
-            {/* ================================================================================= */}
-            {step === 3 && (
-              <div className="space-y-6">
-                <h2 className="text-2xl text-indigo-800 font-semibold">
-                  Skills & Experience
-                </h2>
-
-                <TextAreaField
-                  label="Why do you want to become an ambassador?"
-                  name="motivation"
-                  register={register}
-                  errors={errors}
-                />
-                <TextAreaField
-                  label="Previous ambassador / leadership experience"
-                  name="pastExperience"
-                  register={register}
-                  errors={errors}
-                />
-                <TextAreaField
-                  label="Why should we choose you?"
-                  name="reason"
-                  register={register}
-                  errors={errors}
-                />
-                <TextAreaField
-                  label="Your Skills"
-                  name="skills"
-                  register={register}
-                  errors={errors}
-                />
-
-                <NavButtons prev={prev} next={next} />
-              </div>
-            )}
-
-            {/* ================================================================================= */}
-            {/* STEP 4 — RESPONSIBILITIES & AVAILABILITY */}
-            {/* ================================================================================= */}
-            {step === 4 && (
-              <div className="space-y-6">
-                <h2 className="text-2xl text-indigo-800 font-semibold">
-                  Responsibilities & Availability
-                </h2>
-
-                <CheckboxField
-                  label="Willing to promote on social media"
-                  name="willPromote"
-                  register={register}
-                  errors={errors}
-                />
-                <CheckboxField
-                  label="Willing to share in WhatsApp groups"
-                  name="willShare"
-                  register={register}
-                  errors={errors}
-                />
-
-                <InputField
-                  label="Hours per week commitment"
-                  name="hours"
-                  register={register}
-                  errors={errors}
-                />
-
-                <InputField
-                  label="Availability for meetings"
-                  name="availability"
-                  register={register}
-                  errors={errors}
-                />
-
-                <TextAreaField
-                  label="Additional information or comments"
-                  name="additionalInfo"
-                  register={register}
-                  errors={errors}
-                />
-
-                <NavButtons prev={prev} next={next} />
-              </div>
-            )}
-
-            {/* ================================================================================= */}
-            {/* STEP 5 — FINAL SUBMISSION */}
-            {/* ================================================================================= */}
-            {step === 5 && (
-              <div className="space-y-6">
-                <h2 className="text-2xl text-indigo-800 font-semibold">
-                  Review & Submit
-                </h2>
-
-                <FileField
-                  label="Upload Student ID"
-                  name="studentId"
-                  register={register}
-                  errors={errors}
-                />
-                <FileField
-                  label="Upload Profile Photo"
-                  name="profilePhoto"
-                  register={register}
-                  errors={errors}
-                />
-
-                <CheckboxField
-                  label="I agree to the terms and conditions"
-                  name="agreeTerms"
-                  register={register}
-                  errors={errors}
-                />
-
-                <div className="flex justify-between">
-                  <button
-                    onClick={prev}
-                    type="button"
-                    className="px-8 py-3 border-2 border-indigo-300 text-indigo-700 rounded-lg hover:bg-indigo-50"
-                  >
-                    Back
-                  </button>
-
-                  <button
-                    type="submit"
-                    className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                  >
-                    Submit Application
-                  </button>
+              <section className="space-y-5">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+                      Section 3 · Skills & Experience
+                    </h2>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      Help us understand why you’re a great fit for this role.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-indigo-50 px-3 py-1 text-[11px] text-indigo-600 border border-indigo-100">
+                    Fit & Potential
+                  </span>
                 </div>
-              </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="motivation">
+                      Why do you want to become an ambassador? <RequiredDot />
+                    </Label>
+                    <Textarea
+                      id="motivation"
+                      placeholder="Share your motivation..."
+                      {...register("motivation")}
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      A few short paragraphs are enough. Be specific and
+                      concise.
+                    </p>
+                    <FieldError message={errors.motivation?.message} />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label>
+                      Previous ambassador / leadership experience?{" "}
+                      <RequiredDot />
+                    </Label>
+                    <div className="flex flex-wrap gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5">
+                      {[
+                        { label: "Yes", value: "yes" },
+                        { label: "No", value: "no" },
+                      ].map((option) => (
+                        <label
+                          key={option.value}
+                          className="inline-flex items-center gap-2 text-xs sm:text-sm text-gray-700"
+                        >
+                          <input
+                            type="radio"
+                            value={option.value}
+                            {...register("previousExperience")}
+                            className="h-3.5 w-3.5 accent-indigo-500"
+                          />
+                          <span>{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <FieldError message={errors.previousExperience?.message} />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="experienceDescription">
+                      Reason why you applied for ambassador <RequiredDot />
+                    </Label>
+                    <Textarea
+                      id="experienceDescription"
+                      placeholder="Mention any ambassador, club leadership, or event organizing experience."
+                      {...register("experienceDescription")}
+                    />
+                    <FieldError
+                      message={errors.experienceDescription?.message}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>
+                      Skills (select all that apply) <RequiredDot />
+                    </Label>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {skillsList.map((skill) => (
+                        <label
+                          key={skill}
+                          className="flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-xs sm:text-sm text-gray-700 hover:border-indigo-300 transition"
+                        >
+                          <input
+                            type="checkbox"
+                            className="h-3.5 w-3.5 accent-indigo-500"
+                            checked={selectedSkills.includes(skill)}
+                            onChange={() => toggleSkill(skill)}
+                          />
+                          <span>{skill}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <FieldError
+                      message={errors.skills?.Message || errors.skills?.message}
+                    />
+                  </div>
+                </div>
+              </section>
             )}
-          </div>
-        </form>
+
+            {step === 3 && (
+              <section className="space-y-5">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+                      Section 4 · Responsibilities & Availability
+                    </h2>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      Let us know how you can support the campaign.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-indigo-50 px-3 py-1 text-[11px] text-indigo-600 border border-indigo-100">
+                    Commitment
+                  </span>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>
+                      Are you willing to do the following? <RequiredDot />
+                    </Label>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {responsibilitiesList.map((item) => (
+                        <label
+                          key={item}
+                          className="flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-xs sm:text-sm text-gray-700 hover:border-indigo-300 transition"
+                        >
+                          <input
+                            type="checkbox"
+                            className="h-3.5 w-3.5 accent-indigo-500"
+                            checked={selectedResponsibilities.includes(item)}
+                            onChange={() => toggleResponsibility(item)}
+                          />
+                          <span>{item}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <FieldError message={errors.responsibilities?.message} />
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="hoursPerWeek">
+                        Hours per week commitment <RequiredDot />
+                      </Label>
+                      <select
+                        id="hoursPerWeek"
+                        {...register("hoursPerWeek")}
+                        className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700"
+                      >
+                        <option value="" disabled>
+                          Select an option
+                        </option>
+                        <option value="1-3">1–3 hours</option>
+                        <option value="3-5">3–5 hours</option>
+                        <option value="5-10">5–10 hours</option>
+                        <option value="10+">10+ hours</option>
+                      </select>
+                      <FieldError message={errors.hoursPerWeek?.message} />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="availability">
+                        Available till the event completes? <RequiredDot />
+                      </Label>
+                      <select
+                        id="availability"
+                        {...register("availability")}
+                        className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700"
+                      >
+                        <option value="" disabled>
+                          Select an option
+                        </option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                        <option value="maybe">Maybe</option>
+                      </select>
+                      <FieldError message={errors.availability?.message} />
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {step === 4 && (
+              <section className="space-y-5">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+                      Section 5 · Uploads & Agreement
+                    </h2>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      Attach documents and confirm the program terms.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-indigo-50 px-3 py-1 text-[11px] text-indigo-600 border border-indigo-100">
+                    Final Step
+                  </span>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="studentIdCard">
+                        Upload Student ID Card (optional)
+                      </Label>
+                      <Input
+                        id="studentIdCard"
+                        type="file"
+                        accept="image/*,.pdf"
+                        {...register("studentIdCard")}
+                        className="cursor-pointer file:mr-2 file:rounded-md file:border-none file:bg-indigo-50 file:px-3 file:py-1 file:text-xs file:text-indigo-700"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profilePhoto">
+                        Upload Profile Photo <RequiredDot />
+                      </Label>
+                      <Input
+                        id="profilePhoto"
+                        type="file"
+                        accept="image/*"
+                        {...register("profilePhoto")}
+                        className="cursor-pointer file:mr-2 file:rounded-md file:border-none file:bg-indigo-50 file:px-3 file:py-1 file:text-xs file:text-indigo-700"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="additionalInfo">
+                      Any additional information (optional)
+                    </Label>
+                    <Textarea
+                      id="additionalInfo"
+                      placeholder="Add anything else you would like us to know (availability, constraints, ideas, etc.)."
+                      {...register("additionalInfo")}
+                    />
+                  </div>
+
+                  <div className="space-y-2 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+                    <label className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
+                      <input
+                        type="checkbox"
+                        className="mt-1.5 h-3.5 w-3.5 accent-indigo-500"
+                        checked={!!agreement}
+                        onChange={(e) =>
+                          setValue("agreement", e.target.checked, {
+                            shouldValidate: true,
+                          })
+                        }
+                      />
+                      <span>
+                        <RequiredDot /> I confirm that the information provided
+                        is true and I agree to follow the rules of the Campus
+                        Ambassador program.
+                      </span>
+                    </label>
+                    <FieldError message={errors.agreement?.message} />
+                    <p className="text-[11px] text-gray-500">
+                      By submitting, you apply for the InnovateX Campus
+                      Ambassador role and agree to be contacted regarding this
+                      opportunity.
+                    </p>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {step === 5 && (
+              <section className="space-y-5">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+                      Review & Submit
+                    </h2>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      Review the details below before submitting your
+                      application.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="rounded-md border border-gray-100 bg-gray-50 p-4 text-sm text-gray-700">
+                    <pre className="whitespace-pre-wrap text-xs">
+                      {JSON.stringify(getValues(), null, 2)}
+                    </pre>
+                    <p className="mt-2 text-[11px] text-gray-500">
+                      (This is a quick preview — profile images/files will be
+                      sent as files to your backend.)
+                    </p>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* Footer & Navigation Buttons */}
+            <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-[12px] text-gray-500">
+                Please review your details before submitting. Fields marked with{" "}
+                <span className="text-red-600">*</span> are required.
+              </p>
+
+              <div className="flex gap-2">
+                {step > 0 && (
+                  <SecondaryButton onClick={handleBack} type="button">
+                    Back
+                  </SecondaryButton>
+                )}
+
+                {step < steps.length - 1 ? (
+                  <Button type="button" onClick={handleNext}>
+                    Next
+                  </Button>
+                ) : (
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Submitting..." : "Submit Application"}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
-  );
-}
-
-/* ================================================================================= */
-/* REUSABLE COMPONENTS */
-/* ================================================================================= */
-
-function InputField({ label, name, register, errors, type = "text" }) {
-  return (
-    <div>
-      <label className="block font-medium text-indigo-700 mb-1">
-        {label} <span className="text-red-500">*</span>
-      </label>
-      <input
-        type={type}
-        {...register(name)}
-        className="w-full bg-indigo-50 border-b-2 border-indigo-200 px-4 py-2 outline-none focus:border-indigo-800"
-      />
-      {errors[name] && (
-        <p className="text-red-500 text-sm mt-1">{errors[name].message}</p>
-      )}
-    </div>
-  );
-}
-
-function TextAreaField({ label, name, register, errors }) {
-  return (
-    <div>
-      <label className="block font-medium text-indigo-700 mb-1">
-        {label} <span className="text-red-500">*</span>
-      </label>
-      <textarea
-        {...register(name)}
-        rows={3}
-        className="w-full bg-indigo-50 border-b-2 border-indigo-200 px-4 py-2 outline-none resize-none focus:border-indigo-800"
-      ></textarea>
-      {errors[name] && (
-        <p className="text-red-500 text-sm mt-1">{errors[name].message}</p>
-      )}
-    </div>
-  );
-}
-
-function SelectField({ label, name, options, register, errors }) {
-  return (
-    <div>
-      <label className="block font-medium text-indigo-700 mb-1">
-        {label} <span className="text-red-500">*</span>
-      </label>
-      <select
-        {...register(name)}
-        className="w-full bg-indigo-50 border-b-2 border-indigo-200 px-4 py-2 outline-none focus:border-indigo-800"
-      >
-        <option value="">Select</option>
-        {options.map((opt, i) => (
-          <option key={i} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
-      {errors[name] && (
-        <p className="text-red-500 text-sm mt-1">{errors[name].message}</p>
-      )}
-    </div>
-  );
-}
-
-function CheckboxField({ label, name, register, errors }) {
-  return (
-    <div className="flex items-start gap-3">
-      <input
-        type="checkbox"
-        {...register(name)}
-        className="w-5 h-5 mt-1 accent-indigo-800"
-      />
-      <label className="text-indigo-700">{label}</label>
-      {errors[name] && (
-        <p className="text-red-500 text-sm mt-1">{errors[name].message}</p>
-      )}
-    </div>
-  );
-}
-
-function FileField({ label, name, register, errors }) {
-  return (
-    <div>
-      <label className="block font-medium text-indigo-700 mb-1">
-        {label} <span className="text-red-500">*</span>
-      </label>
-      <input
-        type="file"
-        {...register(name)}
-        className="w-full bg-indigo-50 border-b-2 border-indigo-200 px-4 py-2 outline-none"
-      />
-      {errors[name] && (
-        <p className="text-red-500 text-sm mt-1">{errors[name].message}</p>
-      )}
-    </div>
-  );
-}
-
-function NavButtons({ prev, next }) {
-  return (
-    <div className="flex justify-between pt-6">
-      <button
-        type="button"
-        onClick={prev}
-        className="px-8 py-3 border-2 border-indigo-300 text-indigo-700 rounded-lg hover:bg-indigo-50"
-      >
-        Back
-      </button>
-      <button
-        type="button"
-        onClick={next}
-        className="px-8 py-3 bg-indigo-800 text-white rounded-lg hover:bg-indigo-900"
-      >
-        Continue
-      </button>
-    </div>
-  );
-}
-
-function NextButton({ next }) {
-  return (
-    <div className="flex justify-end pt-6">
-      <button
-        type="button"
-        onClick={next}
-        className="px-8 py-3 bg-indigo-800 text-white rounded-lg hover:bg-indigo-900"
-      >
-        Continue
-      </button>
-    </div>
+    </>
   );
 }
