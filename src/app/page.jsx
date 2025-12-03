@@ -202,8 +202,8 @@ export default function Code4BharatLanding() {
           <div className="flex items-center justify-between gap-6">
             {/* LOGO */}
             <div className="flex items-center gap-3">
-              <div className="relative w-11 h-11 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg animate-[floatYSoft_4s_ease-in-out_infinite]">
-                <span className="text-xl">🇮🇳</span>
+              <div className="relative w-11 h-11 rounded-2xl  flex items-center justify-center shadow-lg animate-[floatYSoft_4s_ease-in-out_infinite]">
+                <span className="text-xl"><img src="https://education.code4bharat.com/_next/image?url=%2F18.jpeg&w=640&q=75" alt="" /></span>
               </div>
               <div>
                 <div className="text-lg md:text-xl font-extrabold tracking-tight text-slate-900">
@@ -411,7 +411,7 @@ export default function Code4BharatLanding() {
                 <Users className="w-5 h-5" />
               </div>
               <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
-                1000+
+                10000+
               </div>
               <div className="mt-1 text-sm font-semibold text-slate-600">
                 Expected Participants
@@ -427,7 +427,7 @@ export default function Code4BharatLanding() {
                 <Code className="w-5 h-5" />
               </div>
               <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
-                2
+                3
               </div>
               <div className="mt-1 text-sm font-semibold text-slate-600">
                 Core Domains

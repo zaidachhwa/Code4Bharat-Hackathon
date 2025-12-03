@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import toast, { Toaster } from "react-hot-toast";
+import axios from "axios";
 
 // ------------------------------------
 // VALIDATION SCHEMA
@@ -77,7 +78,7 @@ export default function Register() {
 
   const prev = () => setStep(step - 1);
 
-  const onSubmit = (data) => {
+  const onSubmit = async(data) => {
     console.log("=== HACKATHON REGISTRATION DATA ===");
     console.log("Full Name:", data.fullName);
     console.log("Date of Birth:", data.dob);
@@ -92,7 +93,7 @@ export default function Register() {
     console.log("Skills:", data.skills);
     console.log("Username:", data.username);
     console.log("=====================================");
-    console.log("Complete Data Object:", data);
+    console.log("Complete Data Object:", data);  // here all the data coming form across the form as object
 
     toast.success("Registration Successful! Check console for data.", {
       duration: 4000,
@@ -101,6 +102,16 @@ export default function Register() {
         color: "#fff",
       },
     });
+
+    // form data going to backend
+    try {
+      
+      const formData = await axios.post("http://localhost:5000/api/users/register", {data});
+      console.log("from ui ")
+    } catch (error) {
+      console.log(error)
+    }
+
   };
 
   const handleFormSubmit = (e) => {
@@ -218,7 +229,7 @@ export default function Register() {
                       Gender <span className="text-red-500">*</span>
                     </label>
                     <div className="flex gap-6 mt-3">
-                      {["male", "female", "other"].map((g) => (
+                      {["male", "female"].map((g) => (
                         <label
                           key={g}
                           className="flex items-center gap-2 cursor-pointer"
