@@ -116,6 +116,9 @@ const formSchema = z.object({
   gender: z.enum(["male", "female", "prefer-not-to-say"], {
     required_error: "Please select a gender",
   }),
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters"),
   instagram: z.string().min(1, "Instagram username is required"),
   linkedin: z.string().optional(),
   instagramFollowers: z.string().min(1, "Please select your followers range"),
@@ -206,22 +209,14 @@ export default function CampusAmbassadorPage() {
 
   // sending form data to backend
   const onSubmit = async (data) => {
-    // Convert to FormData
     const formData = new FormData();
 
     Object.entries(data).forEach(([key, value]) => {
-      // For file fields
-      if (value instanceof FileList) {
-        if (value.length > 0) {
-          formData.append(key, value[0]);
-        }
-      }
-      // For arrays (skills, responsibilities)
-      else if (Array.isArray(value)) {
+      if (value instanceof FileList && value.length > 0) {
+        formData.append(key, value[0]);
+      } else if (Array.isArray(value)) {
         formData.append(key, JSON.stringify(value));
-      }
-      // Normal fields
-      else {
+      } else {
         formData.append(key, value);
       }
     });
@@ -231,23 +226,29 @@ export default function CampusAmbassadorPage() {
         "http://localhost:5000/api/ambassador/register",
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
+      toast.dismiss(); // remove pending toasts if any
+
       if (res.data?.success) {
-        toast.success("Application submitted successfully!");
+        toast.success(res.data.message || "Submitted successfully!");
       } else {
-        toast.error("Something went wrong");
+        toast.error(res.data.message || "Something went wrong");
       }
+
     } catch (error) {
       console.error(error);
-      toast.error("Server error while submitting");
+
+      const msg =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Server error while submitting";
+
+      toast.error(msg);
     }
   };
-
 
   const steps = [
     { id: 0, title: "Personal", label: "Personal Details" },
@@ -269,6 +270,7 @@ export default function CampusAmbassadorPage() {
       "courseYear",
       "city",
       "gender",
+      "password",
     ],
     1: ["instagram", "instagramFollowers", "postActivity", "linkedin"],
     2: ["motivation", "previousExperience", "experienceDescription", "skills"], // ⬅ Fixed
@@ -348,7 +350,7 @@ export default function CampusAmbassadorPage() {
 
           {/* Main Card */}
           <form
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={(e) => e.preventDefault()}
             className="space-y-6 rounded-2xl border border-gray-100 bg-white p-6 shadow"
           >
             {/* Progress */}
@@ -395,6 +397,19 @@ export default function CampusAmbassadorPage() {
                       {...register("email")}
                     />
                     <FieldError message={errors.email?.message} />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="password">
+                      Password <RequiredDot />
+                    </Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Create a password"
+                      {...register("password")}
+                    />
+                    <FieldError message={errors.password?.message} />
                   </div>
 
                   <div className="space-y-1.5">
@@ -1004,9 +1019,14 @@ export default function CampusAmbassadorPage() {
                     Next
                   </Button>
                 ) : (
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={handleSubmit(onSubmit)}
+                  >
                     {isSubmitting ? "Submitting..." : "Submit Application"}
                   </Button>
+
                 )}
               </div>
             </div>

@@ -230,10 +230,10 @@ export default function Code4BharatLanding() {
 
               {/* NEW: Ambassador Register */}
               <Link
-                href="/ambassador-register"
+                href="/ambassador-login"
                 className="px-5 py-2.5 rounded-full bg-white border border-indigo-300 text-indigo-700 hover:bg-indigo-50 transition-colors font-semibold"
               >
-                Ambassador Register
+                Ambassador Login
               </Link>
             </nav>
 
