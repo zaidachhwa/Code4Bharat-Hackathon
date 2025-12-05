@@ -1,17 +1,35 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Users, ClipboardCheck, Award, Loader2, Trash2, Edit, TrendingUp } from "lucide-react";
+import {
+  Plus,
+  Users,
+  ClipboardCheck,
+  Award,
+  Loader2,
+  Trash2,
+  Edit,
+  TrendingUp,
+} from "lucide-react";
+import axios from "axios";
 
 /* ---------------- UI Components ---------------- */
 
 const Card = ({ children, className = "" }) => (
-  <div className={`bg-white border border-gray-200 rounded-xl shadow-sm ${className}`}>
+  <div
+    className={`bg-white border border-gray-200 rounded-xl shadow-sm ${className}`}
+  >
     {children}
   </div>
 );
 
-const Button = ({ children, variant = "primary", size = "md", icon: Icon, ...props }) => {
+const Button = ({
+  children,
+  variant = "primary",
+  size = "md",
+  icon: Icon,
+  ...props
+}) => {
   const styles = {
     primary: "bg-gray-900 text-white hover:bg-gray-800",
     secondary: "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50",
@@ -94,7 +112,9 @@ const Badge = ({ children, variant = "default" }) => {
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border ${variants[variant]}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border ${variants[variant]}`}
+    >
       {children}
     </span>
   );
@@ -103,7 +123,9 @@ const Badge = ({ children, variant = "default" }) => {
 const StatCard = ({ icon: Icon, label, value, iconBg }) => (
   <Card className="p-6">
     <div className="flex items-center justify-between mb-3">
-      <div className={`w-10 h-10 ${iconBg} rounded-lg flex items-center justify-center`}>
+      <div
+        className={`w-10 h-10 ${iconBg} rounded-lg flex items-center justify-center`}
+      >
         <Icon className="w-5 h-5" />
       </div>
     </div>
@@ -136,9 +158,24 @@ export default function AdminDashboard() {
   useEffect(() => {
     setTimeout(() => {
       setAmbassadors([
-        { _id: "a1", name: "Lucky Shaikh", email: "lucky@gmail.com", points: 170 },
-        { _id: "a2", name: "Noorul Haque", email: "noorul@gmail.com", points: 85 },
-        { _id: "a3", name: "Priya Sharma", email: "priya@gmail.com", points: 240 },
+        {
+          _id: "a1",
+          name: "Lucky Shaikh",
+          email: "lucky@gmail.com",
+          points: 170,
+        },
+        {
+          _id: "a2",
+          name: "Noorul Haque",
+          email: "noorul@gmail.com",
+          points: 85,
+        },
+        {
+          _id: "a3",
+          name: "Priya Sharma",
+          email: "priya@gmail.com",
+          points: 240,
+        },
       ]);
       setLoadingAmbassadors(false);
 
@@ -176,7 +213,8 @@ export default function AdminDashboard() {
     if (!form.title.trim()) newErrors.title = "Task title is required";
     if (!form.level) newErrors.level = "Please select difficulty level";
     if (!form.points) newErrors.points = "Points are required";
-    if (!form.assignedTo) newErrors.assignedTo = "Please assign to an ambassador";
+    if (!form.assignedTo)
+      newErrors.assignedTo = "Please assign to an ambassador";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -204,7 +242,33 @@ export default function AdminDashboard() {
     showNotification("Task deleted successfully");
   };
 
-  const totalPoints = tasks.reduce((sum, task) => sum + parseInt(task.points || 0), 0);
+  const totalPoints = tasks.reduce(
+    (sum, task) => sum + parseInt(task.points || 0),
+    0
+  );
+
+
+
+
+
+  useEffect(() => {
+    getAmbassadors();
+  }, []);
+
+  // for data taking from backend as requried for numbers of ambassadors are there
+  const getAmbassadors = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/ambassadors/get");
+      var totolAmbassadors = res.data.ambassadors.length;
+      console.log("Total Ambassadors:", totolAmbassadors);
+      console.log(res.data.ambassadors);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -268,7 +332,9 @@ export default function AdminDashboard() {
               <div className="border-b border-gray-200 px-6 py-4">
                 <div className="flex items-center gap-2">
                   <Plus className="w-5 h-5 text-gray-700" />
-                  <h2 className="text-lg font-semibold text-gray-900">Assign New Task</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Assign New Task
+                  </h2>
                 </div>
                 <p className="text-sm text-gray-600 mt-1">
                   Create and assign tasks to ambassadors
@@ -328,7 +394,8 @@ export default function AdminDashboard() {
                   value={form.assignedTo}
                   onChange={(e) => {
                     setForm({ ...form, assignedTo: e.target.value });
-                    if (errors.assignedTo) setErrors({ ...errors, assignedTo: "" });
+                    if (errors.assignedTo)
+                      setErrors({ ...errors, assignedTo: "" });
                   }}
                   error={errors.assignedTo}
                 >
@@ -344,7 +411,12 @@ export default function AdminDashboard() {
                   )}
                 </Select>
 
-                <Button variant="success" icon={Plus} onClick={submitTask} className="w-full">
+                <Button
+                  variant="success"
+                  icon={Plus}
+                  onClick={submitTask}
+                  className="w-full"
+                >
                   Assign Task
                 </Button>
               </div>
@@ -356,7 +428,9 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <ClipboardCheck className="w-5 h-5 text-gray-700" />
-                    <h2 className="text-lg font-semibold text-gray-900">Assigned Tasks</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Assigned Tasks
+                    </h2>
                   </div>
                   <Badge variant="default">{tasks.length} Total</Badge>
                 </div>
@@ -372,8 +446,12 @@ export default function AdminDashboard() {
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <ClipboardCheck className="w-8 h-8 text-gray-400" />
                     </div>
-                    <p className="text-gray-600 text-sm font-medium">No tasks assigned yet</p>
-                    <p className="text-gray-500 text-xs mt-1">Create your first task above</p>
+                    <p className="text-gray-600 text-sm font-medium">
+                      No tasks assigned yet
+                    </p>
+                    <p className="text-gray-500 text-xs mt-1">
+                      Create your first task above
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -388,18 +466,24 @@ export default function AdminDashboard() {
                               {task.title}
                             </h3>
                             {task.desc && (
-                              <p className="text-sm text-gray-600 mb-3">{task.desc}</p>
+                              <p className="text-sm text-gray-600 mb-3">
+                                {task.desc}
+                              </p>
                             )}
                             <div className="flex items-center gap-2 flex-wrap">
                               <Badge variant={task.level}>
-                                {task.level.charAt(0).toUpperCase() + task.level.slice(1)}
+                                {task.level.charAt(0).toUpperCase() +
+                                  task.level.slice(1)}
                               </Badge>
                               <Badge variant="points">
                                 <Award className="w-3 h-3 inline mr-1" />
                                 {task.points} pts
                               </Badge>
                               <span className="text-xs text-gray-600">
-                                Assigned to: <span className="font-medium">{task.assignedTo}</span>
+                                Assigned to:{" "}
+                                <span className="font-medium">
+                                  {task.assignedTo}
+                                </span>
                               </span>
                             </div>
                           </div>
@@ -424,7 +508,9 @@ export default function AdminDashboard() {
               <div className="border-b border-gray-200 px-6 py-4">
                 <div className="flex items-center gap-2">
                   <Users className="w-5 h-5 text-gray-700" />
-                  <h2 className="text-lg font-semibold text-gray-900">Ambassadors</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Ambassadors
+                  </h2>
                 </div>
                 <p className="text-sm text-gray-600 mt-1">Active members</p>
               </div>
@@ -456,8 +542,12 @@ export default function AdminDashboard() {
                         </div>
                         <div className="mt-3 pt-3 border-t border-gray-100">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-600">Total Points</span>
-                            <Badge variant="points">{ambassador.points} pts</Badge>
+                            <span className="text-xs text-gray-600">
+                              Total Points
+                            </span>
+                            <Badge variant="points">
+                              {ambassador.points} pts
+                            </Badge>
                           </div>
                         </div>
                       </div>

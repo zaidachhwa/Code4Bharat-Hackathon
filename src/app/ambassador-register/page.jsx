@@ -223,7 +223,7 @@ export default function CampusAmbassadorPage() {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/ambassador/register",
+        `http://localhost:5000/api/ambassador/register`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

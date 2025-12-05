@@ -15,14 +15,35 @@ export default function AmbassadorLoginPage() {
 
     try {
       const res = await axios.post("http://localhost:5000/api/ambassador/login", data);
+      const user = res.data?.ambassador;
 
-      if (res.data?.success) {
-        toast.success(res.data.message || "Login successful!");
-        // redirect after login
-        // router.push("/ambassador-dashboard");
-      } else {
-        toast.error(res.data.message || "Invalid credentials");
+      console.log("Ambassador Login Response:", res.data);
+
+      if(!res){
+        toast.error("Login failed. Please try again.");
+        return;
       }
+
+      // Handle wrong login
+    //   if (!res.data?.success || !user) {
+    //     toast.error(res.data?.message || "Invalid email or password");
+    //     return;
+    //   }
+
+      // Handle not approved case
+      if (user.isApproved === false) {
+        toast.error("Your application is under review. Admin has not approved yet.");
+        return;
+      }
+
+      // Handle approved login
+      if (user.isApproved === true) {
+        toast.success("Login Successful 🎉");
+        setTimeout(() => {
+          router.push("/ambassador-dashboard");
+        }, 800);
+      }
+
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || "Login failed");
@@ -46,14 +67,12 @@ export default function AmbassadorLoginPage() {
               Ambassador Login
             </h1>
             <p className="text-gray-500 text-sm mt-1">
-              Access your ambassador dashboard
+              Access your dashboard
             </p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-
-            {/* Email */}
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-gray-700">Email</label>
               <input
@@ -65,7 +84,6 @@ export default function AmbassadorLoginPage() {
               {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
             </div>
 
-            {/* Password */}
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-gray-700">Password</label>
               <input
@@ -77,7 +95,6 @@ export default function AmbassadorLoginPage() {
               {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
             </div>
 
-            {/* Button */}
             <button
               type="submit"
               disabled={loading}
@@ -101,6 +118,7 @@ export default function AmbassadorLoginPage() {
               </button>
             </p>
           </div>
+
         </div>
       </div>
     </>
