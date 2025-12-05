@@ -7,43 +7,49 @@ import { useRouter } from "next/navigation";
 
 export default function AmbassadorLoginPage() {
   const router = useRouter();
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (data) => {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:5000/api/ambassador/login", data);
-      const user = res.data?.ambassador;
+      const res = await axios.post("http://localhost:5000/api/ambassador/login", data, {
+        withCredentials: true,
+      });
+    //   const user = res.data?.ambassador;
 
-      console.log("Ambassador Login Response:", res.data);
+      console.log("Ambassador Login Response:", res.data.ambassador);
 
-      if(!res){
+      if (!res) {
         toast.error("Login failed. Please try again.");
         return;
       }
-
       // Handle wrong login
-    //   if (!res.data?.success || !user) {
-    //     toast.error(res.data?.message || "Invalid email or password");
-    //     return;
-    //   }
+      //   if (!res.data?.success || !user) {
+      //     toast.error(res.data?.message || "Invalid email or password");
+      //     return;
+      //   }
 
       // Handle not approved case
-      if (user.isApproved === false) {
-        toast.error("Your application is under review. Admin has not approved yet.");
+      if (res.data.ambassador.isApproved === false) {
+        toast.error(
+          "Your application is under review. Admin has not approved yet."
+        );
         return;
       }
 
       // Handle approved login
-      if (user.isApproved === true) {
+      if (res.data.ambassador.isApproved === true) {
         toast.success("Login Successful 🎉");
         setTimeout(() => {
           router.push("/ambassador-dashboard");
         }, 800);
       }
-
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || "Login failed");
@@ -57,7 +63,6 @@ export default function AmbassadorLoginPage() {
       <Toaster position="top-right" />
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white text-gray-800 flex justify-center items-center px-4">
         <div className="w-full max-w-md bg-white p-6 rounded-2xl border border-gray-200 shadow-md">
-          
           {/* Header */}
           <div className="text-center mb-6">
             <p className="text-xs uppercase tracking-[0.25em] text-indigo-500 mb-1">
@@ -66,9 +71,7 @@ export default function AmbassadorLoginPage() {
             <h1 className="text-2xl font-semibold text-gray-900">
               Ambassador Login
             </h1>
-            <p className="text-gray-500 text-sm mt-1">
-              Access your dashboard
-            </p>
+            <p className="text-gray-500 text-sm mt-1">Access your dashboard</p>
           </div>
 
           {/* Form */}
@@ -81,25 +84,37 @@ export default function AmbassadorLoginPage() {
                 {...register("email", { required: "Email is required" })}
                 className="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-indigo-300 text-sm"
               />
-              {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
+              {errors.email && (
+                <p className="text-xs text-red-600">{errors.email.message}</p>
+              )}
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-gray-700">Password</label>
+              <label className="text-sm font-medium text-gray-700">
+                Password
+              </label>
               <input
                 type="password"
                 placeholder="Enter password"
                 {...register("password", { required: "Password is required" })}
                 className="w-full border border-gray-300 px-3 py-2 rounded-md focus:ring-2 focus:ring-indigo-300 text-sm"
               />
-              {errors.password && <p className="text-xs text-red-600">{errors.password.message}</p>}
+              {errors.password && (
+                <p className="text-xs text-red-600">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
             <button
               type="submit"
               disabled={loading}
               className={`w-full py-2 text-white rounded-md transition font-medium text-sm 
-                ${loading ? "bg-indigo-400" : "bg-indigo-600 hover:bg-indigo-700"}
+                ${
+                  loading
+                    ? "bg-indigo-400"
+                    : "bg-indigo-600 hover:bg-indigo-700"
+                }
               `}
             >
               {loading ? "Logging in..." : "Login"}
@@ -118,7 +133,6 @@ export default function AmbassadorLoginPage() {
               </button>
             </p>
           </div>
-
         </div>
       </div>
     </>

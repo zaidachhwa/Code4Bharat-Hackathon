@@ -258,7 +258,7 @@ export default function AdminDashboard() {
   // for data taking from backend as requried for numbers of ambassadors are there
   const getAmbassadors = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/ambassadors/get");
+      const res = await axios.get("http://localhost:5000/api/ambassadors/data/get");
       var totolAmbassadors = res.data.ambassadors.length;
       console.log("Total Ambassadors:", totolAmbassadors);
       console.log(res.data.ambassadors);
