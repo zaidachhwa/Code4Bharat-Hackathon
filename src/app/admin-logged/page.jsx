@@ -1,17 +1,25 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Users, ClipboardCheck, Award, Loader2, Trash2, ArrowRight } from "lucide-react";
+import { Plus, Users, ClipboardCheck, Award, Loader2, Trash2, Edit, TrendingUp } from "lucide-react";
 
 /* ---------------- UI Components ---------------- */
 
 const Card = ({ children, className = "" }) => (
-  <div className={`bg-white border border-gray-200 rounded-xl shadow-sm ${className}`}>
+  <div
+    className={`bg-white border border-gray-200 rounded-xl shadow-sm ${className}`}
+  >
     {children}
   </div>
 );
 
-const Button = ({ children, variant = "primary", size = "md", icon: Icon, ...props }) => {
+const Button = ({
+  children,
+  variant = "primary",
+  size = "md",
+  icon: Icon,
+  ...props
+}) => {
   const styles = {
     primary: "bg-gray-900 text-white hover:bg-gray-800",
     secondary: "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50",
@@ -46,7 +54,9 @@ const Badge = ({ children, variant = "default" }) => {
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border ${variants[variant]}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border ${variants[variant]}`}
+    >
       {children}
     </span>
   );
@@ -55,7 +65,9 @@ const Badge = ({ children, variant = "default" }) => {
 const StatCard = ({ icon: Icon, label, value, iconBg }) => (
   <Card className="p-6">
     <div className="flex items-center justify-between mb-3">
-      <div className={`w-10 h-10 ${iconBg} rounded-lg flex items-center justify-center`}>
+      <div
+        className={`w-10 h-10 ${iconBg} rounded-lg flex items-center justify-center`}
+      >
         <Icon className="w-5 h-5" />
       </div>
     </div>
@@ -90,9 +102,9 @@ export default function AdminDashboard() {
   useEffect(() => {
     setTimeout(() => {
       setAmbassadors([
-        { _id: "a1", name: "Lucky Shaikh", email: "lucky@gmail.com", phone: "+91 9876543210", points: 170, college: "ABC University" },
-        { _id: "a2", name: "Noorul Haque", email: "noorul@gmail.com", phone: "+91 9123456780", points: 85, college: "XYZ College" },
-        { _id: "a3", name: "Priya Sharma", email: "priya@gmail.com", phone: "+91 9988776655", points: 240, college: "LMN Institute" },
+        { _id: "a1", name: "Lucky Shaikh", email: "lucky@gmail.com", points: 170 },
+        { _id: "a2", name: "Noorul Haque", email: "noorul@gmail.com", points: 85 },
+        { _id: "a3", name: "Priya Sharma", email: "priya@gmail.com", points: 240 },
       ]);
       setLoadingAmbassadors(false);
 
@@ -130,6 +142,7 @@ export default function AdminDashboard() {
     if (!form.level) newErrors.level = "Please select difficulty level";
     if (!form.points) newErrors.points = "Points are required";
     if (!form.assignedTo) newErrors.assignedTo = "Please assign to an ambassador";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -151,7 +164,33 @@ export default function AdminDashboard() {
     showNotification("Task deleted successfully");
   };
 
-  const totalPoints = tasks.reduce((sum, task) => sum + parseInt(task.points || 0), 0);
+  const totalPoints = tasks.reduce(
+    (sum, task) => sum + parseInt(task.points || 0),
+    0
+  );
+
+
+
+
+
+  useEffect(() => {
+    getAmbassadors();
+  }, []);
+
+  // for data taking from backend as requried for numbers of ambassadors are there
+  const getAmbassadors = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/ambassadors/data/get");
+      var totolAmbassadors = res.data.ambassadors.length;
+      console.log("Total Ambassadors:", totolAmbassadors);
+      console.log(res.data.ambassadors);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -194,14 +233,172 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
- 
+          {/* Left Column - Task Creation */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Create Task Form */}
+            <Card>
+              <div className="border-b border-gray-200 px-6 py-4">
+                <div className="flex items-center gap-2">
+                  <Plus className="w-5 h-5 text-gray-700" />
+                  <h2 className="text-lg font-semibold text-gray-900">Assign New Task</h2>
+                </div>
+                <p className="text-sm text-gray-600 mt-1">
+                  Create and assign tasks to ambassadors
+                </p>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <Input
+                  label="Task Title"
+                  placeholder="e.g., Share event poster on social media"
+                  value={form.title}
+                  onChange={(e) => {
+                    setForm({ ...form, title: e.target.value });
+                    if (errors.title) setErrors({ ...errors, title: "" });
+                  }}
+                  error={errors.title}
+                />
+
+                <TextArea
+                  label="Description (Optional)"
+                  placeholder="Provide additional details about the task..."
+                  value={form.desc}
+                  onChange={(e) => setForm({ ...form, desc: e.target.value })}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Select
+                    label="Difficulty Level"
+                    value={form.level}
+                    onChange={(e) => {
+                      setForm({ ...form, level: e.target.value });
+                      if (errors.level) setErrors({ ...errors, level: "" });
+                    }}
+                    error={errors.level}
+                  >
+                    <option value="">Select level</option>
+                    <option value="small">Small</option>
+                    <option value="medium">Medium</option>
+                    <option value="major">Major</option>
+                  </Select>
+
+                  <Input
+                    label="Points"
+                    placeholder="e.g., 50"
+                    type="number"
+                    value={form.points}
+                    onChange={(e) => {
+                      setForm({ ...form, points: e.target.value });
+                      if (errors.points) setErrors({ ...errors, points: "" });
+                    }}
+                    error={errors.points}
+                  />
+                </div>
+
+                <Select
+                  label="Assign To Ambassador"
+                  value={form.assignedTo}
+                  onChange={(e) => {
+                    setForm({ ...form, assignedTo: e.target.value });
+                    if (errors.assignedTo) setErrors({ ...errors, assignedTo: "" });
+                  }}
+                  error={errors.assignedTo}
+                >
+                  <option value="">Select ambassador</option>
+                  {loadingAmbassadors ? (
+                    <option disabled>Loading...</option>
+                  ) : (
+                    ambassadors.map((a) => (
+                      <option key={a._id} value={a.name}>
+                        {a.name} ({a.email})
+                      </option>
+                    ))
+                  )}
+                </Select>
+
+                <Button variant="success" icon={Plus} onClick={submitTask} className="w-full">
+                  Assign Task
+                </Button>
+              </div>
+            </Card>
+
+            {/* Task List */}
+            <Card>
+              <div className="border-b border-gray-200 px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ClipboardCheck className="w-5 h-5 text-gray-700" />
+                    <h2 className="text-lg font-semibold text-gray-900">Assigned Tasks</h2>
+                  </div>
+                  <Badge variant="default">{tasks.length} Total</Badge>
+                </div>
+              </div>
+
+              <div className="p-6">
+                {loadingTasks ? (
+                  <div className="flex justify-center py-12">
+                    <Loader2 className="animate-spin w-8 h-8 text-gray-400" />
+                  </div>
+                ) : tasks.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <ClipboardCheck className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-600 text-sm font-medium">No tasks assigned yet</p>
+                    <p className="text-gray-500 text-xs mt-1">Create your first task above</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {tasks.map((task) => (
+                      <div
+                        key={task._id}
+                        className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-sm transition-all duration-200"
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-gray-900 mb-1">
+                              {task.title}
+                            </h3>
+                            {task.desc && (
+                              <p className="text-sm text-gray-600 mb-3">{task.desc}</p>
+                            )}
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Badge variant={task.level}>
+                                {task.level.charAt(0).toUpperCase() + task.level.slice(1)}
+                              </Badge>
+                              <Badge variant="points">
+                                <Award className="w-3 h-3 inline mr-1" />
+                                {task.points} pts
+                              </Badge>
+                              <span className="text-xs text-gray-600">
+                                Assigned to: <span className="font-medium">{task.assignedTo}</span>
+                              </span>
+                            </div>
+                          </div>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            icon={Trash2}
+                            onClick={() => deleteTask(task._id)}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
 
           {/* Right Column - Ambassadors List */}
           <div className="lg:col-span-1">
             <Card>
-              <div className="border-b border-gray-200 px-6 py-4 flex items-center gap-2">
-                <Users className="w-5 h-5 text-gray-700" />
-                <h2 className="text-lg font-semibold text-gray-900">Ambassadors</h2>
+              <div className="border-b border-gray-200 px-6 py-4">
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-gray-700" />
+                  <h2 className="text-lg font-semibold text-gray-900">Ambassadors</h2>
+                </div>
+                <p className="text-sm text-gray-600 mt-1">Active members</p>
               </div>
 
               <div className="p-6">
@@ -226,9 +423,11 @@ export default function AdminDashboard() {
                             <p className="text-xs text-gray-600 truncate">{ambassador.email}</p>
                           </div>
                         </div>
-                        <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
-                          <span className="text-xs text-gray-600">Total Points</span>
-                          <Badge variant="points">{ambassador.points} pts</Badge>
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-600">Total Points</span>
+                            <Badge variant="points">{ambassador.points} pts</Badge>
+                          </div>
                         </div>
                       </div>
                     ))}
