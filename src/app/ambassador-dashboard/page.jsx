@@ -1,242 +1,276 @@
 "use client";
+import { useState } from "react";
+import { Lock, Upload, Calendar, Gift, CheckCircle, Star, Sparkles } from "lucide-react";
+import Link from "next/link";
 
-import React, { useEffect, useState } from "react";
-import { CheckCircle2, Circle, TrendingUp, ListTodo, Award } from "lucide-react";
+export default function AmbassadorTimeline() {
+  const [activeStep, setActiveStep] = useState(1);
 
-/* ------------------ UI Primitive Components ------------------- */
-
-const Button = ({ children, className = "", variant = "primary", ...props }) => {
-  const variants = {
-    primary: "bg-gray-900 text-white hover:bg-gray-800",
-    secondary: "bg-white text-gray-900 border border-gray-300 hover:bg-gray-50",
-    success: "bg-emerald-600 text-white hover:bg-emerald-700",
-  };
-
-  return (
-    <button
-      className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${className}`}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-};
-
-const Card = ({ children, className = "" }) => (
-  <div className={`bg-white border border-gray-200 rounded-xl shadow-sm ${className}`}>
-    {children}
-  </div>
-);
-
-/* Badge Styles */
-const Badge = ({ type, children, className = "" }) => {
-  const colors = {
-    pending: "bg-amber-50 text-amber-700 border-amber-200",
-    completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    medium: "bg-blue-50 text-blue-700 border-blue-200",
-    major: "bg-purple-50 text-purple-700 border-purple-200",
-    small: "bg-gray-50 text-gray-700 border-gray-200",
-    points: "bg-gray-50 text-gray-900 border-gray-200",
-  };
+  const steps = [
+    { id: 1, label: "Promotion", icon: Upload },
+    { id: 2, label: "Seminar", icon: Calendar },
+    { id: 3, label: "Rewards", icon: Gift },
+  ];
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs border font-medium ${colors[type] || ""} ${className}`}>
-      {children}
-    </span>
-  );
-};
-
-/* ---------------------- Main Component ------------------------- */
-
-export default function AmbassadorDashboard() {
-  const [loading, setLoading] = useState(true);
-  const [tasks, setTasks] = useState([]);
-
-  // Temporary mock backend data
-  useEffect(() => {
-    setTimeout(() => {
-      setTasks([
-        {
-          _id: "1",
-          title: "Share Event Poster",
-          desc: "Share the hackathon event poster on Instagram and tag us.",
-          status: false,
-          points: 20,
-          level: "small",
-        },
-        {
-          _id: "2",
-          title: "WhatsApp Promotion",
-          desc: "Forward registration link to 10 WhatsApp groups.",
-          status: true,
-          points: 50,
-          level: "medium",
-        },
-        {
-          _id: "3",
-          title: "Campus Meetup",
-          desc: "Conduct a small in-person promotion meetup in your college.",
-          status: false,
-          points: 120,
-          level: "major",
-        },
-      ]);
-      setLoading(false);
-    }, 500);
-  }, []);
-
-  const toggleStatus = async (taskId) => {
-    const updated = tasks.map((t) =>
-      t._id === taskId ? { ...t, status: !t.status } : t
-    );
-
-    setTasks(updated);
-  };
-
-  const totalPoints = tasks.reduce((a, b) => a + (b.status ? b.points : 0), 0);
-  const completedTasks = tasks.filter(t => t.status).length;
-  const pendingTasks = tasks.filter(t => !t.status).length;
-
-  if (loading)
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 text-sm font-medium">Loading dashboard...</p>
+    <div className="w-full min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 px-6 py-12 flex flex-col items-center relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+      <div className="absolute bottom-20 right-10 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-700"></div>
+      
+      {/* Title Section */}
+      <div className="text-center mb-12 relative z-10">
+        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-orange-500 px-6 py-2 rounded-full mb-4 shadow-lg">
+          <Sparkles className="w-5 h-5 text-white animate-pulse" />
+          <span className="text-white font-bold text-sm uppercase tracking-wide">Ambassador Program</span>
         </div>
-      </div>
-    );
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header Section */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
-                Ambassador Dashboard
-              </h1>
-              <p className="text-sm text-gray-600 mt-2 max-w-2xl">
-                Track your progress, complete assigned tasks, and earn rewards to advance through ambassador levels.
-              </p>
-            </div>
-            <Badge type="points" className="text-base px-4 py-2">
-              <Award className="w-4 h-4 inline mr-1.5" />
-              {totalPoints} Points
-            </Badge>
-          </div>
-        </div>
+        <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-orange-600 to-red-600 mb-3">
+          Your Journey to Success
+        </h1>
+        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          Complete these steps to unlock exclusive rewards and become a campus leader
+        </p>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-gray-700" />
-              </div>
-            </div>
-            <p className="text-sm font-medium text-gray-600 mb-1">Total Points</p>
-            <h2 className="text-3xl font-semibold text-gray-900">{totalPoints}</h2>
-          </Card>
+      {/* Enhanced Timeline Bar */}
+      <div className="flex items-center justify-center w-full max-w-5xl mb-16 relative z-10">
+        <div className="absolute top-1/2 left-0 w-full h-[6px] bg-gray-300 -translate-y-1/2 rounded-full shadow-inner"></div>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5 text-emerald-700" />
-              </div>
-            </div>
-            <p className="text-sm font-medium text-gray-600 mb-1">Completed</p>
-            <h2 className="text-3xl font-semibold text-gray-900">{completedTasks}</h2>
-          </Card>
+        {/* Progress Line with Gradient */}
+        <div
+          className="absolute top-1/2 left-0 h-[6px] bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 -translate-y-1/2 transition-all duration-700 ease-in-out rounded-full shadow-lg"
+          style={{
+            width:
+              activeStep === 1
+                ? "0%"
+                : activeStep === 2
+                ? "50%"
+                : "100%",
+          }}
+        ></div>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                <ListTodo className="w-5 h-5 text-amber-700" />
-              </div>
-            </div>
-            <p className="text-sm font-medium text-gray-600 mb-1">Pending</p>
-            <h2 className="text-3xl font-semibold text-gray-900">{pendingTasks}</h2>
-          </Card>
-        </div>
-
-        {/* Task List */}
-        <Card>
-          <div className="px-6 py-5 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Assigned Tasks</h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Complete tasks to earn points and unlock new opportunities
-            </p>
-          </div>
-
-          <div className="p-6">
-            {tasks.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <ListTodo className="w-8 h-8 text-gray-400" />
+        {/* Step Dots with Icons */}
+        <div className="flex w-full justify-between z-10">
+          {steps.map((step) => {
+            const Icon = step.icon;
+            return (
+              <div
+                key={step.id}
+                className={`relative flex flex-col items-center transition-all duration-500 ${
+                  activeStep >= step.id ? "scale-110" : "scale-100"
+                }`}
+              >
+                <div
+                  className={`w-16 h-16 flex items-center justify-center rounded-full font-bold shadow-xl border-4 border-white transition-all duration-500
+                  ${
+                    activeStep >= step.id
+                      ? "bg-gradient-to-br from-yellow-400 to-orange-600 text-white"
+                      : "bg-gray-300 text-gray-600"
+                  }`}
+                >
+                  {activeStep > step.id ? (
+                    <CheckCircle className="w-8 h-8" />
+                  ) : (
+                    <Icon className="w-8 h-8" />
+                  )}
                 </div>
-                <p className="text-gray-600 text-sm font-medium">No tasks assigned yet</p>
-                <p className="text-gray-500 text-sm mt-1">Check back later for new assignments</p>
+                <span
+                  className={`mt-3 font-bold text-sm ${
+                    activeStep >= step.id ? "text-orange-600" : "text-gray-500"
+                  }`}
+                >
+                  {step.label}
+                </span>
               </div>
-            ) : (
-              <div className="space-y-4">
-                {tasks.map((task) => (
-                  <div
-                    key={task._id}
-                    className="group relative border border-gray-200 rounded-lg p-5 hover:border-gray-300 hover:shadow-sm transition-all duration-200"
-                  >
-                    <div className="flex items-start gap-4">
-                      {/* Status Icon */}
-                      <div className="flex-shrink-0 mt-1">
-                        {task.status ? (
-                          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                        ) : (
-                          <Circle className="w-5 h-5 text-gray-300" />
-                        )}
-                      </div>
+            );
+          })}
+        </div>
+      </div>
 
-                      {/* Task Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-4 mb-2">
-                          <h3 className="font-semibold text-gray-900 text-base">
-                            {task.title}
-                          </h3>
-                          <Button
-                            onClick={() => toggleStatus(task._id)}
-                            variant={task.status ? "success" : "secondary"}
-                            className="flex-shrink-0"
-                          >
-                            {task.status ? "Completed" : "Mark as Done"}
-                          </Button>
-                        </div>
-
-                        <p className="text-sm text-gray-600 mb-3 leading-relaxed">
-                          {task.desc}
-                        </p>
-
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Badge type={task.level}>
-                            {task.level.charAt(0).toUpperCase() + task.level.slice(1)}
-                          </Badge>
-                          <Badge type={task.status ? "completed" : "pending"}>
-                            {task.status ? "Completed" : "In Progress"}
-                          </Badge>
-                          <Badge type="points">
-                            <Award className="w-3 h-3 inline mr-1" />
-                            {task.points} pts
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+      {/* Enhanced Step Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full relative z-10">
+        {/* STEP 1 - Active */}
+        <div className="group bg-white border-2 border-yellow-200 shadow-2xl rounded-3xl p-8 hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full -translate-y-16 translate-x-16 opacity-20 group-hover:scale-150 transition-transform duration-700"></div>
+          
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+                <Upload className="w-6 h-6 text-white" />
               </div>
-            )}
+              <div>
+                <span className="text-xs font-bold text-yellow-600 uppercase tracking-wide">Active</span>
+                <h3 className="text-2xl font-black text-gray-800">Step 1: Promotion</h3>
+              </div>
+            </div>
+
+            <ul className="text-gray-600 space-y-3 mb-6 text-sm">
+              <li className="flex items-start gap-2">
+                <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                <span>Upload screenshot of the post given by admin</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                <span>Must remain posted for 2 days</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                <span>Upload section included below</span>
+              </li>
+            </ul>
+
+            <Link href="/step1">
+              <button className="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2">
+                <Upload className="w-5 h-5" />
+                Upload Screenshot
+              </button>
+            </Link>
           </div>
-        </Card>
+        </div>
+
+        {/* STEP 2 - Locked/Unlocked */}
+        <div
+          className={`group relative rounded-3xl p-8 border-2 shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden
+          ${activeStep >= 2 ? "bg-white border-orange-200" : "bg-white/60 border-gray-300"}`}
+        >
+          {activeStep < 2 && (
+            <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-gray-100/80 backdrop-blur-md rounded-3xl flex items-center justify-center z-20">
+              <div className="flex flex-col items-center">
+                <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mb-4 shadow-lg">
+                  <Lock size={40} className="text-gray-500" />
+                </div>
+                <p className="text-gray-700 font-bold text-lg">Locked</p>
+                <p className="text-gray-500 text-sm mt-2">Complete Step 1 first</p>
+              </div>
+            </div>
+          )}
+
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-400 to-red-500 rounded-full -translate-y-16 translate-x-16 opacity-20 group-hover:scale-150 transition-transform duration-700"></div>
+
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ${
+                activeStep >= 2 ? "bg-gradient-to-br from-orange-400 to-red-500" : "bg-gray-300"
+              }`}>
+                <Calendar className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <span className={`text-xs font-bold uppercase tracking-wide ${
+                  activeStep >= 2 ? "text-orange-600" : "text-gray-500"
+                }`}>
+                  {activeStep >= 2 ? "Available" : "Locked"}
+                </span>
+                <h3 className="text-2xl font-black text-gray-800">Step 2: Seminar</h3>
+              </div>
+            </div>
+
+            <ul className="text-gray-600 space-y-3 mb-6 text-sm">
+              <li className="flex items-start gap-2">
+                <Star className={`w-4 h-4 flex-shrink-0 mt-0.5 ${activeStep >= 2 ? "text-orange-500" : "text-gray-400"}`} />
+                <span>Conduct seminar in your college (within 2 months)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Star className={`w-4 h-4 flex-shrink-0 mt-0.5 ${activeStep >= 2 ? "text-orange-500" : "text-gray-400"}`} />
+                <span>Upload seminar proof</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Star className={`w-4 h-4 flex-shrink-0 mt-0.5 ${activeStep >= 2 ? "text-orange-500" : "text-gray-400"}`} />
+                <span>Coupon code will be generated automatically</span>
+              </li>
+            </ul>
+
+            <button
+              className={`w-full py-4 rounded-2xl font-bold shadow-xl transition-all duration-300 flex items-center justify-center gap-2
+              ${
+                activeStep >= 2
+                  ? "bg-gradient-to-r from-orange-400 to-red-500 text-white hover:scale-105 hover:shadow-2xl"
+                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
+              }`}
+            >
+              <Upload className="w-5 h-5" />
+              Upload Seminar Proof
+            </button>
+          </div>
+        </div>
+
+        {/* STEP 3 - Locked/Unlocked */}
+        <div
+          className={`group relative rounded-3xl p-8 border-2 shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden
+          ${activeStep >= 3 ? "bg-white border-red-200" : "bg-white/60 border-gray-300"}`}
+        >
+          {activeStep < 3 && (
+            <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-gray-100/80 backdrop-blur-md rounded-3xl flex items-center justify-center z-20">
+              <div className="flex flex-col items-center">
+                <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mb-4 shadow-lg">
+                  <Lock size={40} className="text-gray-500" />
+                </div>
+                <p className="text-gray-700 font-bold text-lg">Locked</p>
+                <p className="text-gray-500 text-sm mt-2">Complete Step 2 first</p>
+              </div>
+            </div>
+          )}
+
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-400 to-pink-500 rounded-full -translate-y-16 translate-x-16 opacity-20 group-hover:scale-150 transition-transform duration-700"></div>
+
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ${
+                activeStep >= 3 ? "bg-gradient-to-br from-red-400 to-pink-500" : "bg-gray-300"
+              }`}>
+                <Gift className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <span className={`text-xs font-bold uppercase tracking-wide ${
+                  activeStep >= 3 ? "text-red-600" : "text-gray-500"
+                }`}>
+                  {activeStep >= 3 ? "Available" : "Locked"}
+                </span>
+                <h3 className="text-2xl font-black text-gray-800">Step 3: Rewards</h3>
+              </div>
+            </div>
+
+            <ul className="text-gray-600 space-y-3 mb-6 text-sm">
+              <li className="flex items-start gap-2">
+                <Star className={`w-4 h-4 flex-shrink-0 mt-0.5 ${activeStep >= 3 ? "text-red-500" : "text-gray-400"}`} />
+                <span>Get your unique discount coupon</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Star className={`w-4 h-4 flex-shrink-0 mt-0.5 ${activeStep >= 3 ? "text-red-500" : "text-gray-400"}`} />
+                <span>View participant benefits</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Star className={`w-4 h-4 flex-shrink-0 mt-0.5 ${activeStep >= 3 ? "text-red-500" : "text-gray-400"}`} />
+                <span>Access reward dashboard</span>
+              </li>
+            </ul>
+
+            <button
+              className={`w-full py-4 rounded-2xl font-bold shadow-xl transition-all duration-300 flex items-center justify-center gap-2
+              ${
+                activeStep >= 3
+                  ? "bg-gradient-to-r from-red-400 to-pink-500 text-white hover:scale-105 hover:shadow-2xl"
+                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
+              }`}
+            >
+              <Gift className="w-5 h-5" />
+              View Rewards
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Progress Indicator */}
+      <div className="mt-12 text-center relative z-10">
+        <p className="text-gray-600 text-sm mb-3">Your Progress</p>
+        <div className="flex items-center gap-2">
+          <div className="w-64 h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+            <div 
+              className="h-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 transition-all duration-700 rounded-full"
+              style={{ width: `${(activeStep / 3) * 100}%` }}
+            ></div>
+          </div>
+          <span className="text-lg font-bold text-gray-700">{activeStep}/3</span>
+        </div>
       </div>
     </div>
   );

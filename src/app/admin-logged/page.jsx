@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Users, ClipboardCheck, Award, Loader2, Trash2, Edit, TrendingUp } from "lucide-react";
+import { Plus, Users, ClipboardCheck, Award, Loader2, Trash2, ArrowRight } from "lucide-react";
 
 /* ---------------- UI Components ---------------- */
 
@@ -35,54 +35,6 @@ const Button = ({ children, variant = "primary", size = "md", icon: Icon, ...pro
     </button>
   );
 };
-
-const Input = ({ label, error, ...props }) => (
-  <div className="space-y-2">
-    {label && (
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
-    )}
-    <input
-      {...props}
-      className={`w-full border rounded-lg px-4 py-2.5 text-sm bg-white focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all ${
-        error ? "border-red-300 bg-red-50" : "border-gray-300"
-      }`}
-    />
-    {error && <p className="text-xs text-red-600">{error}</p>}
-  </div>
-);
-
-const Select = ({ label, error, children, ...props }) => (
-  <div className="space-y-2">
-    {label && (
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
-    )}
-    <select
-      {...props}
-      className={`w-full border rounded-lg px-4 py-2.5 text-sm bg-white focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all ${
-        error ? "border-red-300 bg-red-50" : "border-gray-300"
-      }`}
-    >
-      {children}
-    </select>
-    {error && <p className="text-xs text-red-600">{error}</p>}
-  </div>
-);
-
-const TextArea = ({ label, error, ...props }) => (
-  <div className="space-y-2">
-    {label && (
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
-    )}
-    <textarea
-      {...props}
-      className={`w-full border rounded-lg px-4 py-2.5 text-sm bg-white focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all resize-none ${
-        error ? "border-red-300 bg-red-50" : "border-gray-300"
-      }`}
-      rows={3}
-    />
-    {error && <p className="text-xs text-red-600">{error}</p>}
-  </div>
-);
 
 const Badge = ({ children, variant = "default" }) => {
   const variants = {
@@ -122,6 +74,8 @@ export default function AdminDashboard() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
+  const [selectedAmbassador, setSelectedAmbassador] = useState(null); // For modal
+
   const [form, setForm] = useState({
     title: "",
     desc: "",
@@ -136,9 +90,9 @@ export default function AdminDashboard() {
   useEffect(() => {
     setTimeout(() => {
       setAmbassadors([
-        { _id: "a1", name: "Lucky Shaikh", email: "lucky@gmail.com", points: 170 },
-        { _id: "a2", name: "Noorul Haque", email: "noorul@gmail.com", points: 85 },
-        { _id: "a3", name: "Priya Sharma", email: "priya@gmail.com", points: 240 },
+        { _id: "a1", name: "Lucky Shaikh", email: "lucky@gmail.com", phone: "+91 9876543210", points: 170, college: "ABC University" },
+        { _id: "a2", name: "Noorul Haque", email: "noorul@gmail.com", phone: "+91 9123456780", points: 85, college: "XYZ College" },
+        { _id: "a3", name: "Priya Sharma", email: "priya@gmail.com", phone: "+91 9988776655", points: 240, college: "LMN Institute" },
       ]);
       setLoadingAmbassadors(false);
 
@@ -172,12 +126,10 @@ export default function AdminDashboard() {
 
   const validateForm = () => {
     const newErrors = {};
-
     if (!form.title.trim()) newErrors.title = "Task title is required";
     if (!form.level) newErrors.level = "Please select difficulty level";
     if (!form.points) newErrors.points = "Points are required";
     if (!form.assignedTo) newErrors.assignedTo = "Please assign to an ambassador";
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -187,12 +139,7 @@ export default function AdminDashboard() {
       showNotification("Please fill all required fields");
       return;
     }
-
-    const newTask = {
-      ...form,
-      _id: `t${Date.now()}`,
-    };
-
+    const newTask = { ...form, _id: `t${Date.now()}` };
     setTasks([...tasks, newTask]);
     showNotification("Task assigned successfully!");
     setForm({ title: "", desc: "", level: "", points: "", assignedTo: "" });
@@ -220,20 +167,18 @@ export default function AdminDashboard() {
 
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
-                Admin Dashboard
-              </h1>
-              <p className="text-sm text-gray-600 mt-2">
-                Manage ambassadors, assign tasks, and track performance
-              </p>
-            </div>
-            <Button variant="primary" icon={Plus}>
-              Quick Actions
-            </Button>
+        <div className="max-w-7xl mx-auto px-6 py-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
+              Admin Dashboard
+            </h1>
+            <p className="text-sm text-gray-600 mt-2">
+              Manage ambassadors, assign tasks, and track performance
+            </p>
           </div>
+          <Button variant="primary" icon={Plus}>
+            Quick Actions
+          </Button>
         </div>
       </div>
 
@@ -246,187 +191,17 @@ export default function AdminDashboard() {
             value={ambassadors.length}
             iconBg="bg-blue-100 text-blue-700"
           />
-          <StatCard
-            icon={ClipboardCheck}
-            label="Active Tasks"
-            value={tasks.length}
-            iconBg="bg-purple-100 text-purple-700"
-          />
-          <StatCard
-            icon={Award}
-            label="Total Points"
-            value={totalPoints}
-            iconBg="bg-emerald-100 text-emerald-700"
-          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Task Creation */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Create Task Form */}
-            <Card>
-              <div className="border-b border-gray-200 px-6 py-4">
-                <div className="flex items-center gap-2">
-                  <Plus className="w-5 h-5 text-gray-700" />
-                  <h2 className="text-lg font-semibold text-gray-900">Assign New Task</h2>
-                </div>
-                <p className="text-sm text-gray-600 mt-1">
-                  Create and assign tasks to ambassadors
-                </p>
-              </div>
-
-              <div className="p-6 space-y-4">
-                <Input
-                  label="Task Title"
-                  placeholder="e.g., Share event poster on social media"
-                  value={form.title}
-                  onChange={(e) => {
-                    setForm({ ...form, title: e.target.value });
-                    if (errors.title) setErrors({ ...errors, title: "" });
-                  }}
-                  error={errors.title}
-                />
-
-                <TextArea
-                  label="Description (Optional)"
-                  placeholder="Provide additional details about the task..."
-                  value={form.desc}
-                  onChange={(e) => setForm({ ...form, desc: e.target.value })}
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Select
-                    label="Difficulty Level"
-                    value={form.level}
-                    onChange={(e) => {
-                      setForm({ ...form, level: e.target.value });
-                      if (errors.level) setErrors({ ...errors, level: "" });
-                    }}
-                    error={errors.level}
-                  >
-                    <option value="">Select level</option>
-                    <option value="small">Small</option>
-                    <option value="medium">Medium</option>
-                    <option value="major">Major</option>
-                  </Select>
-
-                  <Input
-                    label="Points"
-                    placeholder="e.g., 50"
-                    type="number"
-                    value={form.points}
-                    onChange={(e) => {
-                      setForm({ ...form, points: e.target.value });
-                      if (errors.points) setErrors({ ...errors, points: "" });
-                    }}
-                    error={errors.points}
-                  />
-                </div>
-
-                <Select
-                  label="Assign To Ambassador"
-                  value={form.assignedTo}
-                  onChange={(e) => {
-                    setForm({ ...form, assignedTo: e.target.value });
-                    if (errors.assignedTo) setErrors({ ...errors, assignedTo: "" });
-                  }}
-                  error={errors.assignedTo}
-                >
-                  <option value="">Select ambassador</option>
-                  {loadingAmbassadors ? (
-                    <option disabled>Loading...</option>
-                  ) : (
-                    ambassadors.map((a) => (
-                      <option key={a._id} value={a.name}>
-                        {a.name} ({a.email})
-                      </option>
-                    ))
-                  )}
-                </Select>
-
-                <Button variant="success" icon={Plus} onClick={submitTask} className="w-full">
-                  Assign Task
-                </Button>
-              </div>
-            </Card>
-
-            {/* Task List */}
-            <Card>
-              <div className="border-b border-gray-200 px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <ClipboardCheck className="w-5 h-5 text-gray-700" />
-                    <h2 className="text-lg font-semibold text-gray-900">Assigned Tasks</h2>
-                  </div>
-                  <Badge variant="default">{tasks.length} Total</Badge>
-                </div>
-              </div>
-
-              <div className="p-6">
-                {loadingTasks ? (
-                  <div className="flex justify-center py-12">
-                    <Loader2 className="animate-spin w-8 h-8 text-gray-400" />
-                  </div>
-                ) : tasks.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <ClipboardCheck className="w-8 h-8 text-gray-400" />
-                    </div>
-                    <p className="text-gray-600 text-sm font-medium">No tasks assigned yet</p>
-                    <p className="text-gray-500 text-xs mt-1">Create your first task above</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {tasks.map((task) => (
-                      <div
-                        key={task._id}
-                        className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-sm transition-all duration-200"
-                      >
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-gray-900 mb-1">
-                              {task.title}
-                            </h3>
-                            {task.desc && (
-                              <p className="text-sm text-gray-600 mb-3">{task.desc}</p>
-                            )}
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <Badge variant={task.level}>
-                                {task.level.charAt(0).toUpperCase() + task.level.slice(1)}
-                              </Badge>
-                              <Badge variant="points">
-                                <Award className="w-3 h-3 inline mr-1" />
-                                {task.points} pts
-                              </Badge>
-                              <span className="text-xs text-gray-600">
-                                Assigned to: <span className="font-medium">{task.assignedTo}</span>
-                              </span>
-                            </div>
-                          </div>
-                          <Button
-                            variant="danger"
-                            size="sm"
-                            icon={Trash2}
-                            onClick={() => deleteTask(task._id)}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </Card>
-          </div>
+ 
 
           {/* Right Column - Ambassadors List */}
           <div className="lg:col-span-1">
             <Card>
-              <div className="border-b border-gray-200 px-6 py-4">
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-gray-700" />
-                  <h2 className="text-lg font-semibold text-gray-900">Ambassadors</h2>
-                </div>
-                <p className="text-sm text-gray-600 mt-1">Active members</p>
+              <div className="border-b border-gray-200 px-6 py-4 flex items-center gap-2">
+                <Users className="w-5 h-5 text-gray-700" />
+                <h2 className="text-lg font-semibold text-gray-900">Ambassadors</h2>
               </div>
 
               <div className="p-6">
@@ -439,26 +214,21 @@ export default function AdminDashboard() {
                     {ambassadors.map((ambassador) => (
                       <div
                         key={ambassador._id}
-                        className="p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-all"
+                        className="p-4 border border-gray-200 rounded-lg hover:border-gray-300 cursor-pointer transition-all"
+                        onClick={() => setSelectedAmbassador(ambassador)}
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                             {ambassador.name.charAt(0)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-gray-900 text-sm truncate">
-                              {ambassador.name}
-                            </h4>
-                            <p className="text-xs text-gray-600 truncate">
-                              {ambassador.email}
-                            </p>
+                            <h4 className="font-medium text-gray-900 text-sm truncate">{ambassador.name}</h4>
+                            <p className="text-xs text-gray-600 truncate">{ambassador.email}</p>
                           </div>
                         </div>
-                        <div className="mt-3 pt-3 border-t border-gray-100">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-600">Total Points</span>
-                            <Badge variant="points">{ambassador.points} pts</Badge>
-                          </div>
+                        <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                          <span className="text-xs text-gray-600">Total Points</span>
+                          <Badge variant="points">{ambassador.points} pts</Badge>
                         </div>
                       </div>
                     ))}
@@ -469,6 +239,25 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Ambassador Detail Modal */}
+      {selectedAmbassador && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl p-6 w-96 relative">
+            <button
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+              onClick={() => setSelectedAmbassador(null)}
+            >
+              ✕
+            </button>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">{selectedAmbassador.name}</h2>
+            <p className="text-sm text-gray-600 mb-1">Email: <span className="font-medium">{selectedAmbassador.email}</span></p>
+            <p className="text-sm text-gray-600 mb-1">Phone: <span className="font-medium">{selectedAmbassador.phone}</span></p>
+            <p className="text-sm text-gray-600 mb-1">College: <span className="font-medium">{selectedAmbassador.college}</span></p>
+            <p className="text-sm text-gray-600 mb-1">Points: <span className="font-medium">{selectedAmbassador.points}</span></p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
