@@ -1,15 +1,16 @@
 "use client";
 import { useState } from "react";
-import { Lock, Upload, Calendar, Gift, CheckCircle, Star, Sparkles } from "lucide-react";
-import Link from "next/link";
+import { Upload, Calendar, Gift, CheckCircle, Star, Sparkles, Zap, Award, Clock, Image as ImageIcon, Users, TrendingUp } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function AmbassadorTimeline() {
+  const router = useRouter();
   const [activeStep, setActiveStep] = useState(1);
 
   const steps = [
     { id: 1, label: "Promotion", icon: Upload },
     { id: 2, label: "Seminar", icon: Calendar },
-    { id: 3, label: "Rewards", icon: Gift },
+    { id: 3, label: "Onboarding", icon: Gift },
   ];
 
   return (
@@ -87,173 +88,353 @@ export default function AmbassadorTimeline() {
         </div>
       </div>
 
-      {/* Enhanced Step Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full relative z-10">
-        {/* STEP 1 - Active */}
+      {/* ALL STEPS UNLOCKED - Enhanced Step Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full relative z-10 mb-12">
+        
+        {/* ==================== STEP 1 - PROMOTION ==================== */}
         <div className="group bg-white border-2 border-yellow-200 shadow-2xl rounded-3xl p-8 hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full -translate-y-16 translate-x-16 opacity-20 group-hover:scale-150 transition-transform duration-700"></div>
           
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
-                <Upload className="w-6 h-6 text-white" />
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-14 h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <Upload className="w-7 h-7 text-white" />
               </div>
               <div>
-                <span className="text-xs font-bold text-yellow-600 uppercase tracking-wide">Active</span>
-                <h3 className="text-2xl font-black text-gray-800">Step 1: Promotion</h3>
+                <span className="text-xs font-bold text-yellow-600 uppercase tracking-wide">Step 1</span>
+                <h3 className="text-2xl font-black text-gray-800">Promotion</h3>
               </div>
             </div>
 
-            <ul className="text-gray-600 space-y-3 mb-6 text-sm">
-              <li className="flex items-start gap-2">
-                <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
-                <span>Upload screenshot of the post given by admin</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
-                <span>Must remain posted for 2 days</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
-                <span>Upload section included below</span>
-              </li>
-            </ul>
+            {/* Description */}
+            <div className="mb-6">
+              <p className="text-gray-700 font-semibold mb-3">What you need to do:</p>
+              <ul className="text-gray-600 space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                  <span>Get the promotional post from admin</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                  <span>Share it on your social media (Instagram/WhatsApp Status)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                  <span>Keep the post live for <strong>2 days minimum</strong></span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                  <span>Take screenshots showing your post is live</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                  <span>Upload multiple screenshots as proof</span>
+                </li>
+              </ul>
+            </div>
 
-            <Link href="/step1">
-              <button className="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2">
-                <Upload className="w-5 h-5" />
-                Upload Screenshot
-              </button>
-            </Link>
+            {/* What Admin Will Do */}
+            <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+              <p className="text-xs font-bold text-blue-700 uppercase mb-2 flex items-center gap-2">
+                <Award className="w-4 h-4" />
+                Admin Action
+              </p>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• Review your screenshots</li>
+                <li>• Verify post was live for 2 days</li>
+                <li>• Approve and unlock Step 2</li>
+              </ul>
+            </div>
+
+            {/* Fields in Database */}
+            <div className="mb-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
+              <p className="text-xs font-bold text-purple-700 uppercase mb-2 flex items-center gap-2">
+                <Zap className="w-4 h-4" />
+                Database Fields
+              </p>
+              <div className="text-xs text-purple-800 space-y-1 font-mono">
+                <p>• promotion.completed: false</p>
+                <p>• promotion.images: ["url1", "url2"]</p>
+                <p>• promotion.submittedAt: Date</p>
+                <p>• promotion.approvedAt: null</p>
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <button 
+              onClick={() => router.push("/step1")}
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
+            >
+              <Upload className="w-5 h-5" />
+              Upload Screenshot
+            </button>
+
+            {/* Reward Info */}
+            <div className="mt-4 text-center">
+              <p className="text-xs text-gray-500">Reward: Unlock Step 2 🎯</p>
+            </div>
           </div>
         </div>
 
-        {/* STEP 2 - Locked/Unlocked */}
-        <div
-          className={`group relative rounded-3xl p-8 border-2 shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden
-          ${activeStep >= 2 ? "bg-white border-orange-200" : "bg-white/60 border-gray-300"}`}
-        >
-          {activeStep < 2 && (
-            <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-gray-100/80 backdrop-blur-md rounded-3xl flex items-center justify-center z-20">
-              <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mb-4 shadow-lg">
-                  <Lock size={40} className="text-gray-500" />
-                </div>
-                <p className="text-gray-700 font-bold text-lg">Locked</p>
-                <p className="text-gray-500 text-sm mt-2">Complete Step 1 first</p>
-              </div>
-            </div>
-          )}
-
+        {/* ==================== STEP 2 - SEMINAR ==================== */}
+        <div className="group bg-white border-2 border-orange-200 shadow-2xl rounded-3xl p-8 hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-400 to-red-500 rounded-full -translate-y-16 translate-x-16 opacity-20 group-hover:scale-150 transition-transform duration-700"></div>
 
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ${
-                activeStep >= 2 ? "bg-gradient-to-br from-orange-400 to-red-500" : "bg-gray-300"
-              }`}>
-                <Calendar className="w-6 h-6 text-white" />
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <Calendar className="w-7 h-7 text-white" />
               </div>
               <div>
-                <span className={`text-xs font-bold uppercase tracking-wide ${
-                  activeStep >= 2 ? "text-orange-600" : "text-gray-500"
-                }`}>
-                  {activeStep >= 2 ? "Available" : "Locked"}
-                </span>
-                <h3 className="text-2xl font-black text-gray-800">Step 2: Seminar</h3>
+                <span className="text-xs font-bold text-orange-600 uppercase tracking-wide">Step 2</span>
+                <h3 className="text-2xl font-black text-gray-800">Seminar</h3>
               </div>
             </div>
 
-            <ul className="text-gray-600 space-y-3 mb-6 text-sm">
-              <li className="flex items-start gap-2">
-                <Star className={`w-4 h-4 flex-shrink-0 mt-0.5 ${activeStep >= 2 ? "text-orange-500" : "text-gray-400"}`} />
-                <span>Conduct seminar in your college (within 2 months)</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Star className={`w-4 h-4 flex-shrink-0 mt-0.5 ${activeStep >= 2 ? "text-orange-500" : "text-gray-400"}`} />
-                <span>Upload seminar proof</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Star className={`w-4 h-4 flex-shrink-0 mt-0.5 ${activeStep >= 2 ? "text-orange-500" : "text-gray-400"}`} />
-                <span>Coupon code will be generated automatically</span>
-              </li>
-            </ul>
+            {/* Description */}
+            <div className="mb-6">
+              <p className="text-gray-700 font-semibold mb-3">What you need to do:</p>
+              <ul className="text-gray-600 space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span>Organize a seminar/workshop in your college</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span>Timeline: <strong>Within 2 months</strong> of Step 1 completion</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span>Topic: InnovateX Hackathon & opportunities</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span>Take photos/videos during the seminar</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span>Get attendance sheet or participant list</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <span>Upload proof (photos, videos, attendance)</span>
+                </li>
+              </ul>
+            </div>
 
+            {/* What Admin Will Do */}
+            <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+              <p className="text-xs font-bold text-blue-700 uppercase mb-2 flex items-center gap-2">
+                <Award className="w-4 h-4" />
+                Admin Action
+              </p>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• Verify seminar was conducted</li>
+                <li>• Check quality of engagement</li>
+                <li>• Generate unique coupon code</li>
+                <li>• Unlock Step 3 & Rewards</li>
+              </ul>
+            </div>
+
+            {/* Fields in Database */}
+            <div className="mb-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
+              <p className="text-xs font-bold text-purple-700 uppercase mb-2 flex items-center gap-2">
+                <Zap className="w-4 h-4" />
+                Database Fields
+              </p>
+              <div className="text-xs text-purple-800 space-y-1 font-mono">
+                <p>• seminar.completed: false</p>
+                <p>• seminar.proof: "url"</p>
+                <p>• seminar.submittedAt: Date</p>
+                <p>• seminar.approvedAt: null</p>
+                <p>• seminar.unlocked: false</p>
+              </div>
+            </div>
+
+            {/* Action Button */}
             <button
-              className={`w-full py-4 rounded-2xl font-bold shadow-xl transition-all duration-300 flex items-center justify-center gap-2
-              ${
-                activeStep >= 2
-                  ? "bg-gradient-to-r from-orange-400 to-red-500 text-white hover:scale-105 hover:shadow-2xl"
-                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
-              }`}
+              onClick={() => router.push("/step2")}
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-orange-400 to-red-500 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
             >
               <Upload className="w-5 h-5" />
               Upload Seminar Proof
             </button>
+
+            {/* Reward Info */}
+            <div className="mt-4 text-center">
+              <p className="text-xs text-gray-500">Reward: Coupon Code + Step 3 🎁</p>
+            </div>
           </div>
         </div>
 
-        {/* STEP 3 - Locked/Unlocked */}
-        <div
-          className={`group relative rounded-3xl p-8 border-2 shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden
-          ${activeStep >= 3 ? "bg-white border-red-200" : "bg-white/60 border-gray-300"}`}
-        >
-          {activeStep < 3 && (
-            <div className="absolute inset-0 bg-gradient-to-br from-white/80 to-gray-100/80 backdrop-blur-md rounded-3xl flex items-center justify-center z-20">
-              <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mb-4 shadow-lg">
-                  <Lock size={40} className="text-gray-500" />
-                </div>
-                <p className="text-gray-700 font-bold text-lg">Locked</p>
-                <p className="text-gray-500 text-sm mt-2">Complete Step 2 first</p>
-              </div>
-            </div>
-          )}
-
+        {/* ==================== STEP 3 - ONBOARDING & REWARDS ==================== */}
+        <div className="group bg-white border-2 border-red-200 shadow-2xl rounded-3xl p-8 hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-400 to-pink-500 rounded-full -translate-y-16 translate-x-16 opacity-20 group-hover:scale-150 transition-transform duration-700"></div>
 
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ${
-                activeStep >= 3 ? "bg-gradient-to-br from-red-400 to-pink-500" : "bg-gray-300"
-              }`}>
-                <Gift className="w-6 h-6 text-white" />
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-14 h-14 bg-gradient-to-br from-red-400 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <Gift className="w-7 h-7 text-white" />
               </div>
               <div>
-                <span className={`text-xs font-bold uppercase tracking-wide ${
-                  activeStep >= 3 ? "text-red-600" : "text-gray-500"
-                }`}>
-                  {activeStep >= 3 ? "Available" : "Locked"}
-                </span>
-                <h3 className="text-2xl font-black text-gray-800">Step 3: Rewards</h3>
+                <span className="text-xs font-bold text-red-600 uppercase tracking-wide">Step 3</span>
+                <h3 className="text-2xl font-black text-gray-800">Onboarding</h3>
               </div>
             </div>
 
-            <ul className="text-gray-600 space-y-3 mb-6 text-sm">
-              <li className="flex items-start gap-2">
-                <Star className={`w-4 h-4 flex-shrink-0 mt-0.5 ${activeStep >= 3 ? "text-red-500" : "text-gray-400"}`} />
-                <span>Get your unique discount coupon</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Star className={`w-4 h-4 flex-shrink-0 mt-0.5 ${activeStep >= 3 ? "text-red-500" : "text-gray-400"}`} />
-                <span>View participant benefits</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Star className={`w-4 h-4 flex-shrink-0 mt-0.5 ${activeStep >= 3 ? "text-red-500" : "text-gray-400"}`} />
-                <span>Access reward dashboard</span>
-              </li>
-            </ul>
+            {/* Description */}
+            <div className="mb-6">
+              <p className="text-gray-700 font-semibold mb-3">What you get:</p>
+              <ul className="text-gray-600 space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                  <span>Your unique discount coupon code</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                  <span>Share coupon with students to get discounts</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                  <span>Track how many people used your coupon</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                  <span>View your impact and statistics</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                  <span>Access exclusive ambassador benefits</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Star className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                  <span>Certificate of recognition</span>
+                </li>
+              </ul>
+            </div>
 
+            {/* Coupon Preview */}
+            <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-300">
+              <p className="text-xs font-bold text-purple-700 uppercase mb-2 flex items-center gap-2">
+                <Gift className="w-4 h-4" />
+                Your Coupon Code
+              </p>
+              <div className="bg-white rounded-lg p-3 border-2 border-dashed border-purple-300">
+                <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 text-center">
+                  INNOVATE2024XYZ
+                </p>
+                <p className="text-xs text-center text-gray-500 mt-1">Example: Generated after Step 2</p>
+              </div>
+            </div>
+
+            {/* Fields in Database */}
+            <div className="mb-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
+              <p className="text-xs font-bold text-purple-700 uppercase mb-2 flex items-center gap-2">
+                <Zap className="w-4 h-4" />
+                Database Fields
+              </p>
+              <div className="text-xs text-purple-800 space-y-1 font-mono">
+                <p>• onboarding.completed: true</p>
+                <p>• onboarding.couponCode: "CODE"</p>
+                <p>• onboarding.approvedAt: Date</p>
+                <p>• onboarding.unlocked: false</p>
+                <p>• isFullyCompleted: true</p>
+              </div>
+            </div>
+
+            {/* Action Button */}
             <button
-              className={`w-full py-4 rounded-2xl font-bold shadow-xl transition-all duration-300 flex items-center justify-center gap-2
-              ${
-                activeStep >= 3
-                  ? "bg-gradient-to-r from-red-400 to-pink-500 text-white hover:scale-105 hover:shadow-2xl"
-                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
-              }`}
+              onClick={() => router.push("/step3")}
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-400 to-pink-500 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
             >
               <Gift className="w-5 h-5" />
-              View Rewards
+              View My Dashboard
+            </button>
+
+            {/* Reward Info */}
+            <div className="mt-4 text-center">
+              <p className="text-xs text-gray-500">Final Reward: Full Access 🏆</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Developer Notes Section */}
+      <div className="max-w-6xl w-full bg-gradient-to-r from-gray-900 to-gray-800 rounded-3xl p-8 relative z-10 border-2 border-yellow-400">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center">
+            <Zap className="w-6 h-6 text-gray-900" />
+          </div>
+          <div>
+            <h3 className="text-white font-black text-2xl">Developer Notes</h3>
+            <p className="text-gray-400 text-sm">Workflow & Implementation Guide</p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Flow Summary */}
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+            <h4 className="text-yellow-400 font-bold mb-4 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5" />
+              Complete Flow
+            </h4>
+            <ol className="text-gray-300 text-sm space-y-3">
+              <li className="flex gap-3">
+                <span className="text-yellow-400 font-bold">1.</span>
+                <span>Ambassador uploads promotion screenshots → Admin approves → Step 2 unlocks</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-yellow-400 font-bold">2.</span>
+                <span>Ambassador uploads seminar proof → Admin approves → Generates coupon code → Step 3 unlocks</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="text-yellow-400 font-bold">3.</span>
+                <span>Ambassador views rewards dashboard with their unique coupon code</span>
+              </li>
+            </ol>
+          </div>
+
+          {/* Admin Actions */}
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+            <h4 className="text-yellow-400 font-bold mb-4 flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Admin Panel Needs
+            </h4>
+            <ul className="text-gray-300 text-sm space-y-2">
+              <li>• View all ambassador submissions</li>
+              <li>• Approve/Reject Step 1 uploads</li>
+              <li>• Approve/Reject Step 2 seminar proof</li>
+              <li>• Auto-generate coupon codes</li>
+              <li>• Track coupon usage statistics</li>
+              <li>• Send notifications to ambassadors</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Quick Navigation */}
+        <div className="mt-6 pt-6 border-t border-gray-700">
+          <p className="text-gray-400 text-sm mb-3">Quick Test Navigation:</p>
+          <div className="flex gap-3 flex-wrap">
+            <button 
+              onClick={() => router.push("/step1")}
+              className="px-6 py-3 bg-yellow-500 text-gray-900 rounded-xl font-bold hover:bg-yellow-400 transition-colors"
+            >
+              Go to Step 1 Upload
+            </button>
+            <button 
+              onClick={() => router.push("/step2")}
+              className="px-6 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-400 transition-colors"
+            >
+              Go to Step 2 Upload
+            </button>
+            <button 
+              onClick={() => router.push("/rewards")}
+              className="px-6 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-400 transition-colors"
+            >
+              Go to Rewards Page
             </button>
           </div>
         </div>
@@ -261,15 +442,19 @@ export default function AmbassadorTimeline() {
 
       {/* Progress Indicator */}
       <div className="mt-12 text-center relative z-10">
-        <p className="text-gray-600 text-sm mb-3">Your Progress</p>
-        <div className="flex items-center gap-2">
-          <div className="w-64 h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+        <p className="text-gray-600 text-sm mb-3 font-medium">Your Progress</p>
+        <div className="flex items-center gap-4 justify-center">
+          <div className="w-64 h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner">
             <div 
-              className="h-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 transition-all duration-700 rounded-full"
+              className="h-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 transition-all duration-700 rounded-full shadow-lg"
               style={{ width: `${(activeStep / 3) * 100}%` }}
             ></div>
           </div>
-          <span className="text-lg font-bold text-gray-700">{activeStep}/3</span>
+          <div className="flex items-center gap-2">
+            <span className="text-2xl font-black text-gray-800">{activeStep}</span>
+            <span className="text-gray-500 font-medium">/</span>
+            <span className="text-xl font-bold text-gray-600">3</span>
+          </div>
         </div>
       </div>
     </div>
