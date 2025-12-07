@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import {
   Upload,
@@ -11,20 +10,27 @@ import {
   CheckCircle,
   ImageDown,
 } from "lucide-react";
+import axios from "axios";
 
+// No API calls here. Only UI + console logs.
 export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   const [files, setFiles] = useState({ day1: [], day2: [] });
   const [day1Confirmed, setDay1Confirmed] = useState(false);
   const [day2Confirmed, setDay2Confirmed] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const isStepComplete =
-    files.day1.length > 0 &&
-    files.day2.length > 0 &&
-    day1Confirmed &&
-    day2Confirmed;
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-  // Download all admin images
+
+  // "currentDay" simulates which phase you are in:
+  // - "day1": only Day 1 active
+  // - "day2": only Day 2 active (this would be set by backend after 24h in real app)
+  const [currentDay, setCurrentDay] = useState("day1");
+
+  // Helpers to know which side should be active
+  const isDay1Active = currentDay === "day1";
+  const isDay2Active = currentDay === "day2";
+
+  // Download admin assets (unchanged)
   const handleDownloadAssets = () => {
     if (!adminImages.length) {
       toast.error("No assets available to download yet.");
@@ -41,73 +47,137 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
     });
   };
 
-  // Upload handler
-  const handleUpload = async (event, day) => {
-    const selectedFiles = Array.from(event.target.files);
+  // Upload handler for one day (only logs FormData for that day)
+  const handleUpload = (event, day) => {
+    const selectedFiles = Array.from(event.target.files || []);
+    if (!selectedFiles.length) return;
+
+    // Lock rules:
+    if (day === "day1" && !isDay1Active) {
+      toast.error("Day 1 upload is closed. You are in Day 2 phase now.");
+      event.target.value = "";
+      return;
+    }
+    if (day === "day2" && !isDay2Active) {
+      toast.error("Day 2 uploads will open after Day 1 is submitted (24h in real app).");
+      event.target.value = "";
+      return;
+    }
 
     const formData = new FormData();
-    selectedFiles.forEach((file) => formData.append("screenshots", file));
+    selectedFiles.forEach((file) => {
+      // field name for backend: e.g. multer.array("screenshots")
+      formData.append("screenshots", file);
+    });
     formData.append("day", day);
+    formData.append("ambassadorId", ambassadorId);
 
-    try {
-      setLoading(true);
-      await axios.post(
-        `http://localhost:5000/api/task/upload/${ambassadorId}`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      setFiles((prev) => ({
-        ...prev,
-        [day]: [...prev[day], ...selectedFiles],
-      }));
-
-      toast.success(`${day.toUpperCase()} upload successful ✔`);
-    } catch (error) {
-      toast.error("Upload failed. Try again.");
-    } finally {
-      setLoading(false);
+    console.log(`=== SINGLE ${day.toUpperCase()} UPLOAD FormData ===`);
+    for (const [key, value] of formData.entries()) {
+      console.log(key, value);
     }
+
+    // Update local preview
+    setFiles((prev) => ({
+      ...prev,
+      [day]: [...prev[day], ...selectedFiles],
+    }));
+
+    toast.success(`${day.toUpperCase()} upload (local) recorded ✔`);
+    event.target.value = "";
   };
 
-  // Delete preview locally
   const removeFile = (day, index) => {
+    if (day === "day1" && !isDay1Active) return;
+    if (day === "day2" && !isDay2Active) return;
+
     setFiles((prev) => ({
       ...prev,
       [day]: prev[day].filter((_, i) => i !== index),
     }));
   };
 
-  // Submit final proof
-  const handleSubmit = async () => {
-    try {
-      setLoading(true);
-      await axios.post(
-        `http://localhost:5000/api/task/submit-step1/${ambassadorId}`,
-        { day1Confirmed, day2Confirmed }
+  // Submit button behavior:
+  // - When currentDay === "day1": send only Day1 data, then switch to "day2"
+  // - When currentDay === "day2": send only Day2 data
+  const handleSubmit = async() => {
+    if (currentDay === "day1") {
+      // Build FormData for Day 1 only
+      const formData = new FormData();
+      files.day1.forEach((file) => {
+        formData.append("day1Screenshots", file);
+      });
+      formData.append("day1Confirmed", String(day1Confirmed));
+      formData.append("ambassadorId", ambassadorId);
+
+      console.log("=== SUBMIT DAY 1 FormData (send this to backend) ===");
+      for (const [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      // TODO: your API call for day1 submit:
+      //////////// data going to backend of step1 day1 ////////////
+      const res = await axios.post(
+        `${API_URL}/step1/day1/uploads`,
+        formData,
+        {
+          withCredentials: true, // ⭐ sends cookie (JWT)
+          headers: { "Content-Type": "multipart/form-data" },
+        }
       );
-      toast.success("Step 1 submitted — pending admin approval 🚀");
-    } catch (error) {
-      toast.error("Submission failed.");
-    } finally {
-      setLoading(false);
+
+      // console.log("hello world", formData);
+
+      toast.success("Day 1 submitted — now waiting 24h (simulated).");
+
+      // In real app you would switch to Day 2 only after backend says 24h passed.
+      // For now, we switch immediately so you can test the UI.
+
+      // setCurrentDay("day2"); ////////////////////////////
+    } else if (currentDay === "day2") {
+      const formData = new FormData();
+      files.day2.forEach((file) => {
+        formData.append("day2Screenshots", file);
+      });
+      formData.append("day2Confirmed", String(day2Confirmed));
+      formData.append("ambassadorId", ambassadorId);
+
+      console.log("=== SUBMIT DAY 2 FormData (send this to backend) ===");
+      for (const [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      // TODO: your API call for day2 submit:
+      // fetch('/api/task/submit-step1-day2/' + ambassadorId, { method: 'POST', body: formData })
+
+      toast.success("Day 2 submitted — Step 1 complete (simulated).");
     }
   };
 
+  // Button enable logic per phase
+  const canSubmitDay1 =
+    isDay1Active && files.day1.length > 0 && day1Confirmed;
+  const canSubmitDay2 =
+    isDay2Active && files.day2.length > 0 && day2Confirmed;
+
+  const buttonDisabled =
+    (currentDay === "day1" && !canSubmitDay1) ||
+    (currentDay === "day2" && !canSubmitDay2);
+
+  const buttonLabel =
+    currentDay === "day1" ? "Submit Day 1 Proof" : "Submit Day 2 Proof";
+
+  // Simple progress (just for UI feedback)
   const progressWidth =
-    (files.day1.length ? 40 : 0) +
-    (day1Confirmed ? 10 : 0) +
-    (files.day2.length ? 40 : 0) +
-    (day2Confirmed ? 10 : 0);
+    (files.day1.length && day1Confirmed ? 50 : 0) +
+    (files.day2.length && day2Confirmed ? 50 : 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 px-4 sm:px-6 lg:px-8 py-8">
       <Toaster position="top-right" />
 
       <div className="max-w-3xl mx-auto">
-        {/* Top bar with title + assets download */}
+        {/* Top bar */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div>
             <p className="text-[11px] uppercase text-blue-500 tracking-[0.2em]">
@@ -117,7 +187,7 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
               Promotion Proof
             </h1>
             <p className="text-slate-600 mt-1 text-sm">
-              Upload screenshots for both days and confirm to unlock Step 2.
+              First complete Day 1, then after 24 hours Day 2 will open.
             </p>
           </div>
 
@@ -142,38 +212,26 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
         </div>
 
         {/* Status Box */}
-        <div
-          className={`border rounded-2xl p-5 mb-8 shadow-sm transition-all ${
-            isStepComplete
-              ? "bg-emerald-50 border-emerald-400"
-              : "bg-white border-slate-200"
-          }`}
-        >
+        <div className="border rounded-2xl p-5 mb-8 shadow-sm bg-white border-slate-200">
           <div className="flex items-center gap-3">
-            {isStepComplete ? (
-              <CheckCircle className="text-emerald-600 w-5 h-5" />
-            ) : (
-              <Lock className="text-slate-400 w-5 h-5" />
-            )}
+            <CheckCircle className="text-blue-500 w-5 h-5" />
             <div>
               <p className="text-sm font-medium text-slate-800">
-                {isStepComplete
-                  ? "Step completed — waiting for admin approval"
-                  : "Complete this step to proceed"}
+                {currentDay === "day1"
+                  ? "You are on Day 1."
+                  : "You are on Day 2."}
               </p>
               <p className="text-xs text-slate-500 mt-0.5">
-                Upload screenshots and confirm that posts stayed online.
+                Only one day is active at a time. Backend will move to Day 2
+                after 24 hours.
               </p>
             </div>
           </div>
 
-          {/* Progress Bar */}
           <div className="w-full bg-slate-200 h-2 mt-4 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500"
-              style={{
-                width: `${Math.min(progressWidth, 100)}%`,
-              }}
+              style={{ width: `${Math.min(progressWidth, 100)}%` }}
             ></div>
           </div>
         </div>
@@ -181,7 +239,10 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
         {/* Upload Sections */}
         <div className="grid gap-6">
           {["day1", "day2"].map((day) => {
-            const isDay2Locked = day === "day2" && !day1Confirmed;
+            const isActive =
+              (day === "day1" && isDay1Active) ||
+              (day === "day2" && isDay2Active);
+
             const title =
               day === "day1"
                 ? "Day 1 Screenshot Upload"
@@ -196,14 +257,16 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
               <div
                 key={day}
                 className={`relative bg-white border rounded-2xl p-6 shadow-sm transition ${
-                  isDay2Locked
-                    ? "opacity-60 pointer-events-none"
-                    : "hover:border-blue-200 hover:shadow-md"
+                  isActive
+                    ? "hover:border-blue-200 hover:shadow-md"
+                    : "opacity-60 pointer-events-none"
                 }`}
               >
                 {day === "day2" && (
                   <span className="absolute -top-2 right-4 rounded-full bg-slate-900 text-white text-[10px] px-3 py-[3px]">
-                    Unlocks after Day 1 confirm
+                    {isDay2Active
+                      ? "Day 2 is active"
+                      : "Locked until backend moves you to Day 2 (24h)"}
                   </span>
                 )}
 
@@ -241,7 +304,6 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
                   </p>
                 </div>
 
-                {/* Preview Files */}
                 {files[day].length > 0 && (
                   <div className="mt-4 space-y-3">
                     {files[day].map((file, i) => (
@@ -274,17 +336,18 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
                   </div>
                 )}
 
-                {/* Checkbox */}
                 <label className="flex items-center gap-3 mt-4 text-slate-700 cursor-pointer">
                   <input
                     type="checkbox"
-                    disabled={files[day].length === 0}
+                    disabled={files[day].length === 0 || !isActive}
                     checked={confirmed}
-                    onChange={() =>
-                      day === "day1"
-                        ? setDay1Confirmed(!day1Confirmed)
-                        : setDay2Confirmed(!day2Confirmed)
-                    }
+                    onChange={() => {
+                      if (day === "day1") {
+                        setDay1Confirmed(!day1Confirmed);
+                      } else {
+                        setDay2Confirmed(!day2Confirmed);
+                      }
+                    }}
                     className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   />
                   <span className="text-xs sm:text-sm">
@@ -297,17 +360,17 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
           })}
         </div>
 
-        {/* Submit Button */}
+        {/* Submit Button – works for one day at a time */}
         <button
           onClick={handleSubmit}
-          disabled={!isStepComplete || loading}
+          disabled={buttonDisabled}
           className={`w-full py-3 mt-8 rounded-xl font-medium text-sm sm:text-base text-white shadow-sm transition ${
-            isStepComplete && !loading
+            !buttonDisabled
               ? "bg-blue-600 hover:bg-blue-700"
               : "bg-slate-300 cursor-not-allowed"
           }`}
         >
-          {loading ? "Submitting..." : "Submit Proof"}
+          {buttonLabel} (check console)
         </button>
       </div>
     </div>
