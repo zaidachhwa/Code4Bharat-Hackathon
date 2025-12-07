@@ -151,6 +151,7 @@ const formSchema = z.object({
 ------------------------------ */
 
 export default function CampusAmbassadorPage() {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
   const [step, setStep] = useState(0);
 
   const {
@@ -223,7 +224,7 @@ export default function CampusAmbassadorPage() {
 
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/ambassadors/register`,
+        `${API_URL}/ambassadors/register`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

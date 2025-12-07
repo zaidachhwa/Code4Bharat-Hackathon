@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import {
   Upload,
@@ -17,9 +17,52 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   const [files, setFiles] = useState({ day1: [], day2: [] });
   const [day1Confirmed, setDay1Confirmed] = useState(false);
   const [day2Confirmed, setDay2Confirmed] = useState(false);
+  const [waitingHours, setWaitingHours] = useState(null);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+  useEffect(() => {
+    getPromotionData();
+  }, []);
+
+  const getPromotionData = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/step1/get-promotion-data`, {
+        withCredentials: true,
+      });
+
+      console.log("Promotion Data", res.data);
+
+      const promotion = res.data?.data?.promotion;
+
+      if (!promotion) return;
+
+      const day1Uploaded = promotion?.screenshots?.day1?.length > 0;
+      const submittedAt = promotion?.submittedAt;
+
+      if (!day1Uploaded || !submittedAt) {
+        setCurrentDay("day1");
+        return;
+      }
+
+      const uploadedTime = new Date(submittedAt);
+      const now = new Date();
+      const diffHours = (now - uploadedTime) / (1000 * 60 * 60);
+
+      if (true) {
+        /////////////// 24 hours logic happening from here ////////////////////////////////----------
+        setCurrentDay("day2");
+        setWaitingHours(null);
+      } else {
+        const remaining = Math.max(1, Math.ceil(24 - diffHours));
+        setWaitingHours(remaining);
+        setCurrentDay("waiting");
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Error fetching promotion data");
+    }
+  };
 
   // "currentDay" simulates which phase you are in:
   // - "day1": only Day 1 active
@@ -27,8 +70,9 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   const [currentDay, setCurrentDay] = useState("day1");
 
   // Helpers to know which side should be active
-  const isDay1Active = currentDay === "day1";
-  const isDay2Active = currentDay === "day2";
+  const isDay1Active = currentDay === "day1" || currentDay === "waiting"; // Day1 always allowed until approved
+
+  const isDay2Active = currentDay === "day2"; // Only after 24hr unlock
 
   // Download admin assets (unchanged)
   const handleDownloadAssets = () => {
@@ -59,7 +103,9 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
       return;
     }
     if (day === "day2" && !isDay2Active) {
-      toast.error("Day 2 uploads will open after Day 1 is submitted (24h in real app).");
+      toast.error(
+        "Day 2 uploads will open after Day 1 is submitted (24h in real app)."
+      );
       event.target.value = "";
       return;
     }
@@ -100,7 +146,7 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   // Submit button behavior:
   // - When currentDay === "day1": send only Day1 data, then switch to "day2"
   // - When currentDay === "day2": send only Day2 data
-  const handleSubmit = async() => {
+  const handleSubmit = async () => {
     if (currentDay === "day1") {
       // Build FormData for Day 1 only
       const formData = new FormData();
@@ -117,14 +163,10 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
 
       // TODO: your API call for day1 submit:
       //////////// data going to backend of step1 day1 ////////////
-      const res = await axios.post(
-        `${API_URL}/step1/day1/uploads`,
-        formData,
-        {
-          withCredentials: true, // ⭐ sends cookie (JWT)
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+      const res = await axios.post(`${API_URL}/step1/day1/uploads`, formData, {
+        withCredentials: true, // ⭐ sends cookie (JWT)
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       // console.log("hello world", formData);
 
@@ -136,29 +178,48 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
       // setCurrentDay("day2"); ////////////////////////////
     } else if (currentDay === "day2") {
       const formData = new FormData();
+
+      // attach uploaded images
       files.day2.forEach((file) => {
-        formData.append("day2Screenshots", file);
+        formData.append("screenshots", file);
       });
+
+      // attach required fields
       formData.append("day2Confirmed", String(day2Confirmed));
       formData.append("ambassadorId", ambassadorId);
 
-      console.log("=== SUBMIT DAY 2 FormData (send this to backend) ===");
+      console.log("=== SUBMIT DAY 2 FormData to backend ===");
       for (const [key, value] of formData.entries()) {
         console.log(key, value);
       }
 
-      // TODO: your API call for day2 submit:
-      // fetch('/api/task/submit-step1-day2/' + ambassadorId, { method: 'POST', body: formData })
+      try {
+        const res = await axios.post(
+          `${API_URL}/step1/day2/uploads`,
+          formData,
+          {
+            withCredentials: true,
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
 
-      toast.success("Day 2 submitted — Step 1 complete (simulated).");
+        toast.success("Day 2 submitted successfully! Step 1 Completed.");
+
+        // Refresh data from backend so UI updates
+        getPromotionData();
+
+        // Lock UI
+        setCurrentDay("submitted");
+      } catch (err) {
+        console.log(err);
+        toast.error("Day 2 submission failed");
+      }
     }
   };
 
   // Button enable logic per phase
-  const canSubmitDay1 =
-    isDay1Active && files.day1.length > 0 && day1Confirmed;
-  const canSubmitDay2 =
-    isDay2Active && files.day2.length > 0 && day2Confirmed;
+  const canSubmitDay1 = isDay1Active && files.day1.length > 0 && day1Confirmed;
+  const canSubmitDay2 = isDay2Active && files.day2.length > 0 && day2Confirmed;
 
   const buttonDisabled =
     (currentDay === "day1" && !canSubmitDay1) ||
