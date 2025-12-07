@@ -182,7 +182,7 @@ export default function SeminarPage() {
 
           <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200 flex-wrap gap-3">
             <button className="px-6 py-3 text-gray-600 hover:text-gray-900 font-semibold transition-colors">
-              Save as Draft
+              
             </button>
             <div className="flex gap-3 flex-wrap">
               {!couponCode && uploadedFiles.length > 0 && (
