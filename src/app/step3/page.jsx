@@ -1,12 +1,34 @@
 "use client";
-import React, { useState } from 'react';
-import { CheckCircle, Clock, Award, Copy, Check } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { CheckCircle, Clock, Award, Copy, Check } from "lucide-react";
+import axios from "axios";
 
 export default function Step3Completion() {
   const [copied, setCopied] = useState(false);
+  const [userCoupon, setUserCoupon] = useState(""); // ⬅️ STATE ADDED
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+  useEffect(() => {
+    getCoupenCode();
+  }, []);
+
+  const getCoupenCode = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/ambassador/coupen-code`, {
+        withCredentials: true,
+      });
+
+      const code = res?.data?.data?.couponCode;
+      setUserCoupon(code || "");
+      console.log("Coupon Code Retrieved:", code);
+    } catch (err) {
+      console.log("❌ Error fetching coupon code", err);
+    }
+  };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText('CAMPUS20');
+    navigator.clipboard.writeText(userCoupon);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -21,9 +43,7 @@ export default function Step3Completion() {
               <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
                 <Award className="w-8 h-8" />
               </div>
-              <h1 className="text-3xl font-bold">
-                Step 3 - Completion
-              </h1>
+              <h1 className="text-3xl font-bold">Step 3 - Completion</h1>
             </div>
             <p className="text-blue-100 text-lg">
               Review your progress, note any remaining actions, and finish your ambassador journey.
@@ -46,61 +66,26 @@ export default function Step3Completion() {
             </span>
           </div>
 
-          {/* Main Content */}
+          {/* Coupon Code Section */}
           <div className="p-8 space-y-6">
-            {/* Promotion Proof */}
-            <div className="group bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200 hover:border-green-300 transition-all duration-300 hover:shadow-lg">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <CheckCircle className="w-6 h-6 text-green-600" />
-                    <h3 className="text-xl font-bold text-gray-800">
-                      Promotion proof
-                    </h3>
-                  </div>
-                  <p className="text-sm text-gray-600 ml-9">
-                    Submitted on May 20 • 2 screenshots uploaded
-                  </p>
-                </div>
-                <span className="px-5 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold rounded-full shadow-md">
-                  Approved
-                </span>
-              </div>
-            </div>
-
-            {/* Seminar Proof */}
-            <div className="group bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 hover:shadow-lg">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Clock className="w-6 h-6 text-blue-600 animate-pulse" />
-                    <h3 className="text-xl font-bold text-gray-800">
-                      Seminar proof
-                    </h3>
-                  </div>
-                  <p className="text-sm text-gray-600 ml-9">
-                    Submitted on Jun 28 • 1 file uploaded • Awaiting review
-                  </p>
-                </div>
-                <span className="px-5 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-bold rounded-full shadow-md">
-                  In review
-                </span>
-              </div>
-            </div>
-
-            {/* Coupon Code Section */}
-            <div className="bg-gradient-to-br from-purple-100 via-pink-50 to-orange-100 rounded-2xl p-8 mt-8 border-2 border-purple-200 shadow-xl">
+            <div className="bg-gradient-to-br from-purple-100 via-pink-50 to-orange-100 rounded-2xl p-8 border-2 border-purple-200 shadow-xl">
               <p className="text-sm font-semibold text-purple-700 mb-4 uppercase tracking-wide">
-                🎉 Your active coupon codes
+                🎉 Your active coupon code
               </p>
               <div className="bg-white rounded-xl p-6 shadow-lg border-2 border-dashed border-purple-300 hover:border-purple-400 transition-all duration-300">
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 tracking-wider">
-                    CAMPUS20
+                    {userCoupon || "Loading..."}
                   </h2>
+
                   <button
                     onClick={handleCopy}
-                    className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg"
+                    disabled={!userCoupon}
+                    className={`px-4 py-2 rounded-lg flex items-center gap-2 shadow-md transition-all duration-300 ${
+                      !userCoupon
+                        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                        : "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+                    }`}
                   >
                     {copied ? (
                       <>

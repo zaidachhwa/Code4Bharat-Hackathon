@@ -46,6 +46,8 @@ const schema = z.object({
 export default function Page() {
   const router = useRouter();
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
   const {
     register,
     handleSubmit,
@@ -61,7 +63,7 @@ export default function Page() {
       console.log("Admin Login Data:", data);
 
     //   Later you will call backend:
-      const res = await axios.post("http://localhost:5000/api/admin/login", data);
+      const res = await axios.post(`${API_URL}/admin/login`, data);
 
       if(res.data?.success){
         toast.dismiss();

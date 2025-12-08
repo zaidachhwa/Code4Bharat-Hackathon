@@ -33,34 +33,35 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
 
       if (!promotion) return;
 
-      const isDay1Done = promotion?.day1Confirmed === true;
-      const isDay2Done = promotion?.day2Confirmed === true;
+      // ---------------- NEW NEXT-DAY LOGIC ----------------
+const today = new Date().toDateString();
+const submissionDate = promotion?.submittedAt
+  ? new Date(promotion.submittedAt).toDateString()
+  : null;
 
-      if (isDay1Done && isDay2Done) {
-        setCurrentDay("completed");
-        return;
-      }
+// FIRST LOGIN → DAY 1 OPEN
+if (!promotion.day1Confirmed) {
+  setCurrentDay("day1");
+  return;
+}
 
-      const day1Uploaded = promotion?.screenshots?.day1?.length > 0;
-      const submittedAt = promotion?.submittedAt;
+// DAY 1 DONE BUT SAME DAY → LOCK BOTH
+if (submissionDate === today && promotion.day1Confirmed && !promotion.day2Confirmed) {
+  setCurrentDay("lockedDay2");
+  return;
+}
 
-      if (!day1Uploaded || !submittedAt) {
-        setCurrentDay("day1");
-        return;
-      }
+// NEXT CALENDAR DAY → DAY 2 OPEN
+if (submissionDate !== today && promotion.day1Confirmed && !promotion.day2Confirmed) {
+  setCurrentDay("day2");
+  return;
+}
 
-      const uploadedTime = new Date(submittedAt);
-      const now = new Date();
-      const diffHours = (now - uploadedTime) / (1000 * 60 * 60);
+// BOTH DONE → STEP COMPLETED
+if (promotion.day1Confirmed && promotion.day2Confirmed) {
+  setCurrentDay("completed");
+}
 
-      if (diffHours >= 24) {
-        setCurrentDay("day2");
-        setWaitingHours(null);
-      } else {
-        const remaining = Math.max(1, Math.ceil(24 - diffHours));
-        setWaitingHours(remaining);
-        setCurrentDay("waiting");
-      }
     } catch (err) {
       console.log(err);
       toast.error("Error fetching promotion data");
@@ -68,9 +69,11 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   };
 
   const isCompleted = currentDay === "completed";
-  const isDay1Active =
-    (currentDay === "day1" || currentDay === "waiting") && !isCompleted;
-  const isDay2Active = currentDay === "day2" && !isCompleted;
+  // NEW UI LOGIC
+const isDay1Active = currentDay === "day1";
+const isDay2Active = currentDay === "day2";
+const isLocked = currentDay === "lockedDay2";
+
 
   const handleDownloadAssets = () => {
     if (!adminImages.length) {
@@ -96,7 +99,7 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
       event.target.value = "";
       return;
     }
-    if (day === "day2" && !isDay2Active) {
+    if (day === "day2" && (!isDay2Active || isLocked)) {
       toast.error(
         "Day 2 uploads will open after Day 1 is submitted (24h in real app)."
       );
@@ -120,8 +123,10 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   };
 
   const removeFile = (day, index) => {
-    if (day === "day1" && !isDay1Active) return;
-    if (day === "day2" && !isDay2Active) return;
+    if (isLocked) return;
+if (day === "day1" && !isDay1Active) return;
+if (day === "day2" && !isDay2Active) return;
+
     setFiles((prev) => ({
       ...prev,
       [day]: prev[day].filter((_, i) => i !== index),
@@ -179,14 +184,21 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   const canSubmitDay1 = isDay1Active && files.day1.length > 0 && day1Confirmed;
   const canSubmitDay2 = isDay2Active && files.day2.length > 0 && day2Confirmed;
   const buttonDisabled =
-    isCompleted ||
-    (currentDay === "day1" && !canSubmitDay1) ||
-    (currentDay === "day2" && !canSubmitDay2);
-  const buttonLabel = isCompleted
+  isCompleted ||
+  isLocked ||
+  (currentDay === "day1" && !canSubmitDay1) ||
+  (currentDay === "day2" && !canSubmitDay2);
+
+  const buttonLabel =
+  isCompleted
     ? "Step Completed ✔"
+    : isLocked
+    ? "Come Back Tomorrow ⏳"
     : currentDay === "day1"
     ? "Submit Day 1 Proof"
     : "Submit Day 2 Proof";
+
+    
   const progressWidth = (day1Confirmed ? 50 : 0) + (day2Confirmed ? 50 : 0);
 
   return (
@@ -289,7 +301,7 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
                 {/* Lock Badge for Day 2 */}
                 {day === "day2" && !isActive && !isCompleted && (
                   <span className="absolute -top-3 right-6 rounded-full bg-gray-900 text-white text-xs px-4 py-2 font-bold shadow-lg">
-                    🔒 Locked (Opens after 24h)
+                    🔒 Locked (next day open)
                   </span>
                 )}
 
