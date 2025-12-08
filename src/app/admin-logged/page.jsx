@@ -193,7 +193,7 @@ const sendPromotionToAll = async () => {
     }
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 p-8">
         <div className="max-w-7xl mx-auto">
           <button
             onClick={() => setView("list")}
@@ -257,22 +257,18 @@ const sendPromotionToAll = async () => {
   }
 
   // List View
+  // List View
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center gap-4 mb-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
-              <Users className="w-7 h-7 text-white" />
+        <div className="mb-8">
+          <div className="flex items-center gap-5 mb-6">
+            <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-3xl flex items-center justify-center shadow-xl">
+              <Users className="w-9 h-9 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-orange-600">
-                Admin Dashboard
-              </h1>
-              <p className="text-gray-600 text-sm">
-                Approve, reject and manage ambassadors in one table.
-              </p>
+              <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-orange-600">Admin Dashboard</h1>
+              <p className="text-gray-600 text-base mt-1">Approve, reject and manage ambassadors</p>
             </div>
           </div>
 
@@ -288,11 +284,9 @@ const sendPromotionToAll = async () => {
                 {ambassadors.filter((a) => a.isApproved).length}
               </p>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-yellow-100 shadow-sm">
-              <p className="text-xs text-gray-500">Pending</p>
-              <p className="text-2xl font-black text-yellow-600">
-                {ambassadors.filter((a) => !a.isApproved && !a.rejected).length}
-              </p>
+            <div className="bg-white rounded-2xl p-6 border-2 border-yellow-200 shadow-lg">
+              <p className="text-sm text-gray-500 mb-1">Pending</p>
+              <p className="text-4xl font-black text-yellow-600">{ambassadors.filter(a => !a.isApproved && !a.rejected).length}</p>
             </div>
  
           </div>
@@ -438,7 +432,7 @@ const sendPromotionToAll = async () => {
         {/* Table */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-base">
               <thead className="bg-gradient-to-r from-yellow-100 to-orange-100">
                 <tr>
                   <th className="px-4 py-3 text-left font-semibold text-gray-700">Ambassador</th>

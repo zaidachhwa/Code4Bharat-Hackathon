@@ -1,36 +1,82 @@
 "use client";
 
-import { useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import {
-  Upload,
-  Trash2,
-  Download,
-  Lock,
-  CheckCircle,
-  ImageDown,
-} from "lucide-react";
+import { Upload, Trash2, Download, CheckCircle, ImageDown } from "lucide-react";
+import axios from "axios";
 
 export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   const [files, setFiles] = useState({ day1: [], day2: [] });
   const [day1Confirmed, setDay1Confirmed] = useState(false);
   const [day2Confirmed, setDay2Confirmed] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [waitingHours, setWaitingHours] = useState(null);
+  const [currentDay, setCurrentDay] = useState("day1");
 
-  const isStepComplete =
-    files.day1.length > 0 &&
-    files.day2.length > 0 &&
-    day1Confirmed &&
-    day2Confirmed;
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-  // Download all admin images
+  useEffect(() => {
+    getPromotionData();
+  }, []);
+
+  const getPromotionData = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/step1/get-promotion-data`, {
+        withCredentials: true,
+      });
+      console.log("Promotion Data", res.data);
+
+      
+
+      const promotion = res.data?.data?.promotion;
+      setDay1Confirmed(promotion?.day1Confirmed ?? false);
+      setDay2Confirmed(promotion?.day2Confirmed ?? false);
+
+      if (!promotion) return;
+
+      const isDay1Done = promotion?.day1Confirmed === true;
+      const isDay2Done = promotion?.day2Confirmed === true;
+
+      if (isDay1Done && isDay2Done) {
+        setCurrentDay("completed");
+        return;
+      }
+
+      const day1Uploaded = promotion?.screenshots?.day1?.length > 0;
+      const submittedAt = promotion?.submittedAt;
+
+      if (!day1Uploaded || !submittedAt) {
+        setCurrentDay("day1");
+        return;
+      }
+
+      const uploadedTime = new Date(submittedAt);
+      const now = new Date();
+      const diffHours = (now - uploadedTime) / (1000 * 60 * 60);
+
+      if (diffHours >= 24) {
+        setCurrentDay("day2");
+        setWaitingHours(null);
+      } else {
+        const remaining = Math.max(1, Math.ceil(24 - diffHours));
+        setWaitingHours(remaining);
+        setCurrentDay("waiting");
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Error fetching promotion data");
+    }
+  };
+
+  const isCompleted = currentDay === "completed";
+  const isDay1Active =
+    (currentDay === "day1" || currentDay === "waiting") && !isCompleted;
+  const isDay2Active = currentDay === "day2" && !isCompleted;
+
   const handleDownloadAssets = () => {
     if (!adminImages.length) {
       toast.error("No assets available to download yet.");
       return;
     }
-
     adminImages.forEach((url, index) => {
       const link = document.createElement("a");
       link.href = url;
@@ -41,147 +87,186 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
     });
   };
 
-  // Upload handler
-  const handleUpload = async (event, day) => {
-    const selectedFiles = Array.from(event.target.files);
+  const handleUpload = (event, day) => {
+    const selectedFiles = Array.from(event.target.files || []);
+    if (!selectedFiles.length) return;
+
+    if (day === "day1" && !isDay1Active) {
+      toast.error("Day 1 upload is closed. You are in Day 2 phase now.");
+      event.target.value = "";
+      return;
+    }
+    if (day === "day2" && !isDay2Active) {
+      toast.error(
+        "Day 2 uploads will open after Day 1 is submitted (24h in real app)."
+      );
+      event.target.value = "";
+      return;
+    }
 
     const formData = new FormData();
     selectedFiles.forEach((file) => formData.append("screenshots", file));
     formData.append("day", day);
+    formData.append("ambassadorId", ambassadorId);
 
-    try {
-      setLoading(true);
-      await axios.post(
-        `http://localhost:5000/api/task/upload/${ambassadorId}`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      setFiles((prev) => ({
-        ...prev,
-        [day]: [...prev[day], ...selectedFiles],
-      }));
-
-      toast.success(`${day.toUpperCase()} upload successful ✔`);
-    } catch (error) {
-      toast.error("Upload failed. Try again.");
-    } finally {
-      setLoading(false);
+    console.log(`=== SINGLE ${day.toUpperCase()} UPLOAD FormData ===`);
+    for (const [key, value] of formData.entries()) {
+      console.log(key, value);
     }
+
+    setFiles((prev) => ({ ...prev, [day]: [...prev[day], ...selectedFiles] }));
+    toast.success(`${day.toUpperCase()} upload (local) recorded ✔`);
+    event.target.value = "";
   };
 
-  // Delete preview locally
   const removeFile = (day, index) => {
+    if (day === "day1" && !isDay1Active) return;
+    if (day === "day2" && !isDay2Active) return;
     setFiles((prev) => ({
       ...prev,
       [day]: prev[day].filter((_, i) => i !== index),
     }));
   };
 
-  // Submit final proof
   const handleSubmit = async () => {
-    try {
-      setLoading(true);
-      await axios.post(
-        `http://localhost:5000/api/task/submit-step1/${ambassadorId}`,
-        { day1Confirmed, day2Confirmed }
-      );
-      toast.success("Step 1 submitted — pending admin approval 🚀");
-    } catch (error) {
-      toast.error("Submission failed.");
-    } finally {
-      setLoading(false);
+    if (currentDay === "day1") {
+      const formData = new FormData();
+      files.day1.forEach((file) => formData.append("day1Screenshots", file));
+      formData.append("day1Confirmed", String(day1Confirmed));
+      formData.append("ambassadorId", ambassadorId);
+
+      console.log("=== SUBMIT DAY 1 FormData (send this to backend) ===");
+      for (const [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      const res = await axios.post(`${API_URL}/step1/day1/uploads`, formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      toast.success("Day 1 submitted — now waiting 24h (simulated).");
+    } else if (currentDay === "day2") {
+      const formData = new FormData();
+      files.day2.forEach((file) => formData.append("screenshots", file));
+      formData.append("day2Confirmed", String(day2Confirmed));
+      formData.append("ambassadorId", ambassadorId);
+
+      console.log("=== SUBMIT DAY 2 FormData to backend ===");
+      for (const [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      try {
+        const res = await axios.post(
+          `${API_URL}/step1/day2/uploads`,
+          formData,
+          {
+            withCredentials: true,
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+        toast.success("Day 2 submitted successfully! Step 1 Completed.");
+        getPromotionData();
+        setCurrentDay("submitted");
+      } catch (err) {
+        console.log(err);
+        toast.error("Day 2 submission failed");
+      }
     }
   };
 
-  const progressWidth =
-    (files.day1.length ? 40 : 0) +
-    (day1Confirmed ? 10 : 0) +
-    (files.day2.length ? 40 : 0) +
-    (day2Confirmed ? 10 : 0);
+  const canSubmitDay1 = isDay1Active && files.day1.length > 0 && day1Confirmed;
+  const canSubmitDay2 = isDay2Active && files.day2.length > 0 && day2Confirmed;
+  const buttonDisabled =
+    isCompleted ||
+    (currentDay === "day1" && !canSubmitDay1) ||
+    (currentDay === "day2" && !canSubmitDay2);
+  const buttonLabel = isCompleted
+    ? "Step Completed ✔"
+    : currentDay === "day1"
+    ? "Submit Day 1 Proof"
+    : "Submit Day 2 Proof";
+  const progressWidth = (day1Confirmed ? 50 : 0) + (day2Confirmed ? 50 : 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 px-6 py-10">
       <Toaster position="top-right" />
 
-      <div className="max-w-3xl mx-auto">
-        {/* Top bar with title + assets download */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-          <div>
-            <p className="text-[11px] uppercase text-blue-500 tracking-[0.2em]">
-              Step 1 of 3
-            </p>
-            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900">
-              Promotion Proof
-            </h1>
-            <p className="text-slate-600 mt-1 text-sm">
-              Upload screenshots for both days and confirm to unlock Step 2.
-            </p>
-          </div>
+      <div className="max-w-5xl mx-auto">
+        {/* Header Section */}
+        <div className="bg-white rounded-3xl shadow-2xl border-2 border-yellow-200 p-8 mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-14 h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Upload className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <p className="text-xs uppercase text-yellow-600 tracking-widest font-bold">
+                    Step 1 of 3
+                  </p>
+                  <h1 className="text-3xl font-black text-gray-900">
+                    Promotion Proof
+                  </h1>
+                </div>
+              </div>
+              <p className="text-base text-gray-600 ml-[68px]">
+                Complete Day 1, then Day 2 opens after 24 hours.
+              </p>
+            </div>
 
-          <div className="flex flex-col items-stretch gap-2 sm:items-end">
             <button
-              type="button"
               onClick={handleDownloadAssets}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs sm:text-sm font-medium text-blue-700 hover:bg-blue-100 transition"
+              className="flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-yellow-400 to-orange-500 px-6 py-4 text-base font-bold text-white shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
-              <ImageDown size={16} />
-              Download All Assets
+              <ImageDown size={20} />
+              Download Assets
               {adminImages.length > 0 && (
-                <span className="ml-1 rounded-full bg-blue-600 text-white text-[10px] px-2 py-[2px]">
+                <span className="rounded-full bg-white text-orange-600 text-xs px-2.5 py-1 font-bold">
                   {adminImages.length}
                 </span>
               )}
             </button>
-            <span className="text-[11px] text-slate-500">
-              Provided by admin for your posts
-            </span>
-          </div>
-        </div>
-
-        {/* Status Box */}
-        <div
-          className={`border rounded-2xl p-5 mb-8 shadow-sm transition-all ${
-            isStepComplete
-              ? "bg-emerald-50 border-emerald-400"
-              : "bg-white border-slate-200"
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            {isStepComplete ? (
-              <CheckCircle className="text-emerald-600 w-5 h-5" />
-            ) : (
-              <Lock className="text-slate-400 w-5 h-5" />
-            )}
-            <div>
-              <p className="text-sm font-medium text-slate-800">
-                {isStepComplete
-                  ? "Step completed — waiting for admin approval"
-                  : "Complete this step to proceed"}
-              </p>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Upload screenshots and confirm that posts stayed online.
-              </p>
-            </div>
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full bg-slate-200 h-2 mt-4 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500"
-              style={{
-                width: `${Math.min(progressWidth, 100)}%`,
-              }}
-            ></div>
+          <div className="mt-8 p-6 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl border-2 border-yellow-200">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="text-yellow-600 w-6 h-6" />
+                <p className="text-base font-bold text-gray-800">
+                  {currentDay === "day1"
+                    ? "Currently on Day 1"
+                    : currentDay === "day2"
+                    ? "Currently on Day 2"
+                    : "Step Completed"}
+                </p>
+              </div>
+              <p className="text-sm font-bold text-yellow-600">
+                {Math.min(progressWidth, 100)}% Complete
+              </p>
+            </div>
+            <div className="w-full bg-gray-200 h-4 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 transition-all duration-500 rounded-full"
+                style={{ width: `${Math.min(progressWidth, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-600 mt-3">
+              {currentDay === "waiting"
+                ? `⏳ Day 2 unlocks in ~${waitingHours} hours`
+                : "Only one day is active at a time"}
+            </p>
           </div>
         </div>
 
-        {/* Upload Sections */}
+        {/* Upload Cards */}
         <div className="grid gap-6">
           {["day1", "day2"].map((day) => {
-            const isDay2Locked = day === "day2" && !day1Confirmed;
+            const isActive =
+              (day === "day1" && isDay1Active) ||
+              (day === "day2" && isDay2Active);
             const title =
               day === "day1"
                 ? "Day 1 Screenshot Upload"
@@ -195,78 +280,95 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
             return (
               <div
                 key={day}
-                className={`relative bg-white border rounded-2xl p-6 shadow-sm transition ${
-                  isDay2Locked
-                    ? "opacity-60 pointer-events-none"
-                    : "hover:border-blue-200 hover:shadow-md"
+                className={`relative bg-white border-2 rounded-3xl p-8 shadow-xl transition-all ${
+                  isActive
+                    ? "border-yellow-300 hover:shadow-2xl"
+                    : "border-gray-200 opacity-60 pointer-events-none"
                 }`}
               >
-                {day === "day2" && (
-                  <span className="absolute -top-2 right-4 rounded-full bg-slate-900 text-white text-[10px] px-3 py-[3px]">
-                    Unlocks after Day 1 confirm
+                {/* Lock Badge for Day 2 */}
+                {day === "day2" && !isActive && !isCompleted && (
+                  <span className="absolute -top-3 right-6 rounded-full bg-gray-900 text-white text-xs px-4 py-2 font-bold shadow-lg">
+                    🔒 Locked (Opens after 24h)
                   </span>
                 )}
 
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold text-slate-900">
-                      {title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                      {subtitle}
-                    </p>
+                {/* Active Badge for Day 2 */}
+                {day === "day2" && isActive && (
+                  <span className="absolute -top-3 right-6 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-xs px-4 py-2 font-bold shadow-lg">
+                    ✓ Day 2 Active
+                  </span>
+                )}
+
+                <div className="flex items-start justify-between gap-4 mb-6">
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ${
+                        isActive
+                          ? "bg-gradient-to-br from-yellow-400 to-orange-500"
+                          : "bg-gray-300"
+                      }`}
+                    >
+                      <span className="text-xl font-black text-white">
+                        {day === "day1" ? "1" : "2"}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-black text-gray-900">
+                        {title}
+                      </h3>
+                      <p className="text-base text-gray-600 mt-1">{subtitle}</p>
+                    </div>
                   </div>
                   {files[day].length > 0 && (
-                    <span className="text-[11px] rounded-full bg-blue-50 text-blue-700 px-2.5 py-[3px] border border-blue-100">
-                      {files[day].length} file
-                      {files[day].length > 1 ? "s" : ""} uploaded
+                    <span className="text-sm rounded-full bg-blue-100 text-blue-700 px-4 py-2 border-2 border-blue-200 font-bold">
+                      {files[day].length} file{files[day].length > 1 ? "s" : ""}
                     </span>
                   )}
                 </div>
 
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <label className="cursor-pointer inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-xs sm:text-sm font-medium shadow-sm hover:bg-blue-700 transition">
-                    <Upload size={16} />
-                    <span>Upload Image(s)</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className="hidden"
-                      onChange={(e) => handleUpload(e, day)}
-                    />
-                  </label>
-                  <p className="text-[11px] sm:text-xs text-slate-500">
-                    JPG, PNG only. You can upload multiple screenshots.
-                  </p>
-                </div>
+                {/* Upload Button */}
+                <label className="cursor-pointer inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl text-base font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                  <Upload size={20} />
+                  Upload Image(s)
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => handleUpload(e, day)}
+                  />
+                </label>
+                <p className="text-sm text-gray-500 mt-3">
+                  JPG, PNG only. Multiple screenshots allowed.
+                </p>
 
-                {/* Preview Files */}
+                {/* File List */}
                 {files[day].length > 0 && (
-                  <div className="mt-4 space-y-3">
+                  <div className="mt-6 space-y-3">
                     {files[day].map((file, i) => (
                       <div
                         key={i}
-                        className="flex justify-between items-center bg-slate-50 px-4 py-3 border border-slate-100 rounded-lg"
+                        className="flex justify-between items-center bg-gradient-to-r from-gray-50 to-gray-100 px-5 py-4 border-2 border-gray-200 rounded-xl hover:border-yellow-300 transition-all"
                       >
-                        <p className="text-sm text-slate-800 truncate max-w-[60%]">
+                        <p className="text-base text-gray-800 font-semibold truncate max-w-[60%]">
                           {file.name}
                         </p>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
                           <a
                             href={URL.createObjectURL(file)}
                             download={file.name}
-                            className="flex items-center text-blue-600 hover:text-blue-700 text-xs"
+                            className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-bold"
                           >
-                            <Download size={16} className="mr-1" />
-                            Preview / Download
+                            <Download size={18} className="mr-2" />
+                            Download
                           </a>
                           <button
                             type="button"
                             onClick={() => removeFile(day, i)}
-                            className="text-red-500 hover:text-red-600"
+                            className="text-red-500 hover:text-red-600 transition-colors"
                           >
-                            <Trash2 size={18} />
+                            <Trash2 size={20} />
                           </button>
                         </div>
                       </div>
@@ -274,20 +376,20 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
                   </div>
                 )}
 
-                {/* Checkbox */}
-                <label className="flex items-center gap-3 mt-4 text-slate-700 cursor-pointer">
+                {/* Confirmation Checkbox */}
+                <label className="flex items-center gap-3 mt-6 text-gray-700 cursor-pointer bg-yellow-50 p-4 rounded-xl border-2 border-yellow-200">
                   <input
                     type="checkbox"
-                    disabled={files[day].length === 0}
+                    disabled={files[day].length === 0 || !isActive}
                     checked={confirmed}
                     onChange={() =>
                       day === "day1"
                         ? setDay1Confirmed(!day1Confirmed)
                         : setDay2Confirmed(!day2Confirmed)
                     }
-                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    className="h-5 w-5 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
                   />
-                  <span className="text-xs sm:text-sm">
+                  <span className="text-base font-medium">
                     I confirm the post stayed online for{" "}
                     {day === "day1" ? "Day 1" : "Day 2"}.
                   </span>
@@ -300,14 +402,14 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
         {/* Submit Button */}
         <button
           onClick={handleSubmit}
-          disabled={!isStepComplete || loading}
-          className={`w-full py-3 mt-8 rounded-xl font-medium text-sm sm:text-base text-white shadow-sm transition ${
-            isStepComplete && !loading
-              ? "bg-blue-600 hover:bg-blue-700"
-              : "bg-slate-300 cursor-not-allowed"
+          disabled={buttonDisabled}
+          className={`w-full py-5 mt-8 rounded-2xl font-bold text-lg shadow-xl transition-all ${
+            !buttonDisabled
+              ? "bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white hover:shadow-2xl hover:scale-[1.02]"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}
         >
-          {loading ? "Submitting..." : "Submit Proof"}
+          {buttonLabel}
         </button>
       </div>
     </div>
