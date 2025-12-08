@@ -23,21 +23,23 @@ import {
   Link2,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 
 export default function Code4BharatLanding() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const heroRef = useRef(null);
-
+  const router = useRouter();
   const NAV_SECTIONS = [
     "about",
     "domains",
     "timeline",
     "rules",
     "prizes",
-    "faq",
-    "terms",
+    "FAQ",
+
   ];
 
   /* ================================================================
@@ -369,76 +371,77 @@ export default function Code4BharatLanding() {
         </div>
       </main>
 
-      {/* Stats */}
-      <section className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-5">
-            {/* Hours */}
-            <div className="stat-card p-6 flex flex-col items-start">
-              <div className="rounded-xl bg-indigo-50 text-indigo-600 p-2.5 mb-4">
-                <Clock className="w-5 h-5" />
-              </div>
-              <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
-                6
-              </div>
-              <div className="mt-1 text-sm font-semibold text-slate-600">
-                Hours of Building
-              </div>
-              <p className="mt-2 text-xs text-slate-500">
-                A focused sprint to design, build, and present.
-              </p>
-            </div>
-
-            {/* Prize Highlight */}
-            <div className="stat-card p-6 flex flex-col items-start">
-              <div className="rounded-xl bg-amber-50 text-amber-600 p-2.5 mb-4">
-                <Trophy className="w-5 h-5" />
-              </div>
-              <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
-                Surprise
-              </div>
-              <div className="mt-1 text-sm font-semibold text-slate-600">
-                1st Prize Reward
-              </div>
-              <p className="mt-2 text-xs text-slate-500">
-                Exciting surprise gift for the top performer.
-              </p>
-            </div>
-
-            {/* Participants */}
-            <div className="stat-card p-6 flex flex-col items-start">
-              <div className="rounded-xl bg-sky-50 text-sky-600 p-2.5 mb-4">
-                <Users className="w-5 h-5" />
-              </div>
-              <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
-                10000+
-              </div>
-              <div className="mt-1 text-sm font-semibold text-slate-600">
-                Expected Participants
-              </div>
-              <p className="mt-2 text-xs text-slate-500">
-                Compete with solo coders from across India.
-              </p>
-            </div>
-
-            {/* Domains */}
-            <div className="stat-card p-6 flex flex-col items-start">
-              <div className="rounded-xl bg-violet-50 text-violet-600 p-2.5 mb-4">
-                <Code className="w-5 h-5" />
-              </div>
-              <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
-                3
-              </div>
-              <div className="mt-1 text-sm font-semibold text-slate-600">
-                Core Domains
-              </div>
-              <p className="mt-2 text-xs text-slate-500">
-                Web Development &amp; DSA-focused problem statements.
-              </p>
-            </div>
-          </div>
+<section className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16">
+  <div className="max-w-7xl mx-auto">
+    <div className="grid md:grid-cols-4 gap-5">
+      
+      {/* Hours */}
+      <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
+        <div className="rounded-xl bg-indigo-50 text-indigo-600 p-2.5 mb-4">
+          <Clock className="w-5 h-5" />
         </div>
-      </section>
+        <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
+          6
+        </div>
+        <div className="mt-1 text-sm font-semibold text-slate-600">
+          Hours of Building
+        </div>
+        <p className="mt-2 text-xs text-slate-500">
+          A focused sprint to design, build, and present.
+        </p>
+      </div>
+
+      {/* Prize Highlight */}
+      <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
+        <div className="rounded-xl bg-amber-50 text-amber-600 p-2.5 mb-4">
+          <Trophy className="w-5 h-5" />
+        </div>
+        <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
+          Surprise
+        </div>
+        <div className="mt-1 text-sm font-semibold text-slate-600">
+          1st Prize Reward
+        </div>
+        <p className="mt-2 text-xs text-slate-500">
+          Exciting surprise gift for the top performer.
+        </p>
+      </div>
+
+      {/* Participants */}
+      <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
+        <div className="rounded-xl bg-sky-50 text-sky-600 p-2.5 mb-4">
+          <Users className="w-5 h-5" />
+        </div>
+        <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
+          10000+
+        </div>
+        <div className="mt-1 text-sm font-semibold text-slate-600">
+          Expected Participants
+        </div>
+        <p className="mt-2 text-xs text-slate-500">
+          Compete with solo coders from across India.
+        </p>
+      </div>
+
+      {/* Domains */}
+      <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
+        <div className="rounded-xl bg-violet-50 text-violet-600 p-2.5 mb-4">
+          <Code className="w-5 h-5" />
+        </div>
+        <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
+          3
+        </div>
+        <div className="mt-1 text-sm font-semibold text-slate-600">
+          Core Domains
+        </div>
+        <p className="mt-2 text-xs text-slate-500">
+          Web Development &amp; DSA-focused problem statements.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
 
       {/* About */}
       <section
@@ -546,71 +549,67 @@ export default function Code4BharatLanding() {
 
       {/* Timeline */}
       <section
-        id="timeline"
-        className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
-      >
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-8 text-center">
-            Event Timeline
-          </h2>
+  id="timeline"
+  className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
+>
+  <div className="max-w-4xl mx-auto relative">
 
-          <div className="relative pl-8 md:pl-0">
-            <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-indigo-400 via-indigo-300 to-slate-200" />
+    {/* Blur Overlay */}
+    <div className="absolute inset-0 z-10 flex items-center justify-center">
+      <div className="backdrop-blur-md bg-white/70 px-8 py-5 rounded-2xl border border-slate-200 shadow-lg">
+        <span className="text-2xl sm:text-3xl font-black text-slate-800">
+          Coming Soon
+        </span>
+      </div>
+    </div>
+      <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-8 text-center">
+        Event Timeline
+      </h2>
+    {/* Original Content (Blurred) */}
+    <div className="blur-sm pointer-events-none select-none">
 
-            {[
-              {
-                num: "1",
-                title: "Registration Window",
-                date: "January 20 – February 5, 2026",
-              },
-              {
-                num: "2",
-                title: "Opening Briefing",
-                date: "February 6 • 9:00 AM IST (Virtual)",
-              },
-              {
-                num: "3",
-                title: "Hackathon Starts",
-                date: "February 6 • 10:00 AM IST",
-              },
-              {
-                num: "4",
-                title: "Submission Deadline",
-                date: "February 6 • 4:00 PM IST",
-              },
-              {
-                num: "5",
-                title: "Results & Closing",
-                date: "February 6 • 6:00 PM IST",
-              },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className={`relative mb-8 md:mb-10 flex md:items-center ${
-                  i % 2 === 0 ? "md:flex-row-reverse" : ""
-                }`}
-              >
-                <div
-                  className={`flex-1 ${
-                    i % 2 === 0 ? "md:pr-12" : "md:pl-12"
-                  } ml-6 md:ml-0`}
-                >
-                  <div className="card-soft p-5">
-                    <h4 className="text-base sm:text-lg md:text-xl font-semibold text-slate-900 mb-1">
-                      {item.title}
-                    </h4>
-                    <p className="text-sm text-indigo-700 font-medium">
-                      {item.date}
-                    </p>
-                  </div>
-                </div>
-                <div className="absolute left-0 md:left-1/2 w-11 h-11 rounded-full bg-white border border-indigo-200 flex items-center justify-center font-bold text-sm text-indigo-700 shadow-sm md:-translate-x-1/2">
-                  {item.num}
-                </div>
+
+
+      <div className="relative pl-8 md:pl-0">
+        <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-indigo-400 via-indigo-300 to-slate-200" />
+
+        {[
+          { num: "1", title: "Registration Window", date: "January 20 – February 5, 2026" },
+          { num: "2", title: "Opening Briefing", date: "February 6 • 9:00 AM IST (Virtual)" },
+          { num: "3", title: "Hackathon Starts", date: "February 6 • 10:00 AM IST" },
+          { num: "4", title: "Submission Deadline", date: "February 6 • 4:00 PM IST" },
+          { num: "5", title: "Results & Closing", date: "February 6 • 6:00 PM IST" },
+        ].map((item, i) => (
+          <div
+            key={i}
+            className={`relative mb-8 md:mb-10 flex md:items-center ${
+              i % 2 === 0 ? "md:flex-row-reverse" : ""
+            }`}
+          >
+            <div
+              className={`flex-1 ${
+                i % 2 === 0 ? "md:pr-12" : "md:pl-12"
+              } ml-6 md:ml-0`}
+            >
+              <div className="card-soft p-5">
+                <h4 className="text-base sm:text-lg md:text-xl font-semibold text-slate-900 mb-1">
+                  {item.title}
+                </h4>
+                <p className="text-sm text-indigo-700 font-medium">
+                  {item.date}
+                </p>
               </div>
-            ))}
+            </div>
+
+            <div className="absolute left-0 md:left-1/2 w-11 h-11 rounded-full bg-white border border-indigo-200 flex items-center justify-center font-bold text-sm text-indigo-700 shadow-sm md:-translate-x-1/2">
+              {item.num}
+            </div>
           </div>
-        </div>
+        ))}
+      </div>
+    </div>
+
+  </div>
       </section>
 
       {/* Rules */}
@@ -627,7 +626,7 @@ export default function Code4BharatLanding() {
             to follow a fair and professional code of conduct.
           </p>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Each rule card */}
             <div className="card-soft p-6 flex flex-col gap-3">
               <div className="inline-flex items-center gap-2 text-indigo-700 text-sm font-semibold">
@@ -672,28 +671,6 @@ export default function Code4BharatLanding() {
               <p className="text-sm text-slate-600 leading-relaxed">
                 You are free to choose any programming language, framework, or
                 tools. Open-source libraries are allowed with proper credits.
-              </p>
-            </div>
-
-            <div className="card-soft p-6 flex flex-col gap-3">
-              <div className="inline-flex items-center gap-2 text-sky-700 text-sm font-semibold">
-                <Github className="w-4 h-4" />
-                Submission Assets
-              </div>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                Each participant must submit a GitHub repository, a README with
-                setup instructions, a short demo video (3–5 mins), and slides.
-              </p>
-            </div>
-
-            <div className="card-soft p-6 flex flex-col gap-3">
-              <div className="inline-flex items-center gap-2 text-violet-700 text-sm font-semibold">
-                <Award className="w-4 h-4" />
-                Evaluation Criteria
-              </div>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                Projects are judged on Innovation (30%), Technical Depth (30%),
-                Impact &amp; Relevance (20%), and Presentation Quality (20%).
               </p>
             </div>
           </div>
@@ -771,7 +748,7 @@ export default function Code4BharatLanding() {
       </section>
 
       {/* Submission Guidelines / CTA */}
-      <section
+      {/* <section
         id="submission"
         className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
       >
@@ -863,10 +840,10 @@ export default function Code4BharatLanding() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
-      <section className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16">
+      {/* <section className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16">
         <div className="max-w-7xl mx-auto">
           <div className="rounded-3xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-sky-500 text-white px-6 sm:px-10 py-10 sm:py-12 md:py-14 flex flex-col items-center text-center shadow-lg shadow-indigo-500/30">
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-black mb-3">
@@ -886,156 +863,7 @@ export default function Code4BharatLanding() {
             </button>
           </div>
         </div>
-      </section>
-
-      {/* Terms & Conditions Section */}
-      <section
-        id="terms"
-        className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
-      >
-        <div className="max-w-5xl mx-auto">
-          <div className="card-soft p-8 sm:p-10 md:p-12">
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4">
-              Terms &amp; Conditions
-            </h2>
-            <p className="text-sm sm:text-base text-slate-600 mb-6">
-              By registering and participating in CODE4BHARAT 2026, you agree to
-              the following terms and conditions. Please read them carefully
-              before submitting your registration.
-            </p>
-
-            <div className="space-y-4 text-sm text-slate-600">
-              <div>
-                <h3 className="font-semibold text-slate-900 mb-1">
-                  1. Eligibility
-                </h3>
-                <p>
-                  Participants must be currently enrolled students or early
-                  career professionals. This is a solo hackathon—only one person
-                  can work on and submit each project. The organisers reserve
-                  the right to verify identity and eligibility at any stage.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-slate-900 mb-1">
-                  2. Registration Details
-                </h3>
-                <p>
-                  All information provided during registration must be accurate
-                  and complete. Providing false, incomplete, or misleading
-                  details may result in rejection of your registration or
-                  disqualification from the event.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-slate-900 mb-1">
-                  3. Original Work
-                </h3>
-                <p>
-                  Your project must be created during the 6-hour hackathon
-                  window. You may use publicly available libraries and
-                  frameworks, but copying entire projects or code without proper
-                  attribution is strictly prohibited.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-slate-900 mb-1">
-                  4. Intellectual Property
-                </h3>
-                <p>
-                  Unless explicitly stated otherwise, the intellectual property
-                  of the project remains with the participant. However, the
-                  organisers may showcase your project (with credit) for
-                  promotional, educational, or marketing purposes related to the
-                  event.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-slate-900 mb-1">
-                  5. Code of Conduct
-                </h3>
-                <p>
-                  All participants are expected to maintain respectful and
-                  professional behaviour. Any form of harassment, abuse, or
-                  discriminatory conduct will not be tolerated and may lead to
-                  immediate removal from the hackathon.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-slate-900 mb-1">
-                  6. Prizes &amp; Rewards
-                </h3>
-                <p>
-                  Prizes will be in the form of gifts and hampers. The exact
-                  nature of the first prize is a surprise and may be updated or
-                  modified by the organisers if required. Prizes are
-                  non-transferable and cannot be exchanged for cash.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-slate-900 mb-1">
-                  7. Certificates
-                </h3>
-                <p>
-                  Certificates of participation will be awarded to the top 20
-                  participants based on the final evaluation. The organisers
-                  reserve the right to decide the final list of certificate
-                  recipients.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-slate-900 mb-1">
-                  8. Evaluation &amp; Jury Decision
-                </h3>
-                <p>
-                  All submissions will be evaluated by a designated jury panel.
-                  The decision of the jury will be final and binding. Requests
-                  for re-evaluation or contesting the results will not be
-                  entertained.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-slate-900 mb-1">
-                  9. Data &amp; Privacy
-                </h3>
-                <p>
-                  Registration details will be used only for communication,
-                  coordination, and event analytics. Personal data will not be
-                  sold to third parties. By registering, you consent to receive
-                  event-related communications via email and other channels.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-slate-900 mb-1">
-                  10. Changes &amp; Cancellation
-                </h3>
-                <p>
-                  The organisers may modify the schedule, structure, prizes, or
-                  terms of the event, or cancel the hackathon if required due to
-                  unavoidable circumstances. Any major updates will be
-                  communicated to registered participants through official
-                  channels.
-                </p>
-              </div>
-            </div>
-
-            <p className="mt-6 text-xs text-slate-500">
-              By continuing with registration and participation, you confirm
-              that you have read, understood, and agreed to these Terms &amp;
-              Conditions.
-            </p>
-          </div>
-        </div>
-      </section>
+      </section> */}
 
       {/* FAQ */}
       <section id="faq" className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16">
@@ -1059,10 +887,6 @@ export default function Code4BharatLanding() {
                 a: "Not at all. Beginners are welcome. The format and guidelines are structured to help you learn and contribute effectively.",
               },
               {
-                q: "How are projects evaluated?",
-                a: "Evaluation is done by a panel of reviewers based on innovation, technical depth, impact, and presentation quality.",
-              },
-              {
                 q: "Can I work on an existing project?",
                 a: "No. All work must be created during the 6-hour hackathon window. However, you may reuse standard libraries, frameworks, and boilerplates.",
               },
@@ -1073,10 +897,6 @@ export default function Code4BharatLanding() {
               {
                 q: "What is the mode of communication during the event?",
                 a: "All official communication, announcements, and support will be provided via email and designated online channels shared post-registration.",
-              },
-              {
-                q: "Can non-technical students participate?",
-                a: "Yes, as long as you are willing to build and submit a project on your own. Design, research, and presentation skills are also valuable.",
               },
             ].map((faq, i) => (
               <div key={i} className="card-soft p-6">
@@ -1092,8 +912,6 @@ export default function Code4BharatLanding() {
         </div>
       </section>
 
-      {/* Footer – Hackathon styled */}
-      {/* Footer – Hackathon style */}
       {/* Footer – Hackathon styled */}
       <footer className="mt-8 border-t border-slate-200 bg-white/90 backdrop-blur">
         {/* Gradient accent bar */}
@@ -1255,14 +1073,14 @@ export default function Code4BharatLanding() {
               </span>
               <span className="hidden sm:inline text-slate-300">|</span>
               <a
-                href="#"
+                href="/privacy"
                 className="text-indigo-700 hover:text-indigo-800 underline-offset-2 hover:underline"
               >
                 Privacy Policy
               </a>
               <span className="hidden sm:inline text-slate-300">|</span>
               <button
-                onClick={() => scrollToSection("terms")}
+                onClick={() => router.push("/terms")}
                 className="text-indigo-700 hover:text-indigo-800 underline-offset-2 hover:underline"
               >
                 Terms &amp; Conditions
@@ -1271,6 +1089,7 @@ export default function Code4BharatLanding() {
           </div>
         </div>
       </footer>
+
     </div>
   );
 }

@@ -7,7 +7,7 @@ export default function Navbar({ scrollToSection }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  const NAV_SECTIONS = ["about", "domains", "timeline", "rules", "prizes", "faq", "terms"];
+  const NAV_SECTIONS = ["about", "domains", "timeline", "rules", "prizes", "faq"];
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -47,15 +47,7 @@ export default function Navbar({ scrollToSection }) {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-7 text-sm font-medium">
-            {NAV_SECTIONS.map((id) => (
-              <button
-                key={id}
-                onClick={() => scrollToSection(id)}
-                className="text-slate-600 hover:text-indigo-600 transition-colors"
-              >
-                {id === "terms" ? "Terms" : id[0].toUpperCase() + id.slice(1)}
-              </button>
-            ))}
+
 
             <Link
               href="/ambassador-register"
@@ -89,19 +81,7 @@ export default function Navbar({ scrollToSection }) {
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-t border-slate-200 shadow-sm">
           <div className="px-4 py-3 flex flex-col gap-2">
-            {NAV_SECTIONS.map((id) => (
-              <button
-                key={id}
-                onClick={() => {
-                  scrollToSection(id);
-                  setMobileMenuOpen(false);
-                }}
-                className="text-left text-slate-700 hover:bg-slate-100 px-3 py-2 rounded-md text-sm"
-              >
-                {id === "terms" ? "Terms" : id[0].toUpperCase() + id.slice(1)}
-              </button>
-            ))}
-
+          
             <Link
               href="/register"
               className="mt-2 flex items-center justify-center gap-2 bg-indigo-600 text-white px-3 py-2.5 rounded-full text-sm font-semibold hover:bg-indigo-700"

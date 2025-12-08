@@ -85,7 +85,7 @@ export default function Footer({ scrollToSection, NAV_SECTIONS }) {
           <p>© 2026 CODE4BHARAT • All Rights Reserved</p>
 
           <button
-            onClick={() => scrollToSection("terms")}
+            onClick={() => router.push("/terms")}
             className="text-indigo-700 hover:underline"
           >
             Terms & Privacy
