@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
+import Navbar from "./_components/Navbar";
 
 export default function Code4BharatLanding() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -89,9 +89,8 @@ export default function Code4BharatLanding() {
     return () => observer.disconnect();
   }, []);
 
-  /* ================================================================
-      HERO PARALLAX EFFECT
-  ================================================================= */
+
+      // HERO PARALLAX EFFECT
   useEffect(() => {
     const handler = () => {
       const y = window.pageYOffset;
@@ -105,7 +104,10 @@ export default function Code4BharatLanding() {
   }, []);
 
   return (
+    
     <div className="min-h-screen bg-slate-50 text-slate-900 antialiased relative overflow-x-hidden">
+      <Navbar />
+
       <style jsx global>{`
         @keyframes floatYSoft {
           0%,
@@ -177,9 +179,8 @@ export default function Code4BharatLanding() {
         }
       `}</style>
 
-      {/* ------------------------------------------------------------
-          Background Spotlight
-      ------------------------------------------------------------- */}
+    
+          {/* Background Spotlight */}
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
         <div
           className="absolute -top-40 left-1/2 w-[600px] h-[600px] rounded-full bg-indigo-200/50 blur-3xl"
@@ -190,112 +191,7 @@ export default function Code4BharatLanding() {
         />
       </div>
 
-      {/* ------------------------------------------------------------
-          HEADER
-      ------------------------------------------------------------- */}
-      <header
-        className={`fixed w-full z-50 transition-all duration-300 ${
-          scrolled
-            ? "bg-white/90 backdrop-blur-lg border-b border-slate-200 shadow-sm"
-            : "bg-white/70 backdrop-blur-md border-b border-slate-100"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
-          <div className="flex items-center justify-between gap-6">
-            {/* LOGO */}
-            <div className="flex items-center gap-3">
-              <div className="relative w-11 h-11 rounded-2xl  flex items-center justify-center shadow-lg animate-[floatYSoft_4s_ease-in-out_infinite]">
-                <span className="text-xl"><img src="https://education.code4bharat.com/_next/image?url=%2F18.jpeg&w=640&q=75" alt="" /></span>
-              </div>
-              <div>
-                <div className="text-lg md:text-xl font-extrabold tracking-tight text-slate-900">
-                  CODE4BHARAT
-                </div>
-                <div className="text-xs font-medium text-indigo-600">
-                  National Hackathon 2026
-                </div>
-              </div>
-            </div>
-
-            {/* DESKTOP NAV */}
-            <nav className="hidden md:flex items-center gap-7 text-sm font-medium">
-              {NAV_SECTIONS.map((id) => (
-                <button
-                  key={id}
-                  onClick={() => scrollToSection(id)}
-                  className="relative text-slate-600 hover:text-indigo-600 transition-colors"
-                >
-                  {id === "terms" ? "Terms" : id[0].toUpperCase() + id.slice(1)}
-                  <span className="absolute left-0 right-0 -bottom-1 h-0.5 scale-x-0 bg-indigo-500/80 rounded-full transition-transform origin-left hover:scale-x-100" />
-                </button>
-              ))}
-
-              {/* NEW: Ambassador Register */}
-              <Link
-                href="/ambassador-login"
-                className="px-5 py-2.5 rounded-full bg-white border border-indigo-300 text-indigo-700 hover:bg-indigo-50 transition-colors font-semibold"
-              >
-                Ambassador Login
-              </Link>
-            </nav>
-
-            {/* Actions */}
-            <div className="flex items-center gap-3">
-              {/* Register Now Button */}
-              <Link
-                href="/register"
-                className="hidden sm:inline-flex items-center gap-2 btn-shimmer relative bg-indigo-600 text-white px-5 py-2.5 rounded-full text-sm font-semibold shadow-md hover:bg-indigo-700 transition-colors"
-              >
-                <Rocket className="w-4 h-4" />
-                Register Now
-              </Link>
-
-              {/* Mobile menu toggle */}
-              <button
-                className="md:hidden text-slate-700 p-2 rounded-lg hover:bg-slite-100 transition-colors"
-                onClick={() => setMobileMenuOpen((s) => !s)}
-              >
-                {mobileMenuOpen ? <X /> : <Menu />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* MOBILE MENU */}
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-slate-200 shadow-sm">
-            <div className="px-4 py-3 flex flex-col gap-2">
-              {NAV_SECTIONS.map((id) => (
-                <button
-                  key={id}
-                  onClick={() => scrollToSection(id)}
-                  className="text-left text-slate-700 hover:bg-slate-100 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  {id === "terms" ? "Terms" : id[0].toUpperCase() + id.slice(1)}
-                </button>
-              ))}
-
-              {/* Register Button Mobile */}
-              <Link
-                href="/register"
-                className="mt-2 inline-flex items-center justify-center gap-2 bg-indigo-600 text-white px-3 py-2.5 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-colors"
-              >
-                <Rocket className="w-4 h-4" />
-                Register Now
-              </Link>
-
-              {/* NEW: Ambassador Register Mobile */}
-              <Link
-                href="/ambassador-register"
-                className="inline-flex items-center justify-center gap-2 bg-white border border-indigo-300 text-indigo-700 px-3 py-2.5 rounded-full text-sm font-semibold hover:bg-indigo-50 transition-colors"
-              >
-                Ambassador Register
-              </Link>
-            </div>
-          </div>
-        )}
-      </header>
-
+     
       {/* Hero */}
       <main className="relative z-10 pt-28 pb-16 sm:pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -371,81 +267,81 @@ export default function Code4BharatLanding() {
         </div>
       </main>
 
-<section className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16">
-  <div className="max-w-7xl mx-auto">
-    <div className="grid md:grid-cols-4 gap-5">
-      
-      {/* Hours */}
-      <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
-        <div className="rounded-xl bg-indigo-50 text-indigo-600 p-2.5 mb-4">
-          <Clock className="w-5 h-5" />
-        </div>
-        <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
-          6
-        </div>
-        <div className="mt-1 text-sm font-semibold text-slate-600">
-          Hours of Building
-        </div>
-        <p className="mt-2 text-xs text-slate-500">
-          A focused sprint to design, build, and present.
-        </p>
-      </div>
+      <section className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-5">
 
-      {/* Prize Highlight */}
-      <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
-        <div className="rounded-xl bg-amber-50 text-amber-600 p-2.5 mb-4">
-          <Trophy className="w-5 h-5" />
-        </div>
-        <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
-          Surprise
-        </div>
-        <div className="mt-1 text-sm font-semibold text-slate-600">
-          1st Prize Reward
-        </div>
-        <p className="mt-2 text-xs text-slate-500">
-          Exciting surprise gift for the top performer.
-        </p>
-      </div>
+            {/* Hours */}
+            <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
+              <div className="rounded-xl bg-indigo-50 text-indigo-600 p-2.5 mb-4">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
+                6
+              </div>
+              <div className="mt-1 text-sm font-semibold text-slate-600">
+                Hours of Building
+              </div>
+              <p className="mt-2 text-xs text-slate-500">
+                A focused sprint to design, build, and present.
+              </p>
+            </div>
 
-      {/* Participants */}
-      <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
-        <div className="rounded-xl bg-sky-50 text-sky-600 p-2.5 mb-4">
-          <Users className="w-5 h-5" />
-        </div>
-        <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
-          10000+
-        </div>
-        <div className="mt-1 text-sm font-semibold text-slate-600">
-          Expected Participants
-        </div>
-        <p className="mt-2 text-xs text-slate-500">
-          Compete with solo coders from across India.
-        </p>
-      </div>
+            {/* Prize Highlight */}
+            <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
+              <div className="rounded-xl bg-amber-50 text-amber-600 p-2.5 mb-4">
+                <Trophy className="w-5 h-5" />
+              </div>
+              <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
+                Surprise
+              </div>
+              <div className="mt-1 text-sm font-semibold text-slate-600">
+                1st Prize Reward
+              </div>
+              <p className="mt-2 text-xs text-slate-500">
+                Exciting surprise gift for the top performer.
+              </p>
+            </div>
 
-      {/* Domains */}
-      <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
-        <div className="rounded-xl bg-violet-50 text-violet-600 p-2.5 mb-4">
-          <Code className="w-5 h-5" />
-        </div>
-        <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
-          3
-        </div>
-        <div className="mt-1 text-sm font-semibold text-slate-600">
-          Core Domains
-        </div>
-        <p className="mt-2 text-xs text-slate-500">
-          Web Development &amp; DSA-focused problem statements.
-        </p>
-      </div>
+            {/* Participants */}
+            <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
+              <div className="rounded-xl bg-sky-50 text-sky-600 p-2.5 mb-4">
+                <Users className="w-5 h-5" />
+              </div>
+              <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
+                10000+
+              </div>
+              <div className="mt-1 text-sm font-semibold text-slate-600">
+                Expected Participants
+              </div>
+              <p className="mt-2 text-xs text-slate-500">
+                Compete with solo coders from across India.
+              </p>
+            </div>
 
-    </div>
-  </div>
-</section>
+            {/* Domains */}
+            <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
+              <div className="rounded-xl bg-violet-50 text-violet-600 p-2.5 mb-4">
+                <Code className="w-5 h-5" />
+              </div>
+              <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
+                3
+              </div>
+              <div className="mt-1 text-sm font-semibold text-slate-600">
+                Core Domains
+              </div>
+              <p className="mt-2 text-xs text-slate-500">
+                Web Development &amp; DSA-focused problem statements.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
 
       {/* About */}
       <section
-        id="about"
+      id="about"
         className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
       >
         <div className="max-w-7xl mx-auto">
@@ -469,6 +365,7 @@ export default function Code4BharatLanding() {
           </div>
         </div>
       </section>
+   
 
       {/* Domains */}
       <section
@@ -549,67 +446,65 @@ export default function Code4BharatLanding() {
 
       {/* Timeline */}
       <section
-  id="timeline"
-  className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
->
-  <div className="max-w-4xl mx-auto relative">
+        id="timeline"
+        className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
+      >
+        <div className="max-w-4xl mx-auto relative">
 
-    {/* Blur Overlay */}
-    <div className="absolute inset-0 z-10 flex items-center justify-center">
-      <div className="backdrop-blur-md bg-white/70 px-8 py-5 rounded-2xl border border-slate-200 shadow-lg">
-        <span className="text-2xl sm:text-3xl font-black text-slate-800">
-          Coming Soon
-        </span>
-      </div>
-    </div>
-      <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-8 text-center">
-        Event Timeline
-      </h2>
-    {/* Original Content (Blurred) */}
-    <div className="blur-sm pointer-events-none select-none">
-
-
-
-      <div className="relative pl-8 md:pl-0">
-        <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-indigo-400 via-indigo-300 to-slate-200" />
-
-        {[
-          { num: "1", title: "Registration Window", date: "January 20 – February 5, 2026" },
-          { num: "2", title: "Opening Briefing", date: "February 6 • 9:00 AM IST (Virtual)" },
-          { num: "3", title: "Hackathon Starts", date: "February 6 • 10:00 AM IST" },
-          { num: "4", title: "Submission Deadline", date: "February 6 • 4:00 PM IST" },
-          { num: "5", title: "Results & Closing", date: "February 6 • 6:00 PM IST" },
-        ].map((item, i) => (
-          <div
-            key={i}
-            className={`relative mb-8 md:mb-10 flex md:items-center ${
-              i % 2 === 0 ? "md:flex-row-reverse" : ""
-            }`}
-          >
-            <div
-              className={`flex-1 ${
-                i % 2 === 0 ? "md:pr-12" : "md:pl-12"
-              } ml-6 md:ml-0`}
-            >
-              <div className="card-soft p-5">
-                <h4 className="text-base sm:text-lg md:text-xl font-semibold text-slate-900 mb-1">
-                  {item.title}
-                </h4>
-                <p className="text-sm text-indigo-700 font-medium">
-                  {item.date}
-                </p>
-              </div>
-            </div>
-
-            <div className="absolute left-0 md:left-1/2 w-11 h-11 rounded-full bg-white border border-indigo-200 flex items-center justify-center font-bold text-sm text-indigo-700 shadow-sm md:-translate-x-1/2">
-              {item.num}
+          {/* Blur Overlay */}
+          <div className="absolute inset-0 z-10 flex items-center justify-center">
+            <div className="backdrop-blur-md bg-white/70 px-8 py-5 rounded-2xl border border-slate-200 shadow-lg">
+              <span className="text-2xl sm:text-3xl font-black text-slate-800">
+                Coming Soon
+              </span>
             </div>
           </div>
-        ))}
-      </div>
-    </div>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-8 text-center">
+            Event Timeline
+          </h2>
+          {/* Original Content (Blurred) */}
+          <div className="blur-sm pointer-events-none select-none">
 
-  </div>
+
+
+            <div className="relative pl-8 md:pl-0">
+              <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-indigo-400 via-indigo-300 to-slate-200" />
+
+              {[
+                { num: "1", title: "Registration Window", date: "January 20 – February 5, 2026" },
+                { num: "2", title: "Opening Briefing", date: "February 6 • 9:00 AM IST (Virtual)" },
+                { num: "3", title: "Hackathon Starts", date: "February 6 • 10:00 AM IST" },
+                { num: "4", title: "Submission Deadline", date: "February 6 • 4:00 PM IST" },
+                { num: "5", title: "Results & Closing", date: "February 6 • 6:00 PM IST" },
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className={`relative mb-8 md:mb-10 flex md:items-center ${i % 2 === 0 ? "md:flex-row-reverse" : ""
+                    }`}
+                >
+                  <div
+                    className={`flex-1 ${i % 2 === 0 ? "md:pr-12" : "md:pl-12"
+                      } ml-6 md:ml-0`}
+                  >
+                    <div className="card-soft p-5">
+                      <h4 className="text-base sm:text-lg md:text-xl font-semibold text-slate-900 mb-1">
+                        {item.title}
+                      </h4>
+                      <p className="text-sm text-indigo-700 font-medium">
+                        {item.date}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="absolute left-0 md:left-1/2 w-11 h-11 rounded-full bg-white border border-indigo-200 flex items-center justify-center font-bold text-sm text-indigo-700 shadow-sm md:-translate-x-1/2">
+                    {item.num}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
       </section>
 
       {/* Rules */}
@@ -913,182 +808,127 @@ export default function Code4BharatLanding() {
       </section>
 
       {/* Footer – Hackathon styled */}
-      <footer className="mt-8 border-t border-slate-200 bg-white/90 backdrop-blur">
-        {/* Gradient accent bar */}
-        <div className="h-1 w-full bg-gradient-to-r from-indigo-600 via-sky-500 to-violet-500" />
+        <footer className="mt-8 border-t border-slate-200 bg-white/90 backdrop-blur">
+          {/* Gradient accent bar */}
+          <div className="h-1 w-full bg-gradient-to-r from-indigo-600 via-sky-500 to-violet-500" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <div className="grid md:grid-cols-4 gap-10 mb-8">
-            {/* Brand & About */}
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/40">
-                  🇮🇳
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="grid md:grid-cols-3 gap-10 mb-10">
+
+              {/* Brand & About */}
+              <div className="md:col-span-2">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-11 h-11 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/40">
+                    🇮🇳
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                      CODE4BHARAT
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      National Hackathon 2026 · Solo Edition
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-extrabold text-slate-900">
-                    CODE4BHARAT
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    National Hackathon 2026 · Solo Edition
-                  </p>
+
+                <p className="text-sm text-slate-600 mb-6 leading-relaxed max-w-md">
+                  A focused 6-hour solo hackathon designed to help you ship a real
+                  project end-to-end, showcase your skills, and compete with some
+                  of the brightest minds across India.
+                </p>
+
+                {/* Socials */}
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="text-xs uppercase tracking-wide text-slate-500">
+                    Follow the event
+                  </span>
+                  <div className="flex gap-2.5">
+                    <a className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 transition-colors">
+                      <MessageCircle className="w-4 h-4" />
+                    </a>
+                    <a className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 transition-colors">
+                      <Link2 className="w-4 h-4" />
+                    </a>
+                    <a className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 transition-colors">
+                      <Linkedin className="w-4 h-4" />
+                    </a>
+                    <a className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 transition-colors">
+                      <Twitter className="w-4 h-4" />
+                    </a>
+                    <a className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 transition-colors">
+                      <Instagram className="w-4 h-4" />
+                    </a>
+                  </div>
                 </div>
               </div>
 
-              <p className="text-sm text-slate-600 mb-4 leading-relaxed max-w-md">
-                A focused 6-hour solo hackathon designed to help you ship a real
-                project end-to-end, showcase your skills, and compete with some
-                of the brightest minds across India.
-              </p>
+              {/* Quick Links + CTA */}
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900 mb-4">
+                  Quick Links
+                </h3>
+                <ul className="space-y-2.5 text-sm text-slate-600 mb-6">
+                  {NAV_SECTIONS.map((id) => (
+                    <li key={id}>
+                      <button
+                        onClick={() => scrollToSection(id)}
+                        className="hover:text-indigo-700 hover:translate-x-0.5 transition-transform transition-colors inline-flex items-center gap-1"
+                      >
+                        <span className="text-slate-400">→</span>
+                        <span>
+                          {id === "terms"
+                            ? "Terms & Conditions"
+                            : id[0].toUpperCase() + id.slice(1)}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs uppercase tracking-wide text-slate-500">
-                  Follow the event
+                <button
+                  onClick={() => scrollToSection("submission")}
+                  className="inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-full text-xs font-semibold shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-colors"
+                >
+                  <Rocket className="w-4 h-4" />
+                  Register for the Hackathon
+                </button>
+              </div>
+            </div>
+
+            {/* Bottom bar */}
+            <div className="border-t border-slate-200 pt-5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs sm:text-sm text-slate-500">
+              <p>© 2026 CODE4BHARAT • All Rights Reserved</p>
+
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="flex items-center gap-1">
+                  Hosted &amp; managed by{" "}
+                  <span className="font-semibold text-slate-700">
+                    CODE4BHARAT Organising Team
+                  </span>
                 </span>
-                <div className="flex gap-2.5">
-                  <a
-                    href="#"
-                    className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 text-sm transition-colors"
-                    aria-label="Message"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                  </a>
-                  <a
-                    href="#"
-                    className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 text-sm transition-colors"
-                    aria-label="Website"
-                  >
-                    <Link2 className="w-4 h-4" />
-                  </a>
-                  <a
-                    href="#"
-                    className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 text-sm transition-colors"
-                    aria-label="LinkedIn"
-                  >
-                    <Linkedin className="w-4 h-4" />
-                  </a>
-                  <a
-                    href="#"
-                    className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 text-sm transition-colors"
-                    aria-label="Twitter"
-                  >
-                    <Twitter className="w-4 h-4" />
-                  </a>
-                  <a
-                    href="#"
-                    className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 text-sm transition-colors"
-                    aria-label="Instagram"
-                  >
-                    <Instagram className="w-4 h-4" />
-                  </a>
-                </div>
+
+                <span className="hidden sm:inline text-slate-300">|</span>
+
+                <a
+                  href="/privacy"
+                  className="text-indigo-700 hover:text-indigo-800 underline-offset-2 hover:underline"
+                >
+                  Privacy Policy
+                </a>
+
+                <span className="hidden sm:inline text-slate-300">|</span>
+
+                <button
+                  onClick={() => router.push("/terms")}
+                  className="text-indigo-700 hover:text-indigo-800 underline-offset-2 hover:underline"
+                >
+                  Terms &amp; Conditions
+                </button>
               </div>
-            </div>
-
-            {/* Event snapshot – feels like hackathon */}
-            <div>
-              <h3 className="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-indigo-600" />
-                Event Snapshot
-              </h3>
-              <div className="space-y-2 text-sm text-slate-600">
-                <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                  <Clock className="w-4 h-4 text-indigo-600" />
-                  <div>
-                    <p className="font-semibold text-slate-800">
-                      6-Hour Sprint
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      Build and ship in a focused window.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                  <Users className="w-4 h-4 text-sky-600" />
-                  <div>
-                    <p className="font-semibold text-slate-800">
-                      Solo Hackathon
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      One participant, one project, full ownership.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                  <Award className="w-4 h-4 text-amber-600" />
-                  <div>
-                    <p className="font-semibold text-slate-800">
-                      Gifts &amp; Certificates
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      Surprise gift for 1st, certificates for top 20.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Links + CTA */}
-            <div>
-              <h3 className="text-sm font-semibold text-slate-900 mb-3">
-                Quick Links
-              </h3>
-              <ul className="space-y-2 text-sm text-slate-600 mb-4">
-                {NAV_SECTIONS.map((id) => (
-                  <li key={id}>
-                    <button
-                      onClick={() => scrollToSection(id)}
-                      className="hover:text-indigo-700 hover:translate-x-0.5 transition-transform transition-colors inline-flex items-center gap-1"
-                    >
-                      <span>→</span>
-                      <span>
-                        {id === "terms"
-                          ? "Terms & Conditions"
-                          : id[0].toUpperCase() + id.slice(1)}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-
-              <button
-                onClick={() => scrollToSection("submission")}
-                className="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-full text-xs font-semibold shadow-md shadow-indigo-500/30 hover:bg-indigo-700 transition-colors"
-              >
-                <Rocket className="w-4 h-4" />
-                Register for the Hackathon
-              </button>
             </div>
           </div>
-
-          {/* Bottom bar */}
-          <div className="border-t border-slate-200 pt-4 flex flex-col md:flex-row items-center justify-between gap-3 text-xs sm:text-sm text-slate-500">
-            <p>© 2026 CODE4BHARAT • All Rights Reserved</p>
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className="flex items-center gap-1">
-                Hosted &amp; managed by{" "}
-                <span className="font-semibold text-slate-700">
-                  CODE4BHARAT Organising Team
-                </span>
-              </span>
-              <span className="hidden sm:inline text-slate-300">|</span>
-              <a
-                href="/privacy"
-                className="text-indigo-700 hover:text-indigo-800 underline-offset-2 hover:underline"
-              >
-                Privacy Policy
-              </a>
-              <span className="hidden sm:inline text-slate-300">|</span>
-              <button
-                onClick={() => router.push("/terms")}
-                className="text-indigo-700 hover:text-indigo-800 underline-offset-2 hover:underline"
-              >
-                Terms &amp; Conditions
-              </button>
-            </div>
-          </div>
-        </div>
-      </footer>
+        </footer>
+        
 
     </div>
   );
