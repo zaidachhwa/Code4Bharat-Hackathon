@@ -25,6 +25,8 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
       });
       console.log("Promotion Data", res.data);
 
+      
+
       const promotion = res.data?.data?.promotion;
       setDay1Confirmed(promotion?.day1Confirmed ?? false);
       setDay2Confirmed(promotion?.day2Confirmed ?? false);
