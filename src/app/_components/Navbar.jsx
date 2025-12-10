@@ -3,8 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Menu, X, Rocket, ChevronDown } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+
 
 export default function Navbar() {
+  const router = useRouter();
+const pathname = usePathname();
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("");
@@ -12,7 +17,27 @@ export default function Navbar() {
 
   const dropdownRef = useRef(null);
 
-  const NAV_SECTIONS = ["about", "domains", "timeline", "rules", "prizes", "faq"];
+  const NAV_SECTIONS = ["about", "domains", "timeline", "rules", "prizes", "FAQ"];
+
+  useEffect(() => {
+  if (pathname !== "/") return;
+
+  const hash = window.location.hash.replace("#", "");
+  if (!hash) return;
+
+  const timeout = setTimeout(() => {
+    const el = document.getElementById(hash);
+    if (!el) return;
+
+    const navbarHeight = 80;
+    const top = el.getBoundingClientRect().top + window.scrollY - navbarHeight;
+
+    window.scrollTo({ top, behavior: "smooth" });
+  }, 100); // small delay so DOM is ready
+
+  return () => clearTimeout(timeout);
+}, [pathname]);
+
 
   // Sticky shadow + active section
   useEffect(() => {
@@ -48,7 +73,11 @@ export default function Navbar() {
   }, []);
 
   // Smooth scroll with offset
-  const scrollToSection = (id) => {
+ const scrollToSection = (id) => {
+  setMobileMenuOpen(false);
+
+  // ✅ If already on home page → smooth scroll
+  if (pathname === "/") {
     const el = document.getElementById(id);
     if (!el) return;
 
@@ -56,8 +85,13 @@ export default function Navbar() {
     const top = el.getBoundingClientRect().top + window.scrollY - navbarHeight;
 
     window.scrollTo({ top, behavior: "smooth" });
-    setMobileMenuOpen(false);
-  };
+  } 
+  // ✅ If on another page → route to home with hash
+  else {
+    router.push(`/#${id}`);
+  }
+};
+
 
   return (
     <header

@@ -74,7 +74,7 @@ export default function Footer({ NAV_SECTIONS = [] }) {
                 </span>
                 <div className="flex gap-2.5">
                   <a
-                    href="#"
+                    href="https://www.facebook.com/share/1BU8usvXcL/"
                     className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 text-sm transition-colors"
                     aria-label="Message"
                   >
@@ -88,7 +88,7 @@ export default function Footer({ NAV_SECTIONS = [] }) {
                     <Link2 className="w-4 h-4" />
                   </a> */}
                   <a
-                    href="#"
+                    href="https://www.linkedin.com/company/code4bharat/"
                     className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 text-sm transition-colors"
                     aria-label="LinkedIn"
                   >
@@ -102,7 +102,7 @@ export default function Footer({ NAV_SECTIONS = [] }) {
                     <Twitter className="w-4 h-4" />
                   </a>
                   <a
-                    href="#"
+                    href="https://www.instagram.com/code4bharat_?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
                     className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 text-sm transition-colors"
                     aria-label="Instagram"
                   >

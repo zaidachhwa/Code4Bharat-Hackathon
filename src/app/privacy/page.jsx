@@ -1,319 +1,140 @@
 import React from "react";
 import Navbar from "../_components/Navbar";
 import Footer from "../_components/Footer";
- 
+
 const PrivacyPolicy = () => {
   return (
-   <div><Navbar /> 
-    <section className="max-w-5xl pt-25 mx-auto px-4 py-12">
-      {/* Title & Intro */}
-      <h1 className="text-3xl sm:text-4xl font-extrabold mb-4 text-slate-900">
-        Privacy Policy
-      </h1>
+    <div className="min-h-screen flex flex-col bg-slate-50">
+      <Navbar />
 
-     
+      <main className="flex-1">
+        <section className="px-4 sm:px-6 lg:px-8 pt-28 pb-16">
+          <div className="max-w-5xl mx-auto">
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm px-6 py-8 sm:px-10 sm:py-10 md:px-12 md:py-12">
+              
+              {/* Header */}
+              <div className="mb-8 border-b border-slate-200 pb-6">
+                <p className="text-xs font-medium tracking-[0.16em] text-slate-500 uppercase mb-2">
+                  Legal & Privacy
+                </p>
 
-      <p className="mb-4 leading-relaxed text-gray-800">
-        This Privacy Policy describes how we{" "}
-        <span className="font-semibold">Code4Bharat</span>{" "} collects, uses,
-        discloses, and protects personal data {" "}
-            and the associated website and online platforms. 
-      </p>
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-3">
+                  Privacy Policy
+                </h1>
 
-      <p className="mb-6 leading-relaxed text-gray-800">
-        By accessing the Website, submitting an application, or participating in
-        the Event, you (&quot;you&quot; or &quot;Participant&quot;) acknowledge
-        that you have read, understood, and agree to the terms of this Privacy
-        Policy.
-      </p>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  This Privacy Policy describes how{" "}
+                  <span className="font-semibold text-slate-800">
+                    Code4Bharat
+                  </span>{" "}
+                  collects, uses, discloses, and protects personal data and the
+                  associated website and online platforms.
+                </p>
+              </div>
 
-      {/* 1. Scope */}
-      <h2 className="text-2xl font-semibold mt-10 mb-3 text-slate-900">
-        1. Scope of This Privacy Policy
-      </h2>
-      <p className="mb-6 leading-relaxed text-gray-800">
-        This Privacy Policy applies to all personal data collected from
-        prospective participants, registered participants, mentors, judges,
-        sponsors&apos; representatives, speakers, and visitors of the Website in
-        relation to the Event. It does not apply to third-party websites, services,
-        or platforms that may be linked from or integrated with our Website.
-      </p>
+              <p className="mb-8 text-sm sm:text-base text-slate-600 leading-relaxed">
+                By accessing the Website, submitting an application, or
+                participating in the Event, you (&quot;you&quot; or
+                &quot;Participant&quot;) acknowledge that you have read,
+                understood, and agree to the terms of this Privacy Policy.
+              </p>
 
-      {/* 2. Information We Collect */}
-      <h2 className="text-2xl font-semibold mt-10 mb-3 text-slate-900">
-        2. Information We Collect
-      </h2>
-      <p className="mb-3 leading-relaxed text-gray-800">
-        We may collect and process the following categories of personal data:
-      </p>
-      <ul className="list-disc list-inside space-y-2 mb-6 text-gray-800">
-        <li>
-          <span className="font-semibold">Identification and contact details:</span>{" "}
-          full name, email address, phone number, city, and country.
-        </li>
-        <li>
-          <span className="font-semibold">Academic and professional details:</span>{" "}
-          college / institute name, department, course, year of study, or
-          organization details, designation, and relevant experience where
-          applicable.
-        </li>
-        <li>
-          <span className="font-semibold">Team and participation details:</span>{" "}
-          team name, details of team members, track or domain selected, project
-          title, and related information.
-        </li>
-        <li>
-          <span className="font-semibold">Online profiles and submissions:</span>{" "}
-          GitHub, LinkedIn, portfolio links, project repositories, presentation
-          files, and other materials submitted as part of the Event.
-        </li>
-        <li>
-          <span className="font-semibold">Technical information:</span> IP
-          address, browser type, device information, approximate location (derived
-          from IP), and usage data related to interactions with the Website.
-        </li>
-        <li>
-          <span className="font-semibold">Media and recordings:</span> photographs,
-          screenshots, and audio/video recordings captured during the Event (online
-          or offline).
-        </li>
-        <li>
-          <span className="font-semibold">Other information:</span> any other
-          information you voluntarily provide when contacting us, filling out forms,
-          or communicating with the organizers.
-        </li>
-      </ul>
+              {/* Content */}
+              <div className="space-y-7 text-sm sm:text-base text-slate-600 leading-relaxed">
+                
+                {/* Section Template */}
+                {[
+                  [
+                    "1. Scope of This Privacy Policy",
+                    "This Privacy Policy applies to all personal data collected from prospective participants, registered participants, mentors, judges, sponsors' representatives, speakers, and visitors of the Website in relation to the Event. It does not apply to third-party websites, services, or platforms that may be linked from or integrated with our Website."
+                  ],
+                ].map(() => null)}
 
-      {/* 3. Purpose of Processing */}
-      <h2 className="text-2xl font-semibold mt-10 mb-3 text-slate-900">
-        3. How We Use Your Information
-      </h2>
-      <p className="mb-3 leading-relaxed text-gray-800">
-        We process your personal data for the following purposes:
-      </p>
-      <ul className="list-disc list-inside space-y-2 mb-6 text-gray-800">
-        <li>To register you for the Event and manage your participation.</li>
-        <li>
-          To verify your eligibility, team composition, and compliance with Event
-          rules.
-        </li>
-        <li>
-          To communicate important information such as schedules, updates, changes,
-          reminders, and results.
-        </li>
-        <li>
-          To facilitate judging, evaluation of submissions, and selection of winners
-          and finalists.
-        </li>
-        <li>
-          To issue participation certificates, prizes, awards, and related benefits.
-        </li>
-        <li>
-          To maintain records for audit, reporting, and administrative purposes.
-        </li>
-        <li>
-          To analyze aggregated data to improve future editions of the Event and
-          enhance the overall participant experience.
-        </li>
-        <li>
-          To create promotional material (e.g., brochures, social media posts,
-          reports, and case studies) related to the Event.
-        </li>
-        <li>
-          To comply with applicable laws, regulations, and institutional policies.
-        </li>
-      </ul>
+                {/* 1 */}
+                <Section
+                  title="1. Scope of This Privacy Policy"
+                  content="This Privacy Policy applies to all personal data collected from prospective participants, registered participants, mentors, judges, sponsors' representatives, speakers, and visitors of the Website in relation to the Event. It does not apply to third-party websites, services, or platforms that may be linked from or integrated with our Website."
+                />
 
-      <p className="mb-6 leading-relaxed text-gray-800">
-        We do <span className="font-semibold">not</span> sell or rent your personal
-        data to third parties.
-      </p>
+                {/* 2 */}
+                <Section title="2. Information We Collect">
+                  <p>
+                    We may collect and process the following categories of personal data:
+                  </p>
+                  <ul className="list-disc list-inside space-y-2 mt-3">
+                    <li><strong>Identification and contact details:</strong> full name, email address, phone number, city, and country.</li>
+                    <li><strong>Academic and professional details:</strong> college/institute name, department, course, year of study, organization details, designation.</li>
+                    <li><strong>Team and participation details:</strong> team name, team members, track/domain, project title.</li>
+                    <li><strong>Online profiles and submissions:</strong> GitHub, LinkedIn, portfolio links, repositories, presentations.</li>
+                    <li><strong>Technical information:</strong> IP address, browser, device information, approximate location.</li>
+                    <li><strong>Media and recordings:</strong> photographs, screenshots and video/audio recordings captured during the Event.</li>
+                    <li><strong>Other information:</strong> data voluntarily provided through forms or communications.</li>
+                  </ul>
+                </Section>
 
-      {/* 4. Legal Basis / Consent */}
-      <h2 className="text-2xl font-semibold mt-10 mb-3 text-slate-900">
-        4. Legal Basis and Consent
-      </h2>
-      <p className="mb-6 leading-relaxed text-gray-800">
-        By submitting your information and participating in the Event, you provide
-        your consent to the collection and use of your personal data as described
-        in this Privacy Policy. In addition, certain processing activities may be
-        necessary for the performance of our obligations in organizing and managing
-        the Event and for compliance with applicable legal requirements.
-      </p>
+                {/* 3 */}
+                <Section title="3. How We Use Your Information">
+                  <ul className="list-disc list-inside space-y-2">
+                    <li>Register and manage participation.</li>
+                    <li>Verify eligibility and compliance.</li>
+                    <li>Communicate schedules, updates and results.</li>
+                    <li>Evaluate submissions and select winners.</li>
+                    <li>Issue certificates, prizes and awards.</li>
+                    <li>Maintain records and event analytics.</li>
+                    <li>Create promotional and reporting material.</li>
+                    <li>Comply with applicable laws and policies.</li>
+                  </ul>
+                  <p className="mt-3">
+                    We do <strong>not</strong> sell or rent personal data to third parties.
+                  </p>
+                </Section>
 
-      {/* 5. Data Sharing */}
-      <h2 className="text-2xl font-semibold mt-10 mb-3 text-slate-900">
-        5. Data Sharing and Disclosure
-      </h2>
-      <p className="mb-3 leading-relaxed text-gray-800">
-        We may share your personal data with the following categories of
-        recipients, strictly on a need-to-know basis:
-      </p>
-      <ul className="list-disc list-inside space-y-2 mb-6 text-gray-800">
-        <li>
-          <span className="font-semibold">Internal organizing team:</span> members
-          of <span className="font-semibold">Code4Bharat</span>{" "}
-          involved in administering the Event.
-        </li>
-        <li>
-          <span className="font-semibold">Judges, mentors, and panelists:</span>{" "}
-          to enable evaluation of submissions, mentoring sessions, and technical
-          reviews.
-        </li>
-        <li>
-          <span className="font-semibold">Sponsors and partners:</span> limited
-          information such as your name, team name, and project details may be
-          shared for the purpose of prize distribution, internships, networking
-          opportunities, or collaboration offers, where applicable.
-        </li>
-        <li>
-          <span className="font-semibold">Service providers:</span> third-party
-          vendors providing hosting, communication, form management, analytics, or
-          similar services in connection with the Event.
-        </li>
-        <li>
-          <span className="font-semibold">Legal and regulatory authorities:</span>{" "}
-          where required by applicable law, regulation, or legal process.
-        </li>
-      </ul>
+                {/* 4–12 */}
+                <Section title="4. Legal Basis and Consent" content="By submitting your information and participating in the Event, you consent to the collection and use of your personal data as described in this Privacy Policy. Certain processing activities may also be necessary for event administration and legal compliance." />
 
-      <p className="mb-6 leading-relaxed text-gray-800">
-        We require all such recipients to process your personal data in accordance
-        with appropriate confidentiality and security obligations.
-      </p>
+                <Section title="5. Data Sharing and Disclosure" content="Personal data may be shared on a need-to-know basis with internal organizers, judges, mentors, sponsors, service providers, and legal authorities where required, under appropriate confidentiality safeguards." />
 
-      {/* 6. Cookies & Tracking */}
-      <h2 className="text-2xl font-semibold mt-10 mb-3 text-slate-900">
-        6. Cookies and Tracking Technologies
-      </h2>
-      <p className="mb-6 leading-relaxed text-gray-800">
-        Our Website may use cookies and similar technologies to support essential
-        functionality, remember user preferences, and gather aggregated analytics
-        on usage patterns. You may control or disable cookies through your browser
-        settings; however, certain features of the Website may not function
-        properly if cookies are disabled.
-      </p>
+                <Section title="6. Cookies and Tracking Technologies" content="We use cookies and similar technologies for essential functionality and analytics. Disabling cookies may affect certain features of the Website." />
 
-      {/* 7. Data Security */}
-      <h2 className="text-2xl font-semibold mt-10 mb-3 text-slate-900">
-        7. Data Security
-      </h2>
-      <p className="mb-6 leading-relaxed text-gray-800">
-        We implement reasonable administrative, technical, and organizational
-        measures to protect personal data against unauthorized access, loss,
-        misuse, alteration, or disclosure. Access to participant data is restricted
-        to authorized individuals who require such access for legitimate Event-
-        related purposes. While we strive to protect your information, no method of
-        transmission over the internet or electronic storage is completely secure,
-        and we cannot guarantee absolute security.
-      </p>
+                <Section title="7. Data Security" content="We implement reasonable technical and organizational safeguards to protect personal data. However, no transmission or storage system can be guaranteed to be 100% secure." />
 
-      {/* 8. Data Retention */}
-      <h2 className="text-2xl font-semibold mt-10 mb-3 text-slate-900">
-        8. Data Retention
-      </h2>
-      <p className="mb-6 leading-relaxed text-gray-800">
-        We retain personal data for as long as reasonably necessary to fulfill the
-        purposes outlined in this Privacy Policy, including the completion of the
-        Event, issuance of certificates and prizes, preparation of reports, and
-        planning of future editions. Certain information may be retained for a
-        longer period where required by applicable laws, institutional policies, or
-        legitimate record-keeping needs. Data that is no longer required will be
-        deleted or anonymized using appropriate measures.
-      </p>
+                <Section title="8. Data Retention" content="Personal data is retained only as long as necessary to fulfill event-related purposes or legal requirements, after which it is deleted or anonymized." />
 
-      {/* 9. Your Rights and Choices */}
-      <h2 className="text-2xl font-semibold mt-10 mb-3 text-slate-900">
-        9. Your Rights and Choices
-      </h2>
-      <p className="mb-3 leading-relaxed text-gray-800">
-        Subject to applicable laws and institutional regulations, you may have the
-        right to:
-      </p>
-      <ul className="list-disc list-inside space-y-2 mb-6 text-gray-800">
-        <li>Request access to the personal data we hold about you.</li>
-        <li>Request correction of inaccurate or incomplete personal data.</li>
-        <li>
-          Request deletion of your personal data, where such deletion is not
-          in conflict with legal or institutional obligations.
-        </li>
-        <li>
-          Withdraw your consent for specific processing activities, without
-          affecting the lawfulness of processing based on consent before its
-          withdrawal.
-        </li>
-      </ul>
-      <p className="mb-6 leading-relaxed text-gray-800">
-        To exercise any of these rights, you may contact us using the details
-        provided in the{" "}
-        <span className="font-semibold">Contact Us</span> section below. We may
-        require you to provide reasonable information to verify your identity
-        before acting on your request.
-      </p>
+                <Section title="9. Your Rights and Choices" content="Subject to applicable laws, you may request access, correction, deletion, or withdrawal of consent by contacting us." />
 
-      {/* 10. Children’s Data */}
-      <h2 className="text-2xl font-semibold mt-10 mb-3 text-slate-900">
-        10. Children&apos;s Privacy
-      </h2>
-      <p className="mb-6 leading-relaxed text-gray-800">
-        The Event is primarily intended for students and professionals who meet
-        the eligibility criteria specified in the Event guidelines. We do not
-        knowingly collect personal data from individuals who are not eligible as
-        per the Event rules. If you believe that personal data of an ineligible
-        minor has been provided to us, please contact us so that we can take
-        appropriate steps.
-      </p>
+                <Section title="10. Children’s Privacy" content="We do not knowingly collect personal data from ineligible minors. If such data is identified, appropriate steps will be taken to remove it." />
 
-      {/* 11. Third-Party Links */}
-      <h2 className="text-2xl font-semibold mt-10 mb-3 text-slate-900">
-        11. Third-Party Websites and Services
-      </h2>
-      <p className="mb-6 leading-relaxed text-gray-800">
-        The Website and Event communications may contain links to or integrations
-        with third-party platforms (such as form tools, communication platforms,
-        code repositories, or video-conferencing services). We are not responsible
-        for the privacy practices or content of such third parties. We encourage
-        you to review the privacy policies of any third-party services you use in
-        connection with the Event.
-      </p>
+                <Section title="11. Third-Party Websites and Services" content="We are not responsible for the privacy practices of third-party platforms linked or integrated with the Event." />
 
-      {/* 12. Changes to Policy */}
-      <h2 className="text-2xl font-semibold mt-10 mb-3 text-slate-900">
-        12. Updates to This Privacy Policy
-      </h2>
-      <p className="mb-6 leading-relaxed text-gray-800">
-        We may revise this Privacy Policy from time to time to reflect changes in
-        legal requirements, institutional policies, or the way we conduct the
-        Event. The updated version will be posted on the Website with a revised
-        &quot;Last updated&quot; date. We encourage you to review this page
-        periodically to stay informed about how we handle personal data.
-      </p>
+                <Section title="12. Updates to This Privacy Policy" content="This policy may be updated periodically. Continued use of the Website indicates acceptance of the updated terms." />
+              </div>
 
-      {/* 13. Contact */}
-      <h2 className="text-2xl font-semibold mt-10 mb-3 text-slate-900">
-        13. Contact Us
-      </h2>
-      <p className="mb-2 leading-relaxed text-gray-800">
-        For any questions, concerns, or requests related to this Privacy Policy or
-        our handling of your personal data, you may contact us at:
-      </p>
+              {/* Contact */}
+              <div className="mt-10 border-t border-slate-200 pt-6 text-sm text-slate-600">
+                <h2 className="font-semibold text-slate-900 mb-3">
+                  13. Contact Us
+                </h2>
+                <p>Email: <strong>nexcorealliance@gmail.com</strong></p>
+                <p>Organizer: <strong>Code4Bharat</strong></p>
+                <p>Institution: <strong>NEXCORE ALLIANCE</strong></p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
 
-      <p className="mb-1 leading-relaxed text-gray-800">
-        <span className="font-semibold">Email:</span> nexcorealliance@gmail.com
-      </p>
-      <p className="mb-1 leading-relaxed text-gray-800">
-        <span className="font-semibold">Organizer:</span> Code4Bhart
-
-      </p>
-      <p className="mb-8 leading-relaxed text-gray-800">
-        <span className="font-semibold">Institution:</span> NEXCORE ALLIANCE
-      </p>
-      
-      
-    </section>
-    <Footer />
+      <Footer />
     </div>
   );
 };
+
+const Section = ({ title, content, children }) => (
+  <div>
+    <h2 className="text-lg font-semibold text-slate-900 mb-2">{title}</h2>
+    {content && <p>{content}</p>}
+    {children}
+    <hr className="mt-6 border-slate-200" />
+  </div>
+);
 
 export default PrivacyPolicy;
