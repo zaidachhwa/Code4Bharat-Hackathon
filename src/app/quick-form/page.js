@@ -54,14 +54,6 @@ export default function HackathonRegistrationForm() {
 
     if (!formData.domain) newErrors.domain = "Select a domain of interest";
 
-    if (!formData.github || !isValidUrl(formData.github) || !formData.github.includes("github"))
-      newErrors.github = "Enter a valid GitHub profile URL";
-
-    if (!formData.linkedin || !isValidUrl(formData.linkedin) || !formData.linkedin.includes("linkedin"))
-      newErrors.linkedin = "Enter a valid LinkedIn profile URL";
-
-    if (formData.socialPresence && !isValidUrl(formData.socialPresence))
-      newErrors.socialPresence = "Enter a valid URL";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -230,7 +222,7 @@ export default function HackathonRegistrationForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  GitHub profile <span className="text-rose-500">*</span>
+                  GitHub profile 
                 </label>
                 <input
                   name="github"
@@ -246,7 +238,7 @@ export default function HackathonRegistrationForm() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  LinkedIn profile <span className="text-rose-500">*</span>
+                  LinkedIn profile
                 </label>
                 <input
                   name="linkedin"
