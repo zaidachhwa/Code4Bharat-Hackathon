@@ -21,7 +21,6 @@ import {
   X,
 } from "lucide-react";
 import axios from "axios";
-import { get } from "react-hook-form";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 const API_URL_IMAGES = process.env.NEXT_PUBLIC_IMAGE_BASE_URL || "http://localhost:5000";
@@ -48,7 +47,7 @@ export default function AmbassadorDetailPage() {
 
   const [ambassador, setAmbassador] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [promoImages, setPromoImages] = useState([]);
+  const [images, setImages] = useState({ promotion: {}, seminar: {} });
   const [loadingImages, setLoadingImages] = useState(true);
   const [showUsersModal, setShowUsersModal] = useState(false);
   const [couponUsers, setCouponUsers] = useState({
@@ -58,45 +57,48 @@ export default function AmbassadorDetailPage() {
   });
 
   useEffect(() => {
-    getCoupenCodeUsers();
-    getImages();
-  }, []);
-
-  useEffect(() => {
     if (!id) return;
-    (async () => {
-      try {
-        const res = await fetch(`${API_URL}/ambassadors/data/${id}`);
-        const data = await res.json();
-        setAmbassador(data.ambassadors || null);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    fetchAmbassador();
+    fetchImages();
+    getCouponCodeUsers();
   }, [id]);
 
-  useEffect(() => {
-    if (!id) return;
-    (async () => {
-      try {
-        const res = await axios.get(`${API_URL}/step1/day1/uploads/${id}`);
-        setPromoImages(res.data?.data || []);
-      } catch (e) {
-        console.error("Image fetch failed:", e);
-      } finally {
-        setLoadingImages(false);
-      }
-    })();
-  }, [id]);
-
-  const getCoupenCodeUsers = async () => {
+  const fetchAmbassador = async () => {
     try {
-      const res = await axios.get(`${API_URL}/ambassador-coupen-code-users/${id}`, {
+      const res = await fetch(`${API_URL}/ambassadors/data/${id}`);
+      const data = await res.json();
+      setAmbassador(data.ambassadors || null);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchImages = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/images/get/${id}`, {
         withCredentials: true,
       });
-      console.log("hello world ", res.data)
+      console.log("Fetched images:", res.data);
+      if (res.data?.success) {
+        setImages(res.data.data || { promotion: {}, seminar: {} });
+      }
+    } catch (e) {
+      console.error("Image fetch failed:", e);
+    } finally {
+      setLoadingImages(false);
+    }
+  };
+
+  const getCouponCodeUsers = async () => {
+    try {
+      const res = await axios.get(
+        `${API_URL}/ambassador-coupen-code-users/${id}`,
+        {
+          withCredentials: true,
+        }
+      );
       const { couponCode, totalUsers, users } = res.data || {};
       setCouponUsers({
         couponCode: couponCode || "",
@@ -105,15 +107,8 @@ export default function AmbassadorDetailPage() {
       });
     } catch (e) {
       console.error("Failed to fetch coupon code users:", e);
-      setCouponUsers({ couponCode: "", totalUsers: 0, users: [] });
     }
   };
-
-
-  const getImages = async () => {
-    const res = await axios.get(`${API_URL}/images/get/${id}`, { withCredentials: true });
-    console.log("Fetched images:", res.data);
-  }
 
   const handlePromotionAction = async () => {
     // your existing logic
@@ -121,6 +116,19 @@ export default function AmbassadorDetailPage() {
 
   const handleSeminarAction = async () => {
     // your existing logic
+  };
+
+  // Helper function to format image URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return "";
+    // Remove leading slashes and backslashes
+    const cleanPath = imagePath.replace(/^[\\\/]+/, "");
+    // Check if path already starts with 'uploads'
+    const finalPath = cleanPath.startsWith("uploads")
+      ? cleanPath
+      : `uploads/${cleanPath}`;
+    // Replace backslashes with forward slashes
+    return `${API_URL_IMAGES}/${finalPath.replace(/\\/g, "/")}`;
   };
 
   if (loading) return <div className="p-10 text-center">Loading...</div>;
@@ -132,6 +140,14 @@ export default function AmbassadorDetailPage() {
   const p = ambassador.task?.promotion;
   const s = ambassador.task?.seminar;
   const o = ambassador.task?.onboarding;
+
+  // Combine day1 and day2 screenshots for promotion
+  const promotionImages = [
+    ...(images.promotion?.day1Screenshots || []),
+    ...(images.promotion?.day2Screenshots || []),
+  ];
+
+  const seminarImages = images.seminar?.uploadedProof || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 p-6">
@@ -158,15 +174,15 @@ export default function AmbassadorDetailPage() {
                 </h1>
                 <div className="space-y-2 text-sm text-gray-600">
                   <p className="flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-yellow-600" />{" "}
+                    <Mail className="w-4 h-4 text-yellow-600" />
                     {ambassador.email}
                   </p>
                   <p className="flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-yellow-600" />{" "}
+                    <Phone className="w-4 h-4 text-yellow-600" />
                     {ambassador.phone}
                   </p>
                   <p className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-yellow-600" />{" "}
+                    <MapPin className="w-4 h-4 text-yellow-600" />
                     {ambassador.college}, {ambassador.city}
                   </p>
                   <p className="flex items-center gap-2">
@@ -187,68 +203,78 @@ export default function AmbassadorDetailPage() {
           </div>
         </div>
 
-        {/* STEP 1 */}
+        {/* STEP 1: PROMOTION */}
         <div className="bg-white rounded-3xl shadow-xl border-2 border-yellow-200 p-8 mb-6">
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">
-              Uploaded Proof (Day 1)
-            </h3>
-            {loadingImages ? (
-              <p className="text-gray-500">Loading images...</p>
-            ) : promoImages.length === 0 ? (
-              <p className="text-gray-500">No images uploaded yet.</p>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {promoImages.map((img, i) => (
-                  <div
-                    key={i}
-                    className="border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition"
-                  >
-                    <img
-                      src={`http://localhost:5000/uploads/${img}`}
-                      alt="Promotion proof"
-                      className="w-full h-40 object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <StepHeader
+            title="Step 1: Promotion"
+            subtitle="Social media campaign verification"
+            status={p?.status}
+            icon={<Upload className="w-7 h-7 text-white" />}
+            iconBg="bg-gradient-to-br from-yellow-400 to-orange-500"
+          />
 
-          {p?.submittedAt ? (
+          {loadingImages ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Loading images...</p>
+            </div>
+          ) : promotionImages.length > 0 ? (
             <>
               <div className="grid md:grid-cols-4 gap-4 mb-6">
                 <InfoCard
                   title="SUBMITTED ON"
                   color="blue"
-                  value={new Date(p.submittedAt).toLocaleDateString()}
+                  value={
+                    p?.submittedAt
+                      ? new Date(p.submittedAt).toLocaleDateString()
+                      : "N/A"
+                  }
                 />
                 <InfoCard
-                  title="SCREENSHOTS"
+                  title="TOTAL IMAGES"
                   color="purple"
-                  value={`${p.screenshots?.length || 0} files`}
+                  value={`${promotionImages.length} files`}
                 />
                 <InfoCard
                   title="DAY 1"
                   color="green"
-                  value={p.day1Confirmed ? "✓ Confirmed" : "✗ Not confirmed"}
+                  value={
+                    p?.day1Confirmed ? "✓ Confirmed" : "✗ Not confirmed"
+                  }
                 />
                 <InfoCard
                   title="DAY 2"
                   color="green"
-                  value={p.day2Confirmed ? "✓ Confirmed" : "✗ Not confirmed"}
+                  value={
+                    p?.day2Confirmed ? "✓ Confirmed" : "✗ Not confirmed"
+                  }
                 />
               </div>
 
-              {p.screenshots?.length > 0 && (
-                <ScreenshotGrid
-                  items={p.screenshots}
-                  label="Uploaded Screenshots"
-                  iconColor="text-yellow-600"
-                />
-              )}
+              <div className="mb-6">
+                <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-yellow-600" />
+                  Uploaded Proof ({promotionImages.length})
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {promotionImages.map((img, i) => (
+                    <div
+                      key={i}
+                      className="border-2 border-yellow-200 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-orange-400 transition-all"
+                    >
+                      <img
+                        src={getImageUrl(img)}
+                        alt={`Promotion proof ${i + 1}`}
+                        className="w-full h-40 object-cover"
+                        onError={(e) => {
+                          e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Found";
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-              {p.status === "pending" && (
+              {p?.status === "pending" && (
                 <div className="flex gap-3">
                   <ActionButton
                     onClick={() =>
@@ -276,7 +302,7 @@ export default function AmbassadorDetailPage() {
           )}
         </div>
 
-        {/* STEP 2 */}
+        {/* STEP 2: SEMINAR */}
         <div className="bg-white rounded-3xl shadow-xl border-2 border-orange-200 p-8 mb-6">
           <StepHeader
             title="Step 2: Seminar"
@@ -286,40 +312,63 @@ export default function AmbassadorDetailPage() {
             iconBgLocked="bg-gray-300"
             iconBg="bg-gradient-to-br from-orange-400 to-red-500"
           />
-          {s?.status !== "locked" && s?.submittedAt ? (
+
+          {s?.status !== "locked" && (s?.submittedAt || seminarImages.length > 0) ? (
             <>
               <div className="grid md:grid-cols-2 gap-4 mb-6">
                 <InfoCard
                   title="SEMINAR TITLE"
                   color="blue"
-                  value={s.seminarTitle}
+                  value={s?.seminarTitle || images.seminar?.seminarTitle || "N/A"}
                 />
                 <InfoCard
                   title="DATE"
                   color="purple"
-                  value={new Date(s.seminarDate).toLocaleDateString()}
+                  value={
+                    s?.seminarDate || images.seminar?.seminarDate
+                      ? new Date(s?.seminarDate || images.seminar?.seminarDate).toLocaleDateString()
+                      : "N/A"
+                  }
                 />
                 <InfoCard
-                  title="PARTICIPANTS"
+                  title="COLLEGE"
                   color="green"
-                  value={`${s.participants} students`}
+                  value={images.seminar?.college || "N/A"}
                 />
                 <InfoCard
                   title="PROOF FILES"
                   color="orange"
-                  value={`${s.uploadedProof?.length || 0} uploaded`}
+                  value={`${seminarImages.length} uploaded`}
                 />
               </div>
 
-              {s.uploadedProof?.length > 0 && (
-                <ScreenshotGrid
-                  items={s.uploadedProof}
-                  label="Uploaded Seminar Proof"
-                  iconColor="text-orange-600"
-                />
+              {seminarImages.length > 0 && (
+                <div className="mb-6">
+                  <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-orange-600" />
+                    Uploaded Seminar Proof ({seminarImages.length})
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {seminarImages.map((img, i) => (
+                      <div
+                        key={i}
+                        className="border-2 border-orange-200 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-red-400 transition-all"
+                      >
+                        <img
+                          src={getImageUrl(img)}
+                          alt={`Seminar proof ${i + 1}`}
+                          className="w-full h-40 object-cover"
+                          onError={(e) => {
+                            e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Found";
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
 
-              {s.couponCode && (
+              {s?.couponCode && (
                 <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-300 mb-6">
                   <p className="text-xs font-bold text-purple-700 mb-2 flex items-center gap-2">
                     <Award className="w-4 h-4" />
@@ -329,19 +378,26 @@ export default function AmbassadorDetailPage() {
                     <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 font-mono">
                       {s.couponCode}
                     </p>
-                    <button className="px-4 py-2 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition-colors flex items-center gap-2">
+                    <button
+                      onClick={() =>
+                        navigator.clipboard.writeText(s.couponCode)
+                      }
+                      className="px-4 py-2 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition-colors flex items-center gap-2"
+                    >
                       <Copy className="w-4 h-4" />
                       Copy
                     </button>
                   </div>
-                  <p className="text-xs text-purple-600 mt-2">
-                    Generated on:{" "}
-                    {new Date(s.couponGeneratedAt).toLocaleDateString()}
-                  </p>
+                  {s.couponGeneratedAt && (
+                    <p className="text-xs text-purple-600 mt-2">
+                      Generated on:{" "}
+                      {new Date(s.couponGeneratedAt).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
               )}
 
-              {s.status === "pending" && (
+              {s?.status === "pending" && (
                 <div className="flex gap-3">
                   <ActionButton
                     onClick={() =>
@@ -376,7 +432,7 @@ export default function AmbassadorDetailPage() {
           )}
         </div>
 
-        {/* STEP 3 */}
+        {/* STEP 3: ONBOARDING */}
         <div className="bg-white rounded-3xl shadow-xl border-2 border-red-200 p-8">
           <StepHeader
             title="Step 3: Onboarding"
@@ -417,12 +473,14 @@ export default function AmbassadorDetailPage() {
             <SimpleInfo
               title="CURRENT STEP"
               color="yellow"
-              value={`Step ${ambassador.task?.currentStep}/3`}
+              value={`Step ${ambassador.task?.currentStep || 1}/3`}
             />
             <SimpleInfo
               title="LOGIN STATUS"
               color="blue"
-              value={ambassador.isApproved ? "Login Approved" : "Login Blocked"}
+              value={
+                ambassador.isApproved ? "Login Approved" : "Login Blocked"
+              }
             />
             <SimpleInfo
               title="ONBOARDING STATUS"
@@ -441,11 +499,10 @@ export default function AmbassadorDetailPage() {
         </div>
       </div>
 
-      {/* ENHANCED MODAL */}
+      {/* USERS MODAL */}
       {showUsersModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-gradient-to-br from-white to-orange-50 rounded-3xl shadow-2xl w-full max-w-3xl border-4 border-orange-200 overflow-hidden">
-            {/* Modal Header */}
             <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 px-8 py-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -477,7 +534,6 @@ export default function AmbassadorDetailPage() {
               </div>
             </div>
 
-            {/* Modal Body */}
             <div className="p-6 max-h-[60vh] overflow-y-auto">
               {couponUsers.users.length === 0 ? (
                 <div className="text-center py-12">
@@ -538,10 +594,13 @@ export default function AmbassadorDetailPage() {
               )}
             </div>
 
-            {/* Modal Footer */}
             <div className="px-8 py-5 bg-gradient-to-r from-yellow-50 to-orange-50 border-t-2 border-orange-200 flex justify-between items-center">
               <p className="text-sm text-gray-600 font-medium">
-                Total: <span className="font-bold text-orange-600">{couponUsers.totalUsers}</span> registered users
+                Total:{" "}
+                <span className="font-bold text-orange-600">
+                  {couponUsers.totalUsers}
+                </span>{" "}
+                registered users
               </p>
               <button
                 onClick={() => setShowUsersModal(false)}
@@ -558,52 +617,25 @@ export default function AmbassadorDetailPage() {
 }
 
 /* SUB-COMPONENTS */
-
 function InfoCard({ title, color, value }) {
-  const base =
-    color === "blue"
-      ? "bg-blue-50 border-blue-200 text-blue-900"
-      : color === "purple"
-      ? "bg-purple-50 border-purple-200 text-purple-900"
-      : color === "green"
-      ? "bg-green-50 border-green-200 text-green-900"
-      : "bg-orange-50 border-orange-200 text-orange-900";
-  const titleColor =
-    color === "blue"
-      ? "text-blue-700"
-      : color === "purple"
-      ? "text-purple-700"
-      : color === "green"
-      ? "text-green-700"
-      : "text-orange-700";
+  const colorMap = {
+    blue: "bg-blue-50 border-blue-200 text-blue-900",
+    purple: "bg-purple-50 border-purple-200 text-purple-900",
+    green: "bg-green-50 border-green-200 text-green-900",
+    orange: "bg-orange-50 border-orange-200 text-orange-900",
+  };
+  const titleColorMap = {
+    blue: "text-blue-700",
+    purple: "text-purple-700",
+    green: "text-green-700",
+    orange: "text-orange-700",
+  };
   return (
-    <div className={`p-4 rounded-xl border ${base}`}>
-      <p className={`text-xs font-bold mb-1 ${titleColor}`}>{title}</p>
-      <p className="text-sm font-semibold">{value}</p>
-    </div>
-  );
-}
-
-function ScreenshotGrid({ items, label, iconColor }) {
-  return (
-    <div className="mb-6">
-      <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-        <ImageIcon className={`w-4 h-4 ${iconColor}`} />
-        {label} ({items.length})
+    <div className={`p-4 rounded-xl border ${colorMap[color]}`}>
+      <p className={`text-xs font-bold mb-1 ${titleColorMap[color]}`}>
+        {title}
       </p>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {items.map((_, i) => (
-          <div
-            key={i}
-            className="aspect-square bg-gray-100 rounded-xl border-2 border-gray-200 flex items-center justify-center hover:border-yellow-400 transition-all cursor-pointer group"
-          >
-            <div className="text-center">
-              <ImageIcon className="w-12 h-12 text-gray-400 group-hover:text-yellow-500 transition-colors mx-auto mb-2" />
-              <p className="text-xs text-gray-500">File {i + 1}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+      <p className="text-sm font-semibold">{value}</p>
     </div>
   );
 }
@@ -670,21 +702,21 @@ function EmptyState({ icon: Icon, text, iconColor = "text-gray-400" }) {
 }
 
 function SimpleInfo({ title, color, value }) {
-  const base =
-    color === "yellow"
-      ? "bg-yellow-50 border-yellow-200 text-yellow-900"
-      : color === "blue"
-      ? "bg-blue-50 border-blue-200 text-blue-900"
-      : "bg-red-50 border-red-200 text-red-900";
-  const titleColor =
-    color === "yellow"
-      ? "text-yellow-700"
-      : color === "blue"
-      ? "text-blue-700"
-      : "text-red-700";
+  const colorMap = {
+    yellow: "bg-yellow-50 border-yellow-200 text-yellow-900",
+    blue: "bg-blue-50 border-blue-200 text-blue-900",
+    red: "bg-red-50 border-red-200 text-red-900",
+  };
+  const titleColorMap = {
+    yellow: "text-yellow-700",
+    blue: "text-blue-700",
+    red: "text-red-700",
+  };
   return (
-    <div className={`p-4 rounded-xl border ${base}`}>
-      <p className={`text-xs font-bold mb-1 ${titleColor}`}>{title}</p>
+    <div className={`p-4 rounded-xl border ${colorMap[color]}`}>
+      <p className={`text-xs font-bold mb-1 ${titleColorMap[color]}`}>
+        {title}
+      </p>
       <p className="text-sm font-semibold">{value}</p>
     </div>
   );

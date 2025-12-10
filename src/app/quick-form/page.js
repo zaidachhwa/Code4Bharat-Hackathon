@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import axios from "axios";
 
 export default function HackathonRegistrationForm() {
   const [formData, setFormData] = useState({
@@ -9,8 +10,11 @@ export default function HackathonRegistrationForm() {
     collegeYear: "",
     domain: "",
     github: "",
-    linkedin: ""
+    linkedin: "",
+    socialPresence: "",
   });
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -25,9 +29,7 @@ export default function HackathonRegistrationForm() {
     if (!value) return false;
     try {
       const url = new URL(value.startsWith("http") ? value : `https://${value}`);
-      return ["github.com", "linkedin.com"].some((host) =>
-        url.hostname.includes(host)
-      );
+      return true;
     } catch {
       return false;
     }
@@ -52,44 +54,46 @@ export default function HackathonRegistrationForm() {
 
     if (!formData.domain) newErrors.domain = "Select a domain of interest";
 
-    if (
-      !formData.github ||
-      !isValidUrl(formData.github) ||
-      !formData.github.includes("github")
-    )
+    if (!formData.github || !isValidUrl(formData.github) || !formData.github.includes("github"))
       newErrors.github = "Enter a valid GitHub profile URL";
 
-    if (
-      !formData.linkedin ||
-      !isValidUrl(formData.linkedin) ||
-      !formData.linkedin.includes("linkedin")
-    )
+    if (!formData.linkedin || !isValidUrl(formData.linkedin) || !formData.linkedin.includes("linkedin"))
       newErrors.linkedin = "Enter a valid LinkedIn profile URL";
+
+    if (formData.socialPresence && !isValidUrl(formData.socialPresence))
+      newErrors.socialPresence = "Enter a valid URL";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!validate()) return;
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validate()) return;
 
-    console.log("Submitted payload", formData);
-    setSubmitted(true);
+  setSubmitted(true);
 
-    setTimeout(() => {
-      setFormData({
-        fullName: "",
-        email: "",
-        phone: "",
-        collegeYear: "",
-        domain: "",
-        github: "",
-        linkedin: ""
-      });
-      setSubmitted(false);
-    }, 2500);
-  };
+  try {
+    const res = await axios.post(`${API_URL}/registration`, formData);
+    console.log(res.data);
+  } catch (err) {
+    console.error("Submit error:", err);
+  }
+
+  setTimeout(() => {
+    setFormData({
+      fullName: "",
+      email: "",
+      phone: "",
+      collegeYear: "",
+      domain: "",
+      github: "",
+      linkedin: "",
+      socialPresence: "",
+    });
+    setSubmitted(false);
+  }, 2500);
+};
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-start justify-center py-12 px-4">
@@ -115,18 +119,11 @@ export default function HackathonRegistrationForm() {
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 13l4 4L19 7"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
             </svg>
             <div>
               <div className="font-medium">Registration submitted</div>
-              <div className="text-sm">
-                You'll receive a confirmation email if provided.
-              </div>
+              <div className="text-sm">You'll receive a confirmation email if provided.</div>
             </div>
           </div>
         )}
@@ -148,11 +145,7 @@ export default function HackathonRegistrationForm() {
                   errors.fullName ? "border-rose-400" : "border-gray-200"
                 }`}
               />
-              {errors.fullName && (
-                <p className="mt-1 text-xs text-rose-600">
-                  {errors.fullName}
-                </p>
-              )}
+              {errors.fullName && <p className="mt-1 text-xs text-rose-600">{errors.fullName}</p>}
             </div>
 
             {/* Email + Phone */}
@@ -170,9 +163,7 @@ export default function HackathonRegistrationForm() {
                     errors.email ? "border-rose-400" : "border-gray-200"
                   }`}
                 />
-                {errors.email && (
-                  <p className="mt-1 text-xs text-rose-600">{errors.email}</p>
-                )}
+                {errors.email && <p className="mt-1 text-xs text-rose-600">{errors.email}</p>}
               </div>
 
               <div>
@@ -186,21 +177,18 @@ export default function HackathonRegistrationForm() {
                     const value = e.target.value.replace(/[^0-9]/g, "");
                     if (value.length <= 10)
                       setFormData((prev) => ({ ...prev, phone: value }));
-                    if (errors.phone)
-                      setErrors((prev) => ({ ...prev, phone: "" }));
+                    if (errors.phone) setErrors((prev) => ({ ...prev, phone: "" }));
                   }}
                   placeholder="10-digit number"
                   className={`mt-2 block w-full rounded-lg border px-3 py-2 text-sm shadow-sm ${
                     errors.phone ? "border-rose-400" : "border-gray-200"
                   }`}
                 />
-                {errors.phone && (
-                  <p className="mt-1 text-xs text-rose-600">{errors.phone}</p>
-                )}
+                {errors.phone && <p className="mt-1 text-xs text-rose-600">{errors.phone}</p>}
               </div>
             </div>
 
-            {/* College  */}
+            {/* College */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 College & Year <span className="text-rose-500">*</span>
@@ -214,14 +202,10 @@ export default function HackathonRegistrationForm() {
                   errors.collegeYear ? "border-rose-400" : "border-gray-200"
                 }`}
               />
-              {errors.collegeYear && (
-                <p className="mt-1 text-xs text-rose-600">
-                  {errors.collegeYear}
-                </p>
-              )}
+              {errors.collegeYear && <p className="mt-1 text-xs text-rose-600">{errors.collegeYear}</p>}
             </div>
 
-            {/* Domain Dropdown */}
+            {/* Domain */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Domain of interest <span className="text-rose-500">*</span>
@@ -239,12 +223,10 @@ export default function HackathonRegistrationForm() {
                 <option value="Web Development">Web Development</option>
                 <option value="MySQL">MySQL</option>
               </select>
-              {errors.domain && (
-                <p className="mt-1 text-xs text-rose-600">{errors.domain}</p>
-              )}
+              {errors.domain && <p className="mt-1 text-xs text-rose-600">{errors.domain}</p>}
             </div>
 
-            {/* Social Profiles */}
+            {/* GitHub + LinkedIn */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
@@ -259,9 +241,7 @@ export default function HackathonRegistrationForm() {
                     errors.github ? "border-rose-400" : "border-gray-200"
                   }`}
                 />
-                {errors.github && (
-                  <p className="mt-1 text-xs text-rose-600">{errors.github}</p>
-                )}
+                {errors.github && <p className="mt-1 text-xs text-rose-600">{errors.github}</p>}
               </div>
 
               <div>
@@ -277,12 +257,27 @@ export default function HackathonRegistrationForm() {
                     errors.linkedin ? "border-rose-400" : "border-gray-200"
                   }`}
                 />
-                {errors.linkedin && (
-                  <p className="mt-1 text-xs text-rose-600">
-                    {errors.linkedin}
-                  </p>
-                )}
+                {errors.linkedin && <p className="mt-1 text-xs text-rose-600">{errors.linkedin}</p>}
               </div>
+            </div>
+
+            {/* ⭐ Social Presence (New Field Added) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Social Presence (Portfolio / Instagram / X / Any URL)
+              </label>
+              <input
+                name="socialPresence"
+                value={formData.socialPresence}
+                onChange={handleChange}
+                placeholder="yourwebsite.com or social link"
+                className={`mt-2 block w-full rounded-lg border px-3 py-2 text-sm shadow-sm ${
+                  errors.socialPresence ? "border-rose-400" : "border-gray-200"
+                }`}
+              />
+              {errors.socialPresence && (
+                <p className="mt-1 text-xs text-rose-600">{errors.socialPresence}</p>
+              )}
             </div>
 
             {/* Submit */}
@@ -300,12 +295,7 @@ export default function HackathonRegistrationForm() {
                       viewBox="0 0 24 24"
                       stroke="currentColor"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                     Submitted
                   </>
@@ -315,8 +305,7 @@ export default function HackathonRegistrationForm() {
               </button>
 
               <p className="mt-3 text-center text-xs text-gray-400">
-                All fields marked with * are required — by submitting you agree
-                to event terms.
+                All fields marked with * are required — by submitting you agree to event terms.
               </p>
             </div>
           </div>
