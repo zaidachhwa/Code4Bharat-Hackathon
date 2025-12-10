@@ -1,12 +1,16 @@
 import React from 'react'
+import Navbar from './Navbar'
+import Footer from './Footer'
 
 function Terms() {
   return (
-    <div><section
-        id="terms"
-        className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
+    <div >
+      <Navbar/>
+    <div>
+      <section className="sm:px-6 pt-18 lg:px-8 mb-16"
       >
-        <div className="max-w-5xl mx-auto">
+        
+        <div className="max-w-5xl  mx-auto">
           <div className="card-soft p-8 sm:p-10 md:p-12">
             <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-4">
               Terms &amp; Conditions
@@ -149,6 +153,8 @@ function Terms() {
           </div>
         </div>
       </section></div>
+      <Footer/>
+      </div>
   )
 }
 

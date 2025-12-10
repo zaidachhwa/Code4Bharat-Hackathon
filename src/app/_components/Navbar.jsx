@@ -70,14 +70,18 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
         <div className="flex items-center justify-between gap-6">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="relative w-55 h-11 flex items-center">
-              <img src="/logo.png" alt="logo" className="rounded-xl" />
-            </div>
-          </div>
+         <div className="flex items-center gap-3">
+  <Link href="/" className="relative w-55 h-11 flex items-center">
+    <img
+      src="/logo.png"
+      alt="logo"
+      className="rounded-xl cursor-pointer"
+    />
+  </Link>
+</div>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+          <nav className="cursor-pointer hidden md:flex items-center gap-6 text-sm font-medium">
             {NAV_SECTIONS.map((section) => (
               <button
                 key={section}

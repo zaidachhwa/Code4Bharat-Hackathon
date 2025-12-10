@@ -11,6 +11,7 @@ import {
   Twitter,
   Instagram,
   Rocket,
+  Facebook,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -67,9 +68,51 @@ export default function Footer({ NAV_SECTIONS = [] }) {
               A focused 6-hour solo hackathon designed to help you ship a real
               project end-to-end and compete with builders across India.
             </p>
+             <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs uppercase tracking-wide text-slate-500">
+                  Follow the event
+                </span>
+                <div className="flex gap-2.5">
+                  <a
+                    href="#"
+                    className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 text-sm transition-colors"
+                    aria-label="Message"
+                  >
+                    <Facebook className="w-4 h-4" />
+                  </a>
+                  {/* <a
+                    href="#"
+                    className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 text-sm transition-colors"
+                    aria-label="Website"
+                  >
+                    <Link2 className="w-4 h-4" />
+                  </a> */}
+                  <a
+                    href="#"
+                    className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 text-sm transition-colors"
+                    aria-label="LinkedIn"
+                  >
+                    <Linkedin className="w-4 h-4" />
+                  </a>
+                  <a
+                    href="#"
+                    className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 text-sm transition-colors"
+                    aria-label="Twitter"
+                  >
+                    <Twitter className="w-4 h-4" />
+                  </a>
+                  <a
+                    href="#"
+                    className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 text-sm transition-colors"
+                    aria-label="Instagram"
+                  >
+                    <Instagram className="w-4 h-4" />
+                  </a>
+                </div>
+              </div>
           </div>
 
-          {/* Snapshot */}
+         
           <div>
             <h3 className="text-sm font-semibold mb-4 flex items-center gap-2 text-slate-900">
               <Trophy size={16} className="text-indigo-600" />
@@ -139,7 +182,7 @@ export default function Footer({ NAV_SECTIONS = [] }) {
 
             <button
               onClick={() => router.push("/privacy")}
-              className="text-indigo-700 hover:text-indigo-800 underline-offset-2 hover:underline"
+              className="text-indigo-700 cursor-pointer hover:text-indigo-800 underline-offset-2 hover:underline"
             >
               Privacy Policy
             </button>
@@ -148,7 +191,7 @@ export default function Footer({ NAV_SECTIONS = [] }) {
 
             <button
               onClick={() => router.push("/terms")}
-              className="text-indigo-700 hover:text-indigo-800 underline-offset-2 hover:underline"
+              className="text-indigo-700 cursor-pointer hover:text-indigo-800 underline-offset-2 hover:underline"
             >
               Terms & Conditions
             </button>

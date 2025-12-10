@@ -325,7 +325,7 @@ export default function AmbassadorTimeline() {
                 </li>
                 <li className="flex items-start gap-2">
                   <Star className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span>Topic: InnovateX Hackathon & opportunities</span>
+                  <span>Topic:Hackathon & opportunities</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <Star className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
