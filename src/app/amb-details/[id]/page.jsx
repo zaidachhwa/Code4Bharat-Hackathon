@@ -225,7 +225,7 @@ export default function AmbassadorDetailPage() {
             </div>
           ) : promotionImages.length > 0 ? (
             <>
-              <div className="grid md:grid-cols-4 gap-4 mb-6">
+              <div className="grid md:grid-cols-2 gap-4 mb-6">
                 <InfoCard
                   title="SUBMITTED ON"
                   color="blue"
@@ -239,20 +239,6 @@ export default function AmbassadorDetailPage() {
                   title="TOTAL IMAGES"
                   color="purple"
                   value={`${promotionImages.length} files`}
-                />
-                <InfoCard
-                  title="DAY 1"
-                  color="green"
-                  value={
-                    p?.day1Confirmed ? "✓ Confirmed" : "✗ Not confirmed"
-                  }
-                />
-                <InfoCard
-                  title="DAY 2"
-                  color="green"
-                  value={
-                    p?.day2Confirmed ? "✓ Confirmed" : "✗ Not confirmed"
-                  }
                 />
               </div>
 
