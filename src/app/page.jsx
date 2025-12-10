@@ -4,6 +4,7 @@ import {
   Menu,
   X,
   Calendar,
+  ChevronDown,
   Clock,
   Globe,
   Award,
@@ -72,6 +73,36 @@ export default function Code4BharatLanding() {
     el.scrollIntoView({ behavior: "smooth", block: "start" });
     setMobileMenuOpen(false);
   };
+
+ const [openFaqIndex, setOpenFaqIndex] = useState(null);
+
+
+const faqs = [
+  {
+    q: "Who can participate in CODE4BHARAT?",
+    a: "Any college student or early professional with an interest in technology can participate. This is a solo hackathon, so each person participates individually.",
+  },
+  {
+    q: "Is there any registration fee?",
+    a: "No, participation in CODE4BHARAT is completely free. Simply register your details and you are ready to go.",
+  },
+  {
+    q: "Do I need prior hackathon experience?",
+    a: "Not at all. Beginners are welcome. The format and guidelines are structured to help you learn and contribute effectively.",
+  },
+  {
+    q: "Can I work on an existing project?",
+    a: "No. All work must be created during the 6-hour hackathon window. However, you may reuse standard libraries, frameworks, and boilerplates.",
+  },
+  {
+    q: "Will I receive a certificate?",
+    a: "Certificates of participation will be awarded to the top 20 participants based on overall performance and evaluation.",
+  },
+  {
+    q: "What is the mode of communication during the event?",
+    a: "All official communication, announcements, and support will be provided via email and designated online channels shared post-registration.",
+  },
+];
 
   /* ================================================================
       FADE-IN ON SCROLL
@@ -761,51 +792,49 @@ export default function Code4BharatLanding() {
       </section> */}
 
       {/* FAQ */}
-      <section id="FAQ" className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-8 text-center">
-            Frequently Asked Questions
-          </h2>
+<section
+  id="FAQ"
+  className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
+>
+  <div className="max-w-3xl mx-auto"> {/* narrower for readability */}
+    <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-8 text-center">
+      Frequently Asked Questions
+    </h2>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              {
-                q: "Who can participate in CODE4BHARAT?",
-                a: "Any college student or early professional with an interest in technology can participate. This is a solo hackathon, so each person participates individually.",
-              },
-              {
-                q: "Is there any registration fee?",
-                a: "No, participation in CODE4BHARAT is completely free. Simply register your details and you are ready to go.",
-              },
-              {
-                q: "Do I need prior hackathon experience?",
-                a: "Not at all. Beginners are welcome. The format and guidelines are structured to help you learn and contribute effectively.",
-              },
-              {
-                q: "Can I work on an existing project?",
-                a: "No. All work must be created during the 6-hour hackathon window. However, you may reuse standard libraries, frameworks, and boilerplates.",
-              },
-              {
-                q: "Will I receive a certificate?",
-                a: "Certificates of participation will be awarded to the top 20 participants based on overall performance and evaluation.",
-              },
-              {
-                q: "What is the mode of communication during the event?",
-                a: "All official communication, announcements, and support will be provided via email and designated online channels shared post-registration.",
-              },
-            ].map((faq, i) => (
-              <div key={i} className="card-soft p-6">
-                <h4 className="font-semibold text-sm sm:text-base text-slate-900 mb-2">
-                  {faq.q}
-                </h4>
+    <div className="space-y-4">
+      {faqs.map((faq, i) => {
+        const isOpen = openFaqIndex === i;
+
+        return (
+          <div key={i} className="card-soft">
+            <button
+              type="button"
+              onClick={() => setOpenFaqIndex(isOpen ? null : i)}
+              className="flex w-full items-center justify-between p-6 text-left"
+            >
+              <span className="font-semibold text-sm sm:text-base text-slate-900">
+                {faq.q}
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 transition-transform duration-200 ${
+                  isOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {isOpen && (
+              <div className="px-6 pb-6">
                 <p className="text-sm text-slate-600 leading-relaxed">
                   {faq.a}
                 </p>
               </div>
-            ))}
+            )}
           </div>
-        </div>
-      </section>
+        );
+      })}
+    </div>
+  </div>
+</section>
 
       {/* Footer – Hackathon styled */}
       <Footer/>
