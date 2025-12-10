@@ -279,11 +279,11 @@ const Index = () => {
       <div className="max-w-3xl mx-auto">
         <div className="bg-card rounded-lg shadow-sm p-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            InnovateX Campus Ambassador Application
+            Ambassador Application
           </h1>
           <p className="text-muted-foreground mb-8">
             Fill out the details below to apply as a Campus Ambassador for the
-            InnovateX hackathon.
+            Code4Bharat.
           </p>
 
           <div className="space-y-8">
@@ -794,7 +794,7 @@ const Index = () => {
                   </p>
                 )}
                 <p className="text-muted-foreground text-xs">
-                  By submitting, you apply for the InnovateX Campus Ambassador
+                  By submitting, you apply for the Ambassador
                   role.
                 </p>
               </div>

@@ -1,10 +1,11 @@
 "use client";
-
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import toast, { Toaster } from "react-hot-toast";
+import axios from "axios";
+import {useRouter} from "next/navigation";
 
 /* -----------------------------
    UI PRIMITIVES (Tailwind only)
@@ -116,6 +117,9 @@ const formSchema = z.object({
   gender: z.enum(["male", "female", "prefer-not-to-say"], {
     required_error: "Please select a gender",
   }),
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters"),
   instagram: z.string().min(1, "Instagram username is required"),
   linkedin: z.string().optional(),
   instagramFollowers: z.string().min(1, "Please select your followers range"),
@@ -127,10 +131,8 @@ const formSchema = z.object({
   previousExperience: z.enum(["yes", "no"], {
     required_error: "Please select an option",
   }),
-  experienceDescription: z
-    .string()
-    .min(10, "Please provide at least 10 characters")
-    .max(500),
+  experienceDescription: z.string().optional(),
+
   skills: z.array(z.string()).min(1, "Please select at least one skill"),
   responsibilities: z
     .array(z.string())
@@ -150,7 +152,9 @@ const formSchema = z.object({
 ------------------------------ */
 
 export default function CampusAmbassadorPage() {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
   const [step, setStep] = useState(0);
+  const router = useRouter();
 
   const {
     register,
@@ -187,7 +191,7 @@ export default function CampusAmbassadorPage() {
     "Share in WhatsApp groups",
     "Help students register",
     "Represent the hackathon in your class",
-    "Give feedback to organizers",
+
   ];
 
   const toggleSkill = (skill) => {
@@ -206,9 +210,51 @@ export default function CampusAmbassadorPage() {
     setValue("responsibilities", updated, { shouldValidate: true });
   };
 
-  const onSubmit = (data) => {
-    console.log("Form submitted:", data);
-    toast.success("Application submitted successfully!");
+  // sending form data to backend
+  const onSubmit = async (data) => {
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value instanceof FileList && value.length > 0) {
+        formData.append(key, value[0]);
+      } else if (Array.isArray(value)) {
+        formData.append(key, JSON.stringify(value));
+      } else {
+        formData.append(key, value);
+      }
+    });
+
+    try {
+      const res = await axios.post(
+        `${API_URL}/ambassadors/register`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      toast.dismiss(); // remove pending toasts if any
+
+      if (res.data?.success) {
+        toast.success(res.data.message || "Submitted successfully!");
+
+       setTimeout(() => {
+          router.push(`/ambassador-login`);
+        }, 1500);
+      } else {
+        toast.error(res.data.message || "Something went wrong");
+      }
+
+    } catch (error) {
+      console.error(error);
+
+      const msg =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Server error while submitting";
+
+      toast.error(msg);
+    }
   };
 
   const steps = [
@@ -231,13 +277,16 @@ export default function CampusAmbassadorPage() {
       "courseYear",
       "city",
       "gender",
+      "password",
     ],
     1: ["instagram", "instagramFollowers", "postActivity", "linkedin"],
-    2: ["motivation", "previousExperience", "experienceDescription", "skills"],
+    2: ["motivation", "previousExperience", "experienceDescription", "skills"], // ⬅ Fixed
     3: ["responsibilities", "hoursPerWeek", "availability"],
     4: ["profilePhoto", "agreement"],
     5: [],
   };
+
+
 
   const handleNext = async () => {
     const fields = stepFields[step] || [];
@@ -255,19 +304,17 @@ export default function CampusAmbassadorPage() {
           <div className="flex items-center gap-3">
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold
-                ${
-                  idx <= step
-                    ? "bg-indigo-600 text-white"
-                    : "bg-gray-100 text-gray-600"
+                ${idx <= step
+                  ? "bg-indigo-600 text-white"
+                  : "bg-gray-100 text-gray-600"
                 }`}
             >
               {idx + 1}
             </div>
             <div className="hidden sm:block">
               <div
-                className={`text-xs ${
-                  idx <= step ? "text-gray-800" : "text-gray-400"
-                }`}
+                className={`text-xs ${idx <= step ? "text-gray-800" : "text-gray-400"
+                  }`}
               >
                 {s.title}
               </div>
@@ -289,13 +336,13 @@ export default function CampusAmbassadorPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-indigo-500 mb-1">
-                  InnovateX Hackathon
+                  Code4Bharat
                 </p>
                 <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">
                   Campus Ambassador Application
                 </h1>
                 <p className="mt-2 text-sm text-gray-600">
-                  Help us bring InnovateX to your campus. Fill in the details
+                   Fill in the details
                   below so we can get to know you better.
                 </p>
               </div>
@@ -303,14 +350,14 @@ export default function CampusAmbassadorPage() {
                 <span className="inline-flex items-center gap-1 rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1 text-[11px] font-medium text-indigo-600">
                   ● Applications Open
                 </span>
-                <span>Approx. completion: 5–7 minutes</span>
+                
               </div>
             </div>
           </div>
 
           {/* Main Card */}
           <form
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={(e) => e.preventDefault()}
             className="space-y-6 rounded-2xl border border-gray-100 bg-white p-6 shadow"
           >
             {/* Progress */}
@@ -328,9 +375,7 @@ export default function CampusAmbassadorPage() {
                       Tell us about yourself and your college background.
                     </p>
                   </div>
-                  <span className="rounded-full bg-indigo-50 px-3 py-1 text-[11px] text-indigo-600 border border-indigo-100">
-                    Basic Information
-                  </span>
+
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -357,6 +402,19 @@ export default function CampusAmbassadorPage() {
                       {...register("email")}
                     />
                     <FieldError message={errors.email?.message} />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="password">
+                      Password <RequiredDot />
+                    </Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Create a password"
+                      {...register("password")}
+                    />
+                    <FieldError message={errors.password?.message} />
                   </div>
 
                   <div className="space-y-1.5">
@@ -423,10 +481,7 @@ export default function CampusAmbassadorPage() {
                       {[
                         { label: "Male", value: "male" },
                         { label: "Female", value: "female" },
-                        {
-                          label: "Prefer not to say",
-                          value: "prefer-not-to-say",
-                        },
+                        ,
                       ].map((option) => (
                         <label
                           key={option.value}
@@ -598,19 +653,7 @@ export default function CampusAmbassadorPage() {
                     <FieldError message={errors.previousExperience?.message} />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="experienceDescription">
-                      Reason why you applied for ambassador <RequiredDot />
-                    </Label>
-                    <Textarea
-                      id="experienceDescription"
-                      placeholder="Mention any ambassador, club leadership, or event organizing experience."
-                      {...register("experienceDescription")}
-                    />
-                    <FieldError
-                      message={errors.experienceDescription?.message}
-                    />
-                  </div>
+
 
                   <div className="space-y-2">
                     <Label>
@@ -800,7 +843,7 @@ export default function CampusAmbassadorPage() {
                     </label>
                     <FieldError message={errors.agreement?.message} />
                     <p className="text-[11px] text-gray-500">
-                      By submitting, you apply for the InnovateX Campus
+                      By submitting, you apply for the 
                       Ambassador role and agree to be contacted regarding this
                       opportunity.
                     </p>
@@ -810,31 +853,156 @@ export default function CampusAmbassadorPage() {
             )}
 
             {step === 5 && (
-              <section className="space-y-5">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-semibold text-gray-900">
-                      Review & Submit
-                    </h2>
-                    <p className="text-xs sm:text-sm text-gray-500">
-                      Review the details below before submitting your
-                      application.
-                    </p>
+              <section className="space-y-6">
+                <div>
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+                    Review & Submit
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    Please verify your details before submitting.
+                  </p>
+                </div>
+
+                {/* Summary Card */}
+                <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-5">
+                  <div className="space-y-6">
+
+                    {/* PERSONAL INFO */}
+                    <div>
+                      <h3 className="text-sm font-semibold text-indigo-600 uppercase tracking-wide">
+                        Personal Details
+                      </h3>
+                      <div className="mt-3 divide-y rounded-lg border bg-gray-50">
+                        {[
+                          "fullName",
+                          "email",
+                          "phone",
+                          "dob",
+                          "college",
+                          "courseYear",
+                          "city",
+                          "gender",
+                        ].map((field) => (
+                          <div key={field} className="flex justify-between px-4 py-2 text-sm">
+                            <span className="font-medium capitalize">
+                              {field.replace(/([A-Z])/g, " $1")}
+                            </span>
+                            <span className="text-gray-700">{getValues()[field]}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* SOCIAL MEDIA */}
+                    <div>
+                      <h3 className="text-sm font-semibold text-indigo-600 uppercase tracking-wide">
+                        Social Presence
+                      </h3>
+                      <div className="mt-3 divide-y rounded-lg border bg-gray-50">
+                        {[
+                          "instagram",
+                          "linkedin",
+                          "instagramFollowers",
+                          "postActivity",
+                        ].map((field) => (
+                          <div key={field} className="flex justify-between px-4 py-2 text-sm">
+                            <span className="font-medium capitalize">
+                              {field.replace(/([A-Z])/g, " $1")}
+                            </span>
+                            <span className="text-gray-700">
+                              {getValues()[field] || "Not Provided"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* SKILLS & EXPERIENCE */}
+                    <div>
+                      <h3 className="text-sm font-semibold text-indigo-600 uppercase tracking-wide">
+                        Skills & Experience
+                      </h3>
+                      <div className="mt-3 divide-y rounded-lg border bg-gray-50">
+                        <div className="flex justify-between px-4 py-2 text-sm">
+                          <span className="font-medium">Skills</span>
+                          <span className="text-gray-700">
+                            {getValues().skills?.join(", ")}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between px-4 py-2 text-sm">
+                          <span className="font-medium">Experience</span>
+                          <span className="text-gray-700">{getValues().previousExperience}</span>
+                        </div>
+
+                        <div className="px-4 py-2 text-sm">
+                          <span className="font-medium">Motivation</span>
+                          <p className="mt-2 text-gray-700">{getValues().motivation}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* COMMITMENT */}
+                    <div>
+                      <h3 className="text-sm font-semibold text-indigo-600 uppercase tracking-wide">
+                        Responsibilities & Availability
+                      </h3>
+                      <div className="mt-3 divide-y rounded-lg border bg-gray-50">
+                        <div className="flex justify-between px-4 py-2 text-sm">
+                          <span className="font-medium">Hours Per Week</span>
+                          <span className="text-gray-700">{getValues().hoursPerWeek}</span>
+                        </div>
+
+                        <div className="flex justify-between px-4 py-2 text-sm">
+                          <span className="font-medium">Availability</span>
+                          <span className="text-gray-700">{getValues().availability}</span>
+                        </div>
+
+                        <div className="px-4 py-2 text-sm">
+                          <span className="font-medium">Responsibilities</span>
+                          <p className="mt-2 text-gray-700">
+                            {getValues().responsibilities?.join(", ")}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* FILES */}
+                    <div>
+                      <h3 className="text-sm font-semibold text-indigo-600 uppercase tracking-wide">
+                        Documents & Agreement
+                      </h3>
+                      <div className="mt-3 divide-y rounded-lg border bg-gray-50">
+                        <div className="flex justify-between px-4 py-2 text-sm">
+                          <span className="font-medium">Student ID</span>
+                          <span className="text-gray-700">
+                            {getValues().studentIdCard ? "Uploaded" : "Not Uploaded"}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between px-4 py-2 text-sm">
+                          <span className="font-medium">Profile Photo</span>
+                          <span className="text-gray-700">
+                            {getValues().profilePhoto ? "Uploaded" : "Not Uploaded"}
+                          </span>
+                        </div>
+
+                        <div className="px-4 py-2 text-sm">
+                          <span className="font-medium">Agreement</span>
+                          <p className="mt-2 text-gray-700">
+                            {getValues().agreement ? "✔ Accepted" : "❌ Not Accepted"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="rounded-md border border-gray-100 bg-gray-50 p-4 text-sm text-gray-700">
-                    <pre className="whitespace-pre-wrap text-xs">
-                      {JSON.stringify(getValues(), null, 2)}
-                    </pre>
-                    <p className="mt-2 text-[11px] text-gray-500">
-                      (This is a quick preview — profile images/files will be
-                      sent as files to your backend.)
-                    </p>
-                  </div>
-                </div>
+                <p className="text-[11px] text-gray-500">
+                  Once submitted, you cannot modify the details.
+                </p>
               </section>
+
             )}
 
             {/* Footer & Navigation Buttons */}
@@ -856,9 +1024,14 @@ export default function CampusAmbassadorPage() {
                     Next
                   </Button>
                 ) : (
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={handleSubmit(onSubmit)}
+                  >
                     {isSubmitting ? "Submitting..." : "Submit Application"}
                   </Button>
+
                 )}
               </div>
             </div>
