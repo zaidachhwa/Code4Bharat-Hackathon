@@ -336,7 +336,7 @@ export default function CampusAmbassadorPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.25em] text-indigo-500 mb-1">
-                  InnovateX Hackathon
+                  Code4Bharat
                 </p>
                 <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">
                   Campus Ambassador Application

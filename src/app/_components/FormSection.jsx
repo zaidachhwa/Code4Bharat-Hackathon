@@ -283,7 +283,7 @@ const Index = () => {
           </h1>
           <p className="text-muted-foreground mb-8">
             Fill out the details below to apply as a Campus Ambassador for the
-            InnovateX hackathon.
+            Code4Bharat.
           </p>
 
           <div className="space-y-8">
