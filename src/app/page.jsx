@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import Navbar from "./_components/Navbar";
 import Footer from "./_components/Footer";
+import { useRouter } from "next/navigation";
 
 const faqs = [
   {
@@ -54,12 +55,12 @@ const faqs = [
 ];
 
 export default function Code4BharatLanding() {
+  const router = useRouter();
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const heroRef = useRef(null);
-
   const leftFaqs = faqs.slice(0, 3);
   const rightFaqs = faqs.slice(3, 6);
   /* ================================================================
@@ -250,7 +251,7 @@ export default function Code4BharatLanding() {
 
               <div className="flex flex-wrap justify-center gap-4 pt-2">
                 <button
-                  onClick={() => scrollToSection("submission")}
+                  onClick={() => {router.push("/register")}}
                   className="group inline-flex items-center gap-2 btn-shimmer relative bg-indigo-600 text-white px-7 py-3 rounded-full text-sm sm:text-base font-semibold shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-colors"
                 >
                   <Rocket className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
