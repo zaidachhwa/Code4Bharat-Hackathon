@@ -18,6 +18,8 @@ import axios from "axios";
 
 export default function SeminarPage() {
   const [activeTab, setActiveTab] = useState("seminar");
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
   const [formData, setFormData] = useState({
     college: "",
     seminarTitle: "",
@@ -31,17 +33,17 @@ export default function SeminarPage() {
 
   useEffect(() => {
     getSeminarData();
+    getCreatedTime();
   }, []);
 
   const getSeminarData = async () => {
     try {
-      const res = await axios.get(
-        `${API_URL}/seminar/get-seminar-data`,
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await axios.get(`${API_URL}/seminar/get-seminar-data`, {
+        withCredentials: true,
+      });
       const fullName = res.data?.ambassador?.fullName || "";
+
+      console.log("📥 Fetched Ambassador Data:", res);
 
       const prefix = fullName.substring(0, 4).toUpperCase();
       const randomCode = Math.random()
@@ -55,6 +57,23 @@ export default function SeminarPage() {
       console.log("🎟 Generated Coupon Code:", generatedCoupon);
     } catch (error) {
       console.error("❌ Fetch Error:", error);
+    }
+  };
+
+  const getCreatedTime = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/seminar/get-created-time`, {
+        withCredentials: true,
+      });
+
+      console.log("📥 Fetched Created Time:", res.data.createdTime);
+
+      // NEW LOGIC: if backend sent a created time, lock UI
+      if (res.data.createdTime) {
+        setIsSubmitted(true);
+      }
+    } catch (err) {
+      console.log("⚠ Error fetching created time:", err);
     }
   };
 
@@ -207,6 +226,7 @@ export default function SeminarPage() {
                   name="college"
                   value={formData.college}
                   onChange={handleInputChange}
+                  disabled={isSubmitted}
                   placeholder="Enter your institution name"
                   className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/20 outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm text-gray-800 placeholder:text-gray-400 hover:border-amber-300"
                 />
@@ -283,6 +303,7 @@ export default function SeminarPage() {
                 type="file"
                 multiple
                 accept="image/*,.pdf"
+                disabled={isSubmitted}
                 onChange={handleFileUpload}
                 className="hidden"
               />
@@ -323,8 +344,13 @@ export default function SeminarPage() {
                       </p>
                     </div>
                     <button
-                      onClick={() => removeFile(index)}
-                      className="p-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-all duration-300 hover:scale-110 hover:rotate-90"
+                      disabled={isSubmitted} // ⬅️ ADD
+                      onClick={() => !isSubmitted && removeFile(index)} // ⬅️ PREVENT CLICK
+                      className={`p-2.5 rounded-xl transition-all duration-300 ${
+                        isSubmitted
+                          ? "opacity-40 cursor-not-allowed"
+                          : "text-red-500 hover:bg-red-50"
+                      }`}
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -337,14 +363,20 @@ export default function SeminarPage() {
           {/* Action Buttons */}
           <div className="flex justify-end items-center mt-10 pt-8 border-t-2 border-gray-200">
             <button
-              onClick={handleSubmit}
-              className="group px-10 py-4 bg-gradient-to-r from-yellow-600 via-amber-600 to-orange-600 text-white rounded-2xl font-bold hover:shadow-2xl hover:shadow-amber-500/50 transition-all duration-300 flex items-center gap-2 hover:scale-105 relative overflow-hidden"
+              onClick={!isSubmitted ? handleSubmit : undefined}
+              disabled={isSubmitted}
+              className={`group px-10 py-4 rounded-2xl font-bold transition-all ${
+                isSubmitted
+                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                  : "bg-gradient-to-r from-yellow-600 via-amber-600 to-orange-600 text-white hover:scale-105"
+              }`}
             >
               <span className="relative z-10 flex items-center gap-2">
-                Submit Proof
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+                {isSubmitted ? "Already Submitted ✔" : "Submit Proof"}
+                {!isSubmitted && (
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+                )}
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
             </button>
           </div>
         </div>

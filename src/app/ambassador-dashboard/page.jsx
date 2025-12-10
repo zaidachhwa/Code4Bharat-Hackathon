@@ -1,11 +1,35 @@
 "use client";
-import { useState } from "react";
-import { Upload, Calendar, Gift, CheckCircle, Star, Sparkles, Zap, Award, Clock, Image as ImageIcon, Users, TrendingUp } from "lucide-react";
+
+import { useEffect, useState } from "react";
+import { Upload, Calendar, Gift, CheckCircle, Star, Sparkles, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function AmbassadorTimeline() {
   const router = useRouter();
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+  useEffect(() => {
+    getCurrentStep();
+  }, []);
+
+  const getCurrentStep = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/ambassador/current-step`, {
+        withCredentials: true,
+      });
+      // assuming backend returns { currentStep: 1 | 2 | 3 }
+      setActiveStep(res.data.currentStep || 1);
+    } catch (err) {
+      console.error("Error fetching current step", err);
+      setActiveStep(1);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const steps = [
     { id: 1, label: "Promotion", icon: Upload },
@@ -13,17 +37,57 @@ export default function AmbassadorTimeline() {
     { id: 3, label: "Onboarding", icon: Gift },
   ];
 
+  const isStepLocked = (stepId) => {
+    if (activeStep === null) return true;
+    return stepId > activeStep;
+  };
+
+  const isStepCompleted = (stepId) => {
+    if (activeStep === null) return false;
+    return stepId < activeStep;
+  };
+
+  const isStepActive = (stepId) => {
+    if (activeStep === null) return false;
+    return stepId === activeStep;
+  };
+
+  const handleCardClick = (stepId) => {
+    if (isStepLocked(stepId)) return;
+
+    if (stepId === 1) router.push("/step1");
+    if (stepId === 2) router.push("/step2");
+    if (stepId === 3) router.push("/step3");
+  };
+
+  const getProgressWidth = () => {
+    if (activeStep === 1) return "0%";
+    if (activeStep === 2) return "50%";
+    if (activeStep === 3) return "100%";
+    return "0%";
+  };
+
+  if (loading || activeStep === null) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50">
+        <p className="text-gray-700 font-semibold">Loading your journey...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 px-6 py-12 flex flex-col items-center relative overflow-hidden">
       {/* Decorative Background Elements */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
       <div className="absolute bottom-20 right-10 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-700"></div>
-      
+
       {/* Title Section */}
       <div className="text-center mb-12 relative z-10">
         <div className="inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-orange-500 px-6 py-2 rounded-full mb-4 shadow-lg">
           <Sparkles className="w-5 h-5 text-white animate-pulse" />
-          <span className="text-white font-bold text-sm uppercase tracking-wide">Ambassador Program</span>
+          <span className="text-white font-bold text-sm uppercase tracking-wide">
+            Ambassador Program
+          </span>
         </div>
         <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-orange-600 to-red-600 mb-3">
           Your Journey to Success
@@ -33,81 +97,100 @@ export default function AmbassadorTimeline() {
         </p>
       </div>
 
-      {/* Enhanced Timeline Bar */}
+      {/* Timeline Bar */}
       <div className="flex items-center justify-center w-full max-w-5xl mb-16 relative z-10">
         <div className="absolute top-1/2 left-0 w-full h-[6px] bg-gray-300 -translate-y-1/2 rounded-full shadow-inner"></div>
 
-        {/* Progress Line with Gradient */}
         <div
           className="absolute top-1/2 left-0 h-[6px] bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 -translate-y-1/2 transition-all duration-700 ease-in-out rounded-full shadow-lg"
-          style={{
-            width:
-              activeStep === 1
-                ? "0%"
-                : activeStep === 2
-                ? "50%"
-                : "100%",
-          }}
+          style={{ width: getProgressWidth() }}
         ></div>
 
-        {/* Step Dots with Icons */}
         <div className="flex w-full justify-between z-10">
           {steps.map((step) => {
             const Icon = step.icon;
+            const locked = isStepLocked(step.id);
+            const completed = isStepCompleted(step.id);
+            const active = isStepActive(step.id);
+
             return (
               <div
                 key={step.id}
                 className={`relative flex flex-col items-center transition-all duration-500 ${
-                  activeStep >= step.id ? "scale-110" : "scale-100"
+                  active || completed ? "scale-110" : "scale-100"
                 }`}
               >
                 <div
                   className={`w-16 h-16 flex items-center justify-center rounded-full font-bold shadow-xl border-4 border-white transition-all duration-500
                   ${
-                    activeStep >= step.id
+                    completed || active
                       ? "bg-gradient-to-br from-yellow-400 to-orange-600 text-white"
                       : "bg-gray-300 text-gray-600"
-                  }`}
+                  }
+                  ${locked ? "opacity-60" : "opacity-100"}`}
                 >
-                  {activeStep > step.id ? (
+                  {completed ? (
                     <CheckCircle className="w-8 h-8" />
+                  ) : locked ? (
+                    <Lock className="w-8 h-8" />
                   ) : (
                     <Icon className="w-8 h-8" />
                   )}
                 </div>
                 <span
                   className={`mt-3 font-bold text-sm ${
-                    activeStep >= step.id ? "text-orange-600" : "text-gray-500"
+                    completed || active ? "text-orange-600" : "text-gray-500"
                   }`}
                 >
                   {step.label}
                 </span>
+                {locked && (
+                  <span className="mt-1 text-[10px] uppercase tracking-wide text-gray-400">
+                    Locked
+                  </span>
+                )}
+                {active && (
+                  <span className="mt-1 text-[10px] uppercase tracking-wide text-green-600">
+                    Active
+                  </span>
+                )}
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* ALL STEPS UNLOCKED - Enhanced Step Cards */}
+      {/* Step Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full relative z-10 mb-12">
-        
-        {/* ==================== STEP 1 - PROMOTION ==================== */}
-        <div className="group bg-white border-2 border-yellow-200 shadow-2xl rounded-3xl p-8 hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 relative overflow-hidden">
+        {/* STEP 1 */}
+        <div
+          className={`group bg-white border-2 border-yellow-200 shadow-2xl rounded-3xl p-8 transition-all duration-500 relative overflow-hidden
+          ${isStepLocked(1) ? "opacity-70 cursor-not-allowed" : "hover:shadow-3xl hover:-translate-y-2 cursor-pointer"}`}
+          onClick={() => handleCardClick(1)}
+        >
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full -translate-y-16 translate-x-16 opacity-20 group-hover:scale-150 transition-transform duration-700"></div>
-          
+
           <div className="relative z-10">
-            {/* Header */}
             <div className="flex items-center gap-3 mb-6">
               <div className="w-14 h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
                 <Upload className="w-7 h-7 text-white" />
               </div>
               <div>
-                <span className="text-xs font-bold text-yellow-600 uppercase tracking-wide">Step 1</span>
+                <span className="text-xs font-bold text-yellow-600 uppercase tracking-wide">
+                  Step 1
+                </span>
                 <h3 className="text-2xl font-black text-gray-800">Promotion</h3>
+                {isStepCompleted(1) && (
+                  <p className="text-xs text-green-600 font-semibold mt-1">Completed</p>
+                )}
+                {isStepActive(1) && !isStepCompleted(1) && (
+                  <p className="text-xs text-orange-500 font-semibold mt-1">
+                    Currently Active
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* Description */}
             <div className="mb-6">
               <p className="text-gray-700 font-semibold mb-3">What you need to do:</p>
               <ul className="text-gray-600 space-y-2 text-sm">
@@ -121,7 +204,9 @@ export default function AmbassadorTimeline() {
                 </li>
                 <li className="flex items-start gap-2">
                   <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
-                  <span>Keep the post live for <strong>2 days minimum</strong></span>
+                  <span>
+                    Keep the post live for <strong>2 days minimum</strong>
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <Star className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
@@ -134,66 +219,63 @@ export default function AmbassadorTimeline() {
               </ul>
             </div>
 
-            {/* What Admin Will Do */}
-            <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-              <p className="text-xs font-bold text-blue-700 uppercase mb-2 flex items-center gap-2">
-                <Award className="w-4 h-4" />
-                Admin Action
-              </p>
-              <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Review your screenshots</li>
-                <li>• Verify post was live for 2 days</li>
-                <li>• Approve and unlock Step 2</li>
-              </ul>
-            </div>
-
-            {/* Fields in Database */}
-            <div className="mb-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
-              <p className="text-xs font-bold text-purple-700 uppercase mb-2 flex items-center gap-2">
-                <Zap className="w-4 h-4" />
-                Database Fields
-              </p>
-              <div className="text-xs text-purple-800 space-y-1 font-mono">
-                <p>• promotion.completed: false</p>
-                <p>• promotion.images: ["url1", "url2"]</p>
-                <p>• promotion.submittedAt: Date</p>
-                <p>• promotion.approvedAt: null</p>
-              </div>
-            </div>
-
-            {/* Action Button */}
-            <button 
-              onClick={() => router.push("/step1")}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!isStepLocked(1)) router.push("/step1");
+              }}
+              disabled={isStepLocked(1)}
+              className={`w-full py-4 rounded-2xl text-white font-bold shadow-xl flex items-center justify-center gap-2 transition-all duration-300
+              ${
+                isStepLocked(1)
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 hover:shadow-2xl hover:scale-105"
+              }`}
             >
               <Upload className="w-5 h-5" />
               Upload Screenshot
             </button>
 
-            {/* Reward Info */}
             <div className="mt-4 text-center">
               <p className="text-xs text-gray-500">Reward: Unlock Step 2 🎯</p>
             </div>
           </div>
         </div>
 
-        {/* ==================== STEP 2 - SEMINAR ==================== */}
-        <div className="group bg-white border-2 border-orange-200 shadow-2xl rounded-3xl p-8 hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 relative overflow-hidden">
+        {/* STEP 2 */}
+        <div
+          className={`group bg-white border-2 border-orange-200 shadow-2xl rounded-3xl p-8 transition-all duration-500 relative overflow-hidden
+          ${isStepLocked(2) ? "opacity-70 cursor-not-allowed" : "hover:shadow-3xl hover:-translate-y-2 cursor-pointer"}`}
+          onClick={() => handleCardClick(2)}
+        >
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-400 to-red-500 rounded-full -translate-y-16 translate-x-16 opacity-20 group-hover:scale-150 transition-transform duration-700"></div>
 
           <div className="relative z-10">
-            {/* Header */}
             <div className="flex items-center gap-3 mb-6">
               <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl flex items-center justify-center shadow-lg">
                 <Calendar className="w-7 h-7 text-white" />
               </div>
               <div>
-                <span className="text-xs font-bold text-orange-600 uppercase tracking-wide">Step 2</span>
+                <span className="text-xs font-bold text-orange-600 uppercase tracking-wide">
+                  Step 2
+                </span>
                 <h3 className="text-2xl font-black text-gray-800">Seminar</h3>
+                {isStepLocked(2) && (
+                  <p className="text-xs text-gray-400 font-semibold mt-1">
+                    Complete Step 1 to unlock
+                  </p>
+                )}
+                {isStepCompleted(2) && (
+                  <p className="text-xs text-green-600 font-semibold mt-1">Completed</p>
+                )}
+                {isStepActive(2) && !isStepCompleted(2) && (
+                  <p className="text-xs text-orange-500 font-semibold mt-1">
+                    Currently Active
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* Description */}
             <div className="mb-6">
               <p className="text-gray-700 font-semibold mb-3">What you need to do:</p>
               <ul className="text-gray-600 space-y-2 text-sm">
@@ -203,7 +285,9 @@ export default function AmbassadorTimeline() {
                 </li>
                 <li className="flex items-start gap-2">
                   <Star className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
-                  <span>Timeline: <strong>Within 2 months</strong> of Step 1 completion</span>
+                  <span>
+                    Timeline: <strong>Within 2 months</strong> of Step 1 completion
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <Star className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />
@@ -224,68 +308,63 @@ export default function AmbassadorTimeline() {
               </ul>
             </div>
 
-            {/* What Admin Will Do */}
-            <div className="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-              <p className="text-xs font-bold text-blue-700 uppercase mb-2 flex items-center gap-2">
-                <Award className="w-4 h-4" />
-                Admin Action
-              </p>
-              <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Verify seminar was conducted</li>
-                <li>• Check quality of engagement</li>
-                <li>• Generate unique coupon code</li>
-                <li>• Unlock Step 3 & Rewards</li>
-              </ul>
-            </div>
-
-            {/* Fields in Database */}
-            <div className="mb-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
-              <p className="text-xs font-bold text-purple-700 uppercase mb-2 flex items-center gap-2">
-                <Zap className="w-4 h-4" />
-                Database Fields
-              </p>
-              <div className="text-xs text-purple-800 space-y-1 font-mono">
-                <p>• seminar.completed: false</p>
-                <p>• seminar.proof: "url"</p>
-                <p>• seminar.submittedAt: Date</p>
-                <p>• seminar.approvedAt: null</p>
-                <p>• seminar.unlocked: false</p>
-              </div>
-            </div>
-
-            {/* Action Button */}
             <button
-              onClick={() => router.push("/step2")}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-orange-400 to-red-500 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!isStepLocked(2)) router.push("/step2");
+              }}
+              disabled={isStepLocked(2)}
+              className={`w-full py-4 rounded-2xl text-white font-bold shadow-xl flex items-center justify-center gap-2 transition-all duration-300
+              ${
+                isStepLocked(2)
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-gradient-to-r from-orange-400 to-red-500 hover:shadow-2xl hover:scale-105"
+              }`}
             >
               <Upload className="w-5 h-5" />
               Upload Seminar Proof
             </button>
 
-            {/* Reward Info */}
             <div className="mt-4 text-center">
               <p className="text-xs text-gray-500">Reward: Coupon Code + Step 3 🎁</p>
             </div>
           </div>
         </div>
 
-        {/* ==================== STEP 3 - ONBOARDING & REWARDS ==================== */}
-        <div className="group bg-white border-2 border-red-200 shadow-2xl rounded-3xl p-8 hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 relative overflow-hidden">
+        {/* STEP 3 */}
+        <div
+          className={`group bg-white border-2 border-red-200 shadow-2xl rounded-3xl p-8 transition-all duration-500 relative overflow-hidden
+          ${isStepLocked(3) ? "opacity-70 cursor-not-allowed" : "hover:shadow-3xl hover:-translate-y-2 cursor-pointer"}`}
+          onClick={() => handleCardClick(3)}
+        >
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-400 to-pink-500 rounded-full -translate-y-16 translate-x-16 opacity-20 group-hover:scale-150 transition-transform duration-700"></div>
 
           <div className="relative z-10">
-            {/* Header */}
             <div className="flex items-center gap-3 mb-6">
               <div className="w-14 h-14 bg-gradient-to-br from-red-400 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
                 <Gift className="w-7 h-7 text-white" />
               </div>
               <div>
-                <span className="text-xs font-bold text-red-600 uppercase tracking-wide">Step 3</span>
+                <span className="text-xs font-bold text-red-600 uppercase tracking-wide">
+                  Step 3
+                </span>
                 <h3 className="text-2xl font-black text-gray-800">Onboarding</h3>
+                {isStepLocked(3) && (
+                  <p className="text-xs text-gray-400 font-semibold mt-1">
+                    Complete Step 2 to unlock
+                  </p>
+                )}
+                {isStepCompleted(3) && (
+                  <p className="text-xs text-green-600 font-semibold mt-1">Completed</p>
+                )}
+                {isStepActive(3) && !isStepCompleted(3) && (
+                  <p className="text-xs text-orange-500 font-semibold mt-1">
+                    Currently Active
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* Description */}
             <div className="mb-6">
               <p className="text-gray-700 font-semibold mb-3">What you get:</p>
               <ul className="text-gray-600 space-y-2 text-sm">
@@ -316,45 +395,23 @@ export default function AmbassadorTimeline() {
               </ul>
             </div>
 
-            {/* Coupon Preview */}
-            <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-300">
-              <p className="text-xs font-bold text-purple-700 uppercase mb-2 flex items-center gap-2">
-                <Gift className="w-4 h-4" />
-                Your Coupon Code
-              </p>
-              <div className="bg-white rounded-lg p-3 border-2 border-dashed border-purple-300">
-                <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 text-center">
-                  INNOVATE2024XYZ
-                </p>
-                <p className="text-xs text-center text-gray-500 mt-1">Example: Generated after Step 2</p>
-              </div>
-            </div>
-
-            {/* Fields in Database */}
-            <div className="mb-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
-              <p className="text-xs font-bold text-purple-700 uppercase mb-2 flex items-center gap-2">
-                <Zap className="w-4 h-4" />
-                Database Fields
-              </p>
-              <div className="text-xs text-purple-800 space-y-1 font-mono">
-                <p>• onboarding.completed: true</p>
-                <p>• onboarding.couponCode: "CODE"</p>
-                <p>• onboarding.approvedAt: Date</p>
-                <p>• onboarding.unlocked: false</p>
-                <p>• isFullyCompleted: true</p>
-              </div>
-            </div>
-
-            {/* Action Button */}
             <button
-              onClick={() => router.push("/step3")}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-400 to-pink-500 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!isStepLocked(3)) router.push("/step3");
+              }}
+              disabled={isStepLocked(3)}
+              className={`w-full py-4 rounded-2xl text-white font-bold shadow-xl flex items-center justify-center gap-2 transition-all duration-300
+              ${
+                isStepLocked(3)
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-gradient-to-r from-red-400 to-pink-500 hover:shadow-2xl hover:scale-105"
+              }`}
             >
               <Gift className="w-5 h-5" />
               View My Dashboard
             </button>
 
-            {/* Reward Info */}
             <div className="mt-4 text-center">
               <p className="text-xs text-gray-500">Final Reward: Full Access 🏆</p>
             </div>

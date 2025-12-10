@@ -25,7 +25,7 @@ const schema = yup.object().shape({
   year: yup.string().required("Year is required"),
   domain: yup.string().required("Domain is required"),
   skills: yup.string().required("Skills are required"),
-
+  couponCode: yup.string().nullable(),
   username: yup.string().min(4).required("Username is required"),
   password: yup.string().min(6).required("Password must be at least 6 chars"),
   confirmPassword: yup
@@ -38,6 +38,7 @@ const schema = yup.object().shape({
 
 export default function Register() {
   const [step, setStep] = useState(1);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
   const {
     register,
@@ -106,7 +107,7 @@ export default function Register() {
     // form data going to backend
     try {
       
-      const formData = await axios.post("http://localhost:5000/api/users/register", {data});
+      const formData = await axios.post(`${API_URL}/users/register`, {data});
       console.log("from ui ")
     } catch (error) {
       console.log(error)
@@ -436,6 +437,22 @@ export default function Register() {
                     </p>
                   )}
                 </div>
+
+                {/* Coupon Code */}
+<div>
+  <label className="block font-medium text-indigo-700 mb-2">
+    Referral / Ambassador Coupon Code <span className="text-red-500">*</span>
+  </label>
+  <input
+    {...register("couponCode")}
+    className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none"
+    placeholder="Enter coupon code if applicable"
+  />
+  {errors.couponCode && (
+    <p className="text-red-500 text-sm mt-1">{errors.couponCode.message}</p>
+  )}
+</div>
+
 
                 <div className="flex justify-between pt-6">
                   <button
