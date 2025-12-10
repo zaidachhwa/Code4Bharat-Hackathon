@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import axios from "axios";
+import Link from "next/link";
 
 export default function HackathonRegistrationForm() {
   const [formData, setFormData] = useState({
@@ -54,38 +55,37 @@ export default function HackathonRegistrationForm() {
 
     if (!formData.domain) newErrors.domain = "Select a domain of interest";
 
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!validate()) return;
+    e.preventDefault();
+    if (!validate()) return;
 
-  setSubmitted(true);
+    setSubmitted(true);
 
-  try {
-    const res = await axios.post(`${API_URL}/registration`, formData);
-    console.log(res.data);
-  } catch (err) {
-    console.error("Submit error:", err);
-  }
+    try {
+      const res = await axios.post(`${API_URL}/registration`, formData);
+      console.log(res.data);
+    } catch (err) {
+      console.error("Submit error:", err);
+    }
 
-  setTimeout(() => {
-    setFormData({
-      fullName: "",
-      email: "",
-      phone: "",
-      collegeYear: "",
-      domain: "",
-      github: "",
-      linkedin: "",
-      socialPresence: "",
-    });
-    setSubmitted(false);
-  }, 2500);
-};
+    setTimeout(() => {
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        collegeYear: "",
+        domain: "",
+        github: "",
+        linkedin: "",
+        socialPresence: "",
+      });
+      setSubmitted(false);
+    }, 2500);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-start justify-center py-12 px-4">
@@ -101,7 +101,7 @@ export default function HackathonRegistrationForm() {
           </p>
         </div>
 
-        {/* Success message */}
+        {/* Success Message */}
         {submitted && (
           <div className="mx-8 my-6 p-4 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-800 flex items-start gap-3">
             <svg
@@ -222,7 +222,7 @@ export default function HackathonRegistrationForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  GitHub profile 
+                  GitHub profile
                 </label>
                 <input
                   name="github"
@@ -253,7 +253,7 @@ export default function HackathonRegistrationForm() {
               </div>
             </div>
 
-            {/* ⭐ Social Presence (New Field Added) */}
+            {/* Social Presence */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Social Presence (Portfolio / Instagram / X / Any URL)
@@ -300,6 +300,17 @@ export default function HackathonRegistrationForm() {
                 All fields marked with * are required — by submitting you agree to event terms.
               </p>
             </div>
+
+            {/* Go to Home Page Button — borderless */}
+            <div className="mt-4">
+              <Link
+                href="/"
+                className="w-full block text-center rounded-lg text-indigo-600 px-4 py-2 text-sm font-semibold hover:bg-indigo-50 transition"
+              >
+                ← Go to Home Page
+              </Link>
+            </div>
+
           </div>
         </form>
       </div>

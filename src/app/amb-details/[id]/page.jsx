@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Users,
@@ -41,6 +41,16 @@ const statusIcon = (s) =>
     locked: <Shield className="w-4 h-4" />,
   }[s] || <Shield className="w-4 h-4" />);
 
+// Helper function to format image URL (moved outside component to prevent recreation)
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return "";
+  const cleanPath = imagePath.replace(/^[\\\/]+/, "");
+  const finalPath = cleanPath.startsWith("uploads")
+    ? cleanPath
+    : `uploads/${cleanPath}`;
+  return `${API_URL_IMAGES}/${finalPath.replace(/\\/g, "/")}`;
+};
+
 export default function AmbassadorDetailPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -58,9 +68,16 @@ export default function AmbassadorDetailPage() {
 
   useEffect(() => {
     if (!id) return;
-    fetchAmbassador();
-    fetchImages();
-    getCouponCodeUsers();
+    
+    const fetchData = async () => {
+      await Promise.all([
+        fetchAmbassador(),
+        fetchImages(),
+        getCouponCodeUsers(),
+      ]);
+    };
+    
+    fetchData();
   }, [id]);
 
   const fetchAmbassador = async () => {
@@ -80,7 +97,6 @@ export default function AmbassadorDetailPage() {
       const res = await axios.get(`${API_URL}/images/get/${id}`, {
         withCredentials: true,
       });
-      console.log("Fetched images:", res.data);
       if (res.data?.success) {
         setImages(res.data.data || { promotion: {}, seminar: {} });
       }
@@ -118,18 +134,16 @@ export default function AmbassadorDetailPage() {
     // your existing logic
   };
 
-  // Helper function to format image URL
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return "";
-    // Remove leading slashes and backslashes
-    const cleanPath = imagePath.replace(/^[\\\/]+/, "");
-    // Check if path already starts with 'uploads'
-    const finalPath = cleanPath.startsWith("uploads")
-      ? cleanPath
-      : `uploads/${cleanPath}`;
-    // Replace backslashes with forward slashes
-    return `${API_URL_IMAGES}/${finalPath.replace(/\\/g, "/")}`;
-  };
+  // Memoize image arrays to prevent unnecessary re-renders
+  const promotionImages = useMemo(() => [
+    ...(images.promotion?.day1Screenshots || []),
+    ...(images.promotion?.day2Screenshots || []),
+  ], [images.promotion]);
+
+  const seminarImages = useMemo(() => 
+    images.seminar?.uploadedProof || [], 
+    [images.seminar]
+  );
 
   if (loading) return <div className="p-10 text-center">Loading...</div>;
   if (!ambassador)
@@ -140,14 +154,6 @@ export default function AmbassadorDetailPage() {
   const p = ambassador.task?.promotion;
   const s = ambassador.task?.seminar;
   const o = ambassador.task?.onboarding;
-
-  // Combine day1 and day2 screenshots for promotion
-  const promotionImages = [
-    ...(images.promotion?.day1Screenshots || []),
-    ...(images.promotion?.day2Screenshots || []),
-  ];
-
-  const seminarImages = images.seminar?.uploadedProof || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 p-6">
@@ -250,32 +256,16 @@ export default function AmbassadorDetailPage() {
                 />
               </div>
 
-              <div className="mb-6">
-                <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-yellow-600" />
-                  Uploaded Proof ({promotionImages.length})
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {promotionImages.map((img, i) => (
-                    <div
-                      key={i}
-                      className="border-2 border-yellow-200 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-orange-400 transition-all"
-                    >
-                      <img
-                        src={getImageUrl(img)}
-                        alt={`Promotion proof ${i + 1}`}
-                        className="w-full h-40 object-cover"
-                        onError={(e) => {
-                          e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Found";
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <ImageGrid 
+                images={promotionImages}
+                label="Uploaded Proof"
+                iconColor="text-yellow-600"
+                borderColor="border-yellow-200"
+                hoverBorderColor="hover:border-orange-400"
+              />
 
               {p?.status === "pending" && (
-                <div className="flex gap-3">
+                <div className="flex gap-3 mt-6">
                   <ActionButton
                     onClick={() =>
                       handlePromotionAction(ambassador._id, "approve")
@@ -343,29 +333,14 @@ export default function AmbassadorDetailPage() {
               </div>
 
               {seminarImages.length > 0 && (
-                <div className="mb-6">
-                  <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4 text-orange-600" />
-                    Uploaded Seminar Proof ({seminarImages.length})
-                  </p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {seminarImages.map((img, i) => (
-                      <div
-                        key={i}
-                        className="border-2 border-orange-200 rounded-xl overflow-hidden shadow-sm hover:shadow-lg hover:border-red-400 transition-all"
-                      >
-                        <img
-                          src={getImageUrl(img)}
-                          alt={`Seminar proof ${i + 1}`}
-                          className="w-full h-40 object-cover"
-                          onError={(e) => {
-                            e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Found";
-                          }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <ImageGrid 
+                  images={seminarImages}
+                  label="Uploaded Seminar Proof"
+                  iconColor="text-orange-600"
+                  borderColor="border-orange-200"
+                  hoverBorderColor="hover:border-red-400"
+                  columns="md:grid-cols-3"
+                />
               )}
 
               {s?.couponCode && (
@@ -549,7 +524,7 @@ export default function AmbassadorDetailPage() {
                 <div className="grid gap-4">
                   {couponUsers.users.map((u, i) => (
                     <div
-                      key={i}
+                      key={u.email || i}
                       className="group bg-white border-2 border-yellow-100 rounded-2xl p-5 hover:border-orange-300 hover:shadow-lg transition-all"
                     >
                       <div className="flex items-start gap-4">
@@ -617,6 +592,38 @@ export default function AmbassadorDetailPage() {
 }
 
 /* SUB-COMPONENTS */
+
+// New optimized ImageGrid component
+function ImageGrid({ images, label, iconColor, borderColor, hoverBorderColor, columns = "md:grid-cols-4" }) {
+  return (
+    <div className="mb-6">
+      <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+        <ImageIcon className={`w-4 h-4 ${iconColor}`} />
+        {label} ({images.length})
+      </p>
+      <div className={`grid grid-cols-2 ${columns} gap-4`}>
+        {images.map((img, i) => (
+          <div
+            key={`${img}-${i}`}
+            className={`border-2 ${borderColor} rounded-xl overflow-hidden shadow-sm hover:shadow-lg ${hoverBorderColor} transition-all`}
+          >
+            <img
+              src={getImageUrl(img)}
+              alt={`${label} ${i + 1}`}
+              className="w-full h-40 object-cover"
+              loading="lazy"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Found";
+              }}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function InfoCard({ title, color, value }) {
   const colorMap = {
     blue: "bg-blue-50 border-blue-200 text-blue-900",
