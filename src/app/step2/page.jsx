@@ -69,9 +69,8 @@ export default function SeminarPage() {
       console.log("📥 Fetched Created Time:", res.data.createdTime);
 
       // NEW LOGIC: if backend sent a created time, lock UI
-      if (res.data.createdTime) {
-        setIsSubmitted(true);
-      }
+      setIsSubmitted(Boolean(res.data?.seminarSubmitted));
+
     } catch (err) {
       console.log("⚠ Error fetching created time:", err);
     }

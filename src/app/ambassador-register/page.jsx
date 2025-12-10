@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
+import {useRouter} from "next/navigation";
 
 /* -----------------------------
    UI PRIMITIVES (Tailwind only)
@@ -153,6 +154,7 @@ const formSchema = z.object({
 export default function CampusAmbassadorPage() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
   const [step, setStep] = useState(0);
+  const router = useRouter();
 
   const {
     register,
@@ -235,6 +237,10 @@ export default function CampusAmbassadorPage() {
 
       if (res.data?.success) {
         toast.success(res.data.message || "Submitted successfully!");
+
+       setTimeout(() => {
+          router.push(`/ambassador-login`);
+        }, 1500);
       } else {
         toast.error(res.data.message || "Something went wrong");
       }

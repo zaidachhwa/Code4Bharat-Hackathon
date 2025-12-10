@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { Mail, Lock, Sparkles, ArrowRight } from "lucide-react";
 
 export default function AmbassadorLoginPage() {
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
   const router = useRouter();
   const {
     register,
@@ -20,7 +22,7 @@ export default function AmbassadorLoginPage() {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/ambassador/login",
+        `${API_URL}/ambassador/login`,
         data,
         { withCredentials: true }
       );

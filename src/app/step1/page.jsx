@@ -12,7 +12,7 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   const [waitingHours, setWaitingHours] = useState(null);
   const [currentDay, setCurrentDay] = useState("day1");
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     getPromotionData();

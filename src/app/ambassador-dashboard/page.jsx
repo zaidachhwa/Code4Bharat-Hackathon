@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Upload, Calendar, Gift, CheckCircle, Star, Sparkles, Lock } from "lucide-react";
+import { Upload, Calendar, Gift, CheckCircle, Star, Sparkles, Lock, Users, Mail, Phone, MapPin, GraduationCap, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 
@@ -9,11 +9,18 @@ export default function AmbassadorTimeline() {
   const router = useRouter();
   const [activeStep, setActiveStep] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showUsersModal, setShowUsersModal] = useState(false);
+  const [couponUsers, setCouponUsers] = useState({
+    couponCode: "",
+    totalUsers: 0,
+    users: [],
+  });
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
   useEffect(() => {
     getCurrentStep();
+    getCoupenCodeUsers();
   }, []);
 
   const getCurrentStep = async () => {
@@ -21,13 +28,29 @@ export default function AmbassadorTimeline() {
       const res = await axios.get(`${API_URL}/ambassador/current-step`, {
         withCredentials: true,
       });
-      // assuming backend returns { currentStep: 1 | 2 | 3 }
       setActiveStep(res.data.currentStep || 1);
     } catch (err) {
       console.error("Error fetching current step", err);
       setActiveStep(1);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getCoupenCodeUsers = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/ambassador-coupen-code-user`, {
+        withCredentials: true,
+      });
+      console.log("Coupen Code Users:", res.data);
+      const { couponCode, totalUsers, users } = res.data || {};
+      setCouponUsers({
+        couponCode: couponCode || "",
+        totalUsers: totalUsers || 0,
+        users: users || [],
+      });
+    } catch (err) {
+      console.error("Error fetching coupon users", err);
     }
   };
 
@@ -81,7 +104,7 @@ export default function AmbassadorTimeline() {
       <div className="absolute top-20 left-10 w-72 h-72 bg-yellow-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
       <div className="absolute bottom-20 right-10 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-700"></div>
 
-      {/* Title Section */}
+      {/* Title Section with Users Button */}
       <div className="text-center mb-12 relative z-10">
         <div className="inline-flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-orange-500 px-6 py-2 rounded-full mb-4 shadow-lg">
           <Sparkles className="w-5 h-5 text-white animate-pulse" />
@@ -95,6 +118,17 @@ export default function AmbassadorTimeline() {
         <p className="text-gray-600 text-lg max-w-2xl mx-auto">
           Complete these steps to unlock exclusive rewards and become a campus leader
         </p>
+        
+        {/* Users Button */}
+        {couponUsers.couponCode && (
+          <button
+            onClick={() => setShowUsersModal(true)}
+            className="mt-6 inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all font-bold"
+          >
+            <Users className="w-5 h-5" />
+            <span>View Registered Users ({couponUsers.totalUsers})</span>
+          </button>
+        )}
       </div>
 
       {/* Timeline Bar */}
@@ -418,6 +452,125 @@ export default function AmbassadorTimeline() {
           </div>
         </div>
       </div>
+
+      {/* USERS MODAL */}
+      {showUsersModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-gradient-to-br from-white to-orange-50 rounded-3xl shadow-2xl w-full max-w-3xl border-4 border-orange-200 overflow-hidden">
+            <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 px-8 py-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                    <Users className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-white">Registered Users</h3>
+                    {couponUsers.couponCode && (
+                      <div className="flex items-center gap-3 mt-1">
+                        <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-bold text-white">
+                          {couponUsers.couponCode}
+                        </span>
+                        <span className="text-white/90 text-sm font-semibold">
+                          {couponUsers.totalUsers} users
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowUsersModal(false)}
+                  className="w-10 h-10 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-xl flex items-center justify-center transition-all"
+                >
+                  <X className="w-6 h-6 text-white" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 max-h-[60vh] overflow-y-auto">
+              {couponUsers.users.length === 0 ? (
+                <div className="text-center py-12">
+                  <Users className="w-20 h-20 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 font-medium text-lg">No users registered yet</p>
+                  <p className="text-gray-400 text-sm mt-2">
+                    Users will appear here once they register with your coupon
+                  </p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {couponUsers.users.map((u, i) => (
+                    <div
+                      key={i}
+                      className="group bg-white border-2 border-yellow-100 rounded-2xl p-5 hover:border-orange-300 hover:shadow-lg transition-all"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+                          <span className="text-lg font-black text-white">
+                            {u.fullName?.charAt(0) || "?"}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-gray-900 text-lg mb-2">
+                            {u.fullName}
+                          </h4>
+                          <div className="space-y-1.5">
+                            <p className="flex items-center gap-2 text-sm text-gray-600">
+                              <Mail className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                              <span className="truncate">{u.email}</span>
+                            </p>
+                            {u.phone && (
+                              <p className="flex items-center gap-2 text-sm text-gray-600">
+                                <Phone className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                                <span>{u.phone}</span>
+                              </p>
+                            )}
+                            {u.college && (
+                              <p className="flex items-center gap-2 text-sm text-gray-600">
+                                <MapPin className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                                <span className="truncate">{u.college}</span>
+                              </p>
+                            )}
+                            <div className="flex items-center gap-3 pt-1">
+                              {u.course && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold bg-blue-100 text-blue-700">
+                                  <GraduationCap className="w-3 h-3 mr-1" />
+                                  {u.course}
+                                </span>
+                              )}
+                              {u.year && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold bg-purple-100 text-purple-700">
+                                  {u.year}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex-shrink-0">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-300">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Active
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="px-8 py-5 bg-gradient-to-r from-yellow-50 to-orange-50 border-t-2 border-orange-200 flex justify-between items-center">
+              <p className="text-sm text-gray-600 font-medium">
+                Total: <span className="font-bold text-orange-600">{couponUsers.totalUsers}</span> registered users
+              </p>
+              <button
+                onClick={() => setShowUsersModal(false)}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-bold shadow-md hover:shadow-lg hover:scale-105 transition-all"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

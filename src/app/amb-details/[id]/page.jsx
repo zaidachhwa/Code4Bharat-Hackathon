@@ -21,8 +21,10 @@ import {
   X,
 } from "lucide-react";
 import axios from "axios";
+import { get } from "react-hook-form";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL_IMAGES = process.env.NEXT_PUBLIC_IMAGE_BASE_URL || "http://localhost:5000";
 
 const statusColor = (s) =>
   ({
@@ -57,6 +59,7 @@ export default function AmbassadorDetailPage() {
 
   useEffect(() => {
     getCoupenCodeUsers();
+    getImages();
   }, []);
 
   useEffect(() => {
@@ -105,6 +108,12 @@ export default function AmbassadorDetailPage() {
       setCouponUsers({ couponCode: "", totalUsers: 0, users: [] });
     }
   };
+
+
+  const getImages = async () => {
+    const res = await axios.get(`${API_URL}/images/get/${id}`, { withCredentials: true });
+    console.log("Fetched images:", res.data);
+  }
 
   const handlePromotionAction = async () => {
     // your existing logic
