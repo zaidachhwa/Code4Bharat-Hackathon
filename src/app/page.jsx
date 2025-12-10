@@ -23,26 +23,45 @@ import {
   MessageCircle,
   Link2,
 } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import Navbar from "./_components/Navbar";
 import Footer from "./_components/Footer";
+
+const faqs = [
+  {
+    q: "Who can participate in CODE4BHARAT?",
+    a: "Any college student or early professional with an interest in technology can participate. This is a solo hackathon, so each person participates individually.",
+  },
+  {
+    q: "Is there any registration fee?",
+    a: "No, participation in CODE4BHARAT is completely free. Simply register your details and you are ready to go.",
+  },
+  {
+    q: "Do I need prior hackathon experience?",
+    a: "Not at all. Beginners are welcome. The format and guidelines are structured to help you learn and contribute effectively.",
+  },
+  {
+    q: "Can I work on an existing project?",
+    a: "No. All work must be created during the 6-hour hackathon window. However, you may reuse standard libraries, frameworks, and boilerplates.",
+  },
+  {
+    q: "Will I receive a certificate?",
+    a: "Certificates of participation will be awarded to the top 20 participants based on overall performance and evaluation.",
+  },
+  {
+    q: "What is the mode of communication during the event?",
+    a: "All official communication, announcements, and support will be provided via email and designated online channels shared post-registration.",
+  },
+];
+
 export default function Code4BharatLanding() {
+  const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const heroRef = useRef(null);
-  const router = useRouter();
-  const NAV_SECTIONS = [
-    "about",
-    "domains",
-    "timeline",
-    "rules",
-    "prizes",
-    "FAQ",
 
-  ];
-
+  const leftFaqs = faqs.slice(0, 3);
+  const rightFaqs = faqs.slice(3, 6);
   /* ================================================================
       HEADER SCROLL STATE
   ================================================================= */
@@ -73,36 +92,6 @@ export default function Code4BharatLanding() {
     el.scrollIntoView({ behavior: "smooth", block: "start" });
     setMobileMenuOpen(false);
   };
-
- const [openFaqIndex, setOpenFaqIndex] = useState(null);
-
-
-const faqs = [
-  {
-    q: "Who can participate in CODE4BHARAT?",
-    a: "Any college student or early professional with an interest in technology can participate. This is a solo hackathon, so each person participates individually.",
-  },
-  {
-    q: "Is there any registration fee?",
-    a: "No, participation in CODE4BHARAT is completely free. Simply register your details and you are ready to go.",
-  },
-  {
-    q: "Do I need prior hackathon experience?",
-    a: "Not at all. Beginners are welcome. The format and guidelines are structured to help you learn and contribute effectively.",
-  },
-  {
-    q: "Can I work on an existing project?",
-    a: "No. All work must be created during the 6-hour hackathon window. However, you may reuse standard libraries, frameworks, and boilerplates.",
-  },
-  {
-    q: "Will I receive a certificate?",
-    a: "Certificates of participation will be awarded to the top 20 participants based on overall performance and evaluation.",
-  },
-  {
-    q: "What is the mode of communication during the event?",
-    a: "All official communication, announcements, and support will be provided via email and designated online channels shared post-registration.",
-  },
-];
 
   /* ================================================================
       FADE-IN ON SCROLL
@@ -396,7 +385,6 @@ const faqs = [
           </div>
         </div>
       </section>
-   
 
       {/* Domains */}
       <section
@@ -538,7 +526,7 @@ const faqs = [
         </div>
       </section>
 
-      {/* Rules */}
+    {/* Rules */}
       <section
         id="rules"
         className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
@@ -603,7 +591,7 @@ const faqs = [
         </div>
       </section>
 
-      {/* Prizes */}
+    {/* Prizes */}
       <section
         id="prizes"
         className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
@@ -673,8 +661,8 @@ const faqs = [
         </div>
       </section>
 
-      {/* Submission Guidelines / CTA */}
-      {/* <section
+    {/* Submission Guidelines / CTA */} 
+     {/* <section
         id="submission"
         className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
       >
@@ -766,9 +754,9 @@ const faqs = [
             </div>
           </div>
         </div>
-      </section> */}
+      </section>  */}
 
-      {/* CTA Section */}
+     {/* CTA Section */}
       {/* <section className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16">
         <div className="max-w-7xl mx-auto">
           <div className="rounded-3xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-sky-500 text-white px-6 sm:px-10 py-10 sm:py-12 md:py-14 flex flex-col items-center text-center shadow-lg shadow-indigo-500/30">
@@ -792,41 +780,73 @@ const faqs = [
       </section> */}
 
       {/* FAQ */}
-<section
-  id="FAQ"
-  className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
->
-  <div className="max-w-3xl mx-auto"> {/* narrower for readability */}
-    <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-8 text-center">
-      Frequently Asked Questions
-    </h2>
+<div className="max-w-7xl mb-20 mx-auto px-4 sm:px-8" id="faq">
+  {/* Title */}
+  <h1 className="text-3xl sm:text-4xl font-black text-center text-slate-900 mb-10">
+    Frequently Asked Questions
+  </h1>
 
+  {/* Grid */}
+  <div className="grid md:grid-cols-2 gap-6">
+    {/* LEFT */}
     <div className="space-y-4">
-      {faqs.map((faq, i) => {
-        const isOpen = openFaqIndex === i;
+      {leftFaqs.map((faq, i) => {
+        const index = i;
+        const isOpen = openFaqIndex === index;
 
         return (
-          <div key={i} className="card-soft">
+          <div key={index} className="card-soft">
             <button
-              type="button"
-              onClick={() => setOpenFaqIndex(isOpen ? null : i)}
+              onClick={() => setOpenFaqIndex(isOpen ? null : index)}
               className="flex w-full items-center justify-between p-6 text-left"
             >
-              <span className="font-semibold text-sm sm:text-base text-slate-900">
+              <span className="font-semibold text-slate-900">
                 {faq.q}
               </span>
+
               <ChevronDown
-                className={`h-4 w-4 transition-transform duration-200 ${
+                className={`h-4 w-4 transition-transform ${
                   isOpen ? "rotate-180" : ""
                 }`}
               />
             </button>
 
             {isOpen && (
-              <div className="px-6 pb-6">
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  {faq.a}
-                </p>
+              <div className="px-6 pb-6 text-sm text-slate-600">
+                {faq.a}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+
+    {/* RIGHT */}
+    <div className="space-y-4">
+      {rightFaqs.map((faq, i) => {
+        const index = i + 3;
+        const isOpen = openFaqIndex === index;
+
+        return (
+          <div key={index} className="card-soft">
+            <button
+              onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+              className="flex w-full items-center justify-between p-6 text-left"
+            >
+              <span className="font-semibold text-slate-900">
+                {faq.q}
+              </span>
+
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${
+                  isOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {isOpen && (
+              <div className="px-6 pb-6 text-sm text-slate-600">
+                {faq.a}
               </div>
             )}
           </div>
@@ -834,9 +854,8 @@ const faqs = [
       })}
     </div>
   </div>
-</section>
+</div>
 
-      {/* Footer – Hackathon styled */}
       <Footer/>
 
     </div>
