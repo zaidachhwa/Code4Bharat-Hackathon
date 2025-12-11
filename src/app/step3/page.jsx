@@ -2,12 +2,18 @@
 import React, { useEffect, useState } from "react";
 import { CheckCircle, Clock, Award, Copy, Check } from "lucide-react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+
+
+
 
 export default function Step3Completion() {
   const [copied, setCopied] = useState(false);
   const [userCoupon, setUserCoupon] = useState("");
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const router = useRouter();
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
 
   useEffect(() => {
     getCoupenCode();
@@ -32,6 +38,10 @@ export default function Step3Completion() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const backDashboard = () => {
+    router.push("/ambassador-dashboard")
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 p-8">
@@ -115,10 +125,10 @@ export default function Step3Completion() {
 
             {/* Action Buttons */}
             <div className="flex gap-4 pt-8">
-              <button className="px-8 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 font-semibold shadow-md hover:shadow-lg">
+              <button onClick={backDashboard} className="px-8 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 font-semibold shadow-md hover:shadow-lg">
                 Back to dashboard
               </button>
-              <button className="px-8 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl hover:from-yellow-600 hover:to-orange-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl">
+              <button onClick={backDashboard} className="px-8 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl hover:from-yellow-600 hover:to-orange-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl">
                 Finish
               </button>
             </div>

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { Mail, Lock, Sparkles, ArrowRight, Award, Shield } from "lucide-react";
 
 export default function AmbassadorLoginPage() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
   const router = useRouter();
   const {
     register,
@@ -23,6 +23,10 @@ export default function AmbassadorLoginPage() {
       const res = await axios.post(`${API_URL}/ambassador/login`, data, {
         withCredentials: true,
       });
+
+
+      console.log(res);
+      
 
       if (!res) {
         toast.error("Login failed. Please try again.");

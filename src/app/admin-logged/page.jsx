@@ -22,7 +22,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import AmbassadorDetailPage from "../amb-details/[id]/page";
+import axios from "axios";
 
 function Page() {
   // STATE
@@ -37,15 +37,54 @@ function Page() {
 
   const router = useRouter();
 
-  const API_URL = process.env.API_URL || "http://localhost:5000/api";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
 
-  // Fetch ambassadors
+  // Fetch ambassadors with step data merged
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch(`${API_URL}/ambassadors/data/get`);
-        const data = await res.json();
-        setAmbassadors(data.ambassadors || []);
+        setLoading(true);
+
+        // Fetch both endpoints in parallel
+        const [ambassadorRes, stepsRes] = await Promise.all([
+          fetch(`${API_URL}/ambassadors/data/get`),
+          axios.get(`${API_URL}/ambassador/steps`, { withCredentials: true })
+        ]);
+
+        const ambassadorData = await ambassadorRes.json();
+        const stepsData = stepsRes.data;
+
+        console.log("Ambassador data:", ambassadorData);
+        console.log("Steps data:", stepsData);
+
+        // Create a map of ambassadorId to step data for quick lookup
+        const stepsMap = new Map();
+        if (stepsData.success && stepsData.ambassadors) {
+          stepsData.ambassadors.forEach((step) => {
+            if (step.ambassadorId && step.ambassadorId._id) {
+              stepsMap.set(step.ambassadorId._id, {
+                currentStep: step.currentStep || 0,
+                isFullyCompleted: step.isFullyCompleted || false,
+                promotion: step.promotion || {},
+                seminar: step.seminar || {},
+                onboarding: step.onboarding || {}
+              });
+            }
+          });
+        }
+
+        // Merge ambassador data with step data
+        const mergedAmbassadors = (ambassadorData.ambassadors || []).map((ambassador) => {
+          const stepData = stepsMap.get(ambassador._id);
+          return {
+            ...ambassador,
+            task: stepData || { currentStep: 0 },
+            stepDetails: stepData || null
+          };
+        });
+
+        setAmbassadors(mergedAmbassadors);
+        console.log("Merged ambassadors:", mergedAmbassadors);
       } catch (e) {
         console.error("Failed to load ambassadors:", e);
       } finally {
@@ -153,6 +192,15 @@ function Page() {
   // View Details
   const viewDetails = (id) => {
     router.push(`/amb-details/${id}`);
+  };
+
+  // Get step badge color
+  const getStepBadgeColor = (currentStep) => {
+    if (currentStep === 0) return "bg-gray-100 text-gray-600";
+    if (currentStep === 1) return "bg-yellow-100 text-yellow-700";
+    if (currentStep === 2) return "bg-orange-100 text-orange-700";
+    if (currentStep === 3) return "bg-green-100 text-green-700";
+    return "bg-blue-100 text-blue-700";
   };
 
   if (loading) {
@@ -404,65 +452,83 @@ function Page() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {filteredAmbassadors.map((a, idx) => (
-                  <tr
-                    key={a._id}
-                    className="hover:bg-gradient-to-r hover:from-yellow-50 hover:to-orange-50 transition-all"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center text-white font-black">
-                          {a.fullName?.charAt(0)}
+                {filteredAmbassadors.map((a, idx) => {
+                  const currentStep = a.task?.currentStep || 0;
+                  const badgeColor = getStepBadgeColor(currentStep);
+                  
+                  return (
+                    <tr
+                      key={a._id}
+                      className="hover:bg-gradient-to-r hover:from-yellow-50 hover:to-orange-50 transition-all"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center text-white font-black">
+                            {a.fullName?.charAt(0)}
+                          </div>
+                          <span className="font-semibold text-gray-900">
+                            {a.fullName}
+                          </span>
                         </div>
-                        <span className="font-semibold text-gray-900">
-                          {a.fullName}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600 text-sm">
+                        {a.email}
+                      </td>
+                      <td className="px-6 py-4 text-gray-600 text-sm">
+                        {a.college}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={`px-3 py-1 ${badgeColor} rounded-full text-xs font-bold inline-flex items-center gap-1`}>
+                          {currentStep === 3 ? (
+                            <>
+                              <CheckCircle className="w-3 h-3" />
+                              Completed
+                            </>
+                          ) : currentStep === 0 ? (
+                            <>
+                              Not Started
+                            </>
+                          ) : (
+                            <>
+                              Step {currentStep}/3
+                            </>
+                          )}
                         </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600 text-sm">
-                      {a.email}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600 text-sm">
-                      {a.college}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
-                        Step {a.task?.currentStep || 0}/3
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex justify-center">
-                        {a.isApproved ? (
-                          <span className="px-4 py-2 bg-green-100 text-green-700 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm">
-                            <CheckCircle className="w-4 h-4" />
-                            Approved
-                          </span>
-                        ) : a.rejected ? (
-                          <span className="px-4 py-2 bg-red-100 text-red-600 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm">
-                            <XCircle className="w-4 h-4" />
-                            Rejected
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => approveAmbassador(a._id)}
-                            className="px-4 py-2 bg-gradient-to-r from-green-400 to-emerald-500 text-white rounded-xl text-xs font-bold hover:scale-105 transition-all shadow-md hover:shadow-lg"
-                          >
-                            Approve Now
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <button
-                        onClick={() => viewDetails(a._id)}
-                        className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-xl text-xs font-bold hover:scale-105 transition-all shadow-md hover:shadow-lg flex items-center gap-2 mx-auto"
-                      >
-                        <Eye className="w-4 h-4" />
-                        View Details
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex justify-center">
+                          {a.isApproved ? (
+                            <span className="px-4 py-2 bg-green-100 text-green-700 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm">
+                              <CheckCircle className="w-4 h-4" />
+                              Approved
+                            </span>
+                          ) : a.rejected ? (
+                            <span className="px-4 py-2 bg-red-100 text-red-600 rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm">
+                              <XCircle className="w-4 h-4" />
+                              Rejected
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => approveAmbassador(a._id)}
+                              className="px-4 py-2 bg-gradient-to-r from-green-400 to-emerald-500 text-white rounded-xl text-xs font-bold hover:scale-105 transition-all shadow-md hover:shadow-lg"
+                            >
+                              Approve Now
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <button
+                          onClick={() => viewDetails(a._id)}
+                          className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-xl text-xs font-bold hover:scale-105 transition-all shadow-md hover:shadow-lg flex items-center gap-2 mx-auto"
+                        >
+                          <Eye className="w-4 h-4" />
+                          View Details
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

@@ -38,7 +38,7 @@ const schema = yup.object().shape({
 
 export default function Register() {
   const [step, setStep] = useState(1);
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
 
   const {
     register,
@@ -441,7 +441,7 @@ export default function Register() {
                 {/* Coupon Code */}
 <div>
   <label className="block font-medium text-indigo-700 mb-2">
-    Referral / Ambassador Coupon Code <span className="text-red-500">*</span>
+    Referral / Ambassador Coupon Code <span className="text-red-500"></span>
   </label>
   <input
     {...register("couponCode")}

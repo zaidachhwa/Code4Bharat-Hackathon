@@ -14,7 +14,7 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   const [currentDay, setCurrentDay] = useState("day1");
   const router = useRouter();
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
 
   useEffect(() => {
     getPromotionData();
