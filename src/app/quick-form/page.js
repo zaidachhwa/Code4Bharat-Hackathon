@@ -20,20 +20,14 @@ export default function HackathonRegistrationForm() {
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
 
+  // ⭐ NEW STATES FOR BACKEND FEEDBACK
+  const [backendError, setBackendError] = useState("");
+  const [backendSuccess, setBackendSuccess] = useState("");
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
-
-  const isValidUrl = (value) => {
-    if (!value) return false;
-    try {
-      const url = new URL(value.startsWith("http") ? value : `https://${value}`);
-      return true;
-    } catch {
-      return false;
-    }
   };
 
   const validate = () => {
@@ -64,12 +58,25 @@ export default function HackathonRegistrationForm() {
     if (!validate()) return;
 
     setSubmitted(true);
+    setBackendError("");
+    setBackendSuccess("");
 
     try {
       const res = await axios.post(`${API_URL}/registration`, formData);
-      console.log(res.data);
+
+      // ⭐ Show success from backend
+      setBackendSuccess(res.data.message || "Registration successful!");
+
     } catch (err) {
       console.error("Submit error:", err);
+
+      const message =
+        err?.response?.data?.message || "Something went wrong.";
+
+      // ⭐ Show backend error message
+      setBackendError(message);
+      setSubmitted(false);
+      return;
     }
 
     setTimeout(() => {
@@ -101,22 +108,18 @@ export default function HackathonRegistrationForm() {
           </p>
         </div>
 
-        {/* Success Message */}
-        {submitted && (
-          <div className="mx-8 my-6 p-4 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-800 flex items-start gap-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <div>
-              <div className="font-medium">Registration submitted</div>
-              <div className="text-sm">You'll receive a confirmation email if provided.</div>
-            </div>
+        {/* ⭐ Backend Success Message */}
+        {backendSuccess && (
+          <div className="mx-8 mt-6 p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700">
+            <div className="font-medium">{backendSuccess}</div>
+          </div>
+        )}
+
+        {/* ⭐ Backend Error Message */}
+        {backendError && (
+          <div className="mx-8 mt-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700">
+            <div className="font-medium">Error</div>
+            <div className="text-sm">{backendError}</div>
           </div>
         )}
 
@@ -301,7 +304,7 @@ export default function HackathonRegistrationForm() {
               </p>
             </div>
 
-            {/* Go to Home Page Button — borderless */}
+            {/* Go to Home Page Button */}
             <div className="mt-4">
               <Link
                 href="/"
