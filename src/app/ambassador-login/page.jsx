@@ -4,10 +4,9 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, Sparkles, ArrowRight } from "lucide-react";
+import { Mail, Lock, Sparkles, ArrowRight, Award, Shield } from "lucide-react";
 
 export default function AmbassadorLoginPage() {
-
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
   const router = useRouter();
   const {
@@ -21,11 +20,9 @@ export default function AmbassadorLoginPage() {
     setLoading(true);
 
     try {
-      const res = await axios.post(
-        `${API_URL}/ambassador/login`,
-        data,
-        { withCredentials: true }
-      );
+      const res = await axios.post(`${API_URL}/ambassador/login`, data, {
+        withCredentials: true,
+      });
 
       if (!res) {
         toast.error("Login failed. Please try again.");
@@ -50,102 +47,144 @@ export default function AmbassadorLoginPage() {
 
   return (
     <>
-      <Toaster position="top-right" />
-      <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 flex items-center justify-center px-4">
-
+      <Toaster position="top-center" />
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 flex items-center justify-center px-4 py-8">
         {/* MAIN CONTAINER */}
         <div className="w-full max-w-md">
-
           {/* CARD */}
-          <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-100 p-10 transition-all duration-300 hover:shadow-2xl">
-
-            {/* HEADER */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
-                Ambassador Login
-              </h1>
-              <p className="text-gray-500 mt-1 text-sm">
+          <div className="bg-white rounded-3xl shadow-2xl border-2 border-yellow-200 overflow-hidden">
+            {/* HEADER WITH GRADIENT */}
+            <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 px-8 py-10 text-white">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                  <Award className="w-9 h-9 text-white" />
+                </div>
+              </div>
+              <h1 className="text-3xl font-bold text-center">Ambassador Login</h1>
+              <p className="text-yellow-50 text-center mt-2 text-sm">
                 Access your internship dashboard
               </p>
             </div>
 
-            {/* FORM */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              
-              {/* EMAIL */}
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Mail size={16} className="text-gray-500" />
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  placeholder="you@example.com"
-                  {...register("email", { required: "Email is required" })}
-                  className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-400 outline-none bg-white transition-all"
-                />
-                {errors.email && (
-                  <p className="text-xs text-red-500">{errors.email.message}</p>
-                )}
+            {/* FORM SECTION */}
+            <div className="p-8">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                {/* EMAIL */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-orange-500" />
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="you@example.com"
+                    {...register("email", { required: "Email is required" })}
+                    className="w-full border-2 border-orange-200 px-4 py-3 rounded-xl focus:ring-4 focus:ring-orange-100 focus:border-orange-400 outline-none bg-orange-50/50 transition-all text-gray-700"
+                  />
+                  {errors.email && (
+                    <p className="text-xs text-red-600 flex items-center gap-1">
+                      ⚠️ {errors.email.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* PASSWORD */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-orange-500" />
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    {...register("password", {
+                      required: "Password is required",
+                    })}
+                    className="w-full border-2 border-orange-200 px-4 py-3 rounded-xl focus:ring-4 focus:ring-orange-100 focus:border-orange-400 outline-none bg-orange-50/50 transition-all text-gray-700"
+                  />
+                  {errors.password && (
+                    <p className="text-xs text-red-600 flex items-center gap-1">
+                      ⚠️ {errors.password.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* FORGOT PASSWORD LINK */}
+                <div className="text-right">
+                  <button
+                    type="button"
+                    className="text-sm text-orange-600 hover:text-orange-700 font-medium transition"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+
+                {/* LOGIN BUTTON */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`w-full py-4 rounded-xl font-bold transition-all duration-300 flex justify-center items-center gap-2 shadow-lg ${
+                    loading
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 hover:shadow-xl hover:scale-105"
+                  }`}
+                >
+                  {loading ? (
+                    <div className="w-5 h-5 border-3 border-white/40 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <>
+                      Login to Dashboard
+                      <ArrowRight className="w-5 h-5" />
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* DIVIDER */}
+              <div className="my-8 flex items-center justify-center">
+                <div className="flex-1 border-t-2 border-gray-200"></div>
+                <span className="px-4 text-xs text-gray-400 font-semibold">
+                  NEW HERE?
+                </span>
+                <div className="flex-1 border-t-2 border-gray-200"></div>
               </div>
 
-              {/* PASSWORD */}
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                  <Lock size={16} className="text-gray-500" />
-                  Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  {...register("password", { required: "Password is required" })}
-                  className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-400 outline-none bg-white transition-all"
-                />
-                {errors.password && (
-                  <p className="text-xs text-red-500">{errors.password.message}</p>
-                )}
+              {/* REGISTER LINK */}
+              <div className="text-center">
+                <button
+                  onClick={() => router.push("/ambassador-register")}
+                  className="w-full py-3 border-2 border-orange-300 text-orange-600 rounded-xl font-semibold hover:bg-orange-50 transition-all flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-5 h-5 text-yellow-500" />
+                  Apply as Ambassador
+                </button>
               </div>
 
-              {/* LOGIN BUTTON */}
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full py-3 rounded-lg font-semibold transition-all duration-300 flex justify-center items-center gap-2 ${
-                  loading
-                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                    : "bg-blue-500 text-white hover:bg-blue-600 shadow-md"
-                }`}
-              >
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin"></div>
-                ) : (
-                  <>
-                    Login
-                    <ArrowRight size={18} />
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* DIVIDER */}
-            <div className="my-8 flex items-center justify-center">
-              <div className="w-1/3 border-t border-gray-200"></div>
-              <span className="px-3 text-xs text-gray-400">NEW HERE?</span>
-              <div className="w-1/3 border-t border-gray-200"></div>
-            </div>
-
-            {/* REGISTER LINK */}
-            <div className="text-center">
-              <button
-                onClick={() => router.push("/ambassador-register")}
-                className="text-sm font-medium text-blue-600 hover:text-blue-700 transition flex items-center justify-center gap-1"
-              >
-                Apply as Ambassador
-                <Sparkles size={16} className="text-yellow-500" />
-              </button>
+              {/* INFO BOX */}
+              {/* <div className="mt-6 bg-orange-50 border-l-4 border-orange-400 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Shield className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs text-orange-800 font-semibold mb-1">
+                      Secure Login
+                    </p>
+                    <p className="text-xs text-orange-700">
+                      Your credentials are encrypted and protected. Only approved
+                      ambassadors can access the dashboard.
+                    </p>
+                  </div>
+                </div>
+              </div> */}
             </div>
           </div>
 
+          {/* FOOTER TEXT */}
+          <p className="text-center text-sm text-gray-600 mt-6">
+            Having trouble logging in?{" "}
+            <button className="text-orange-600 font-semibold hover:text-orange-700">
+              Contact Support
+            </button>
+          </p>
         </div>
       </div>
     </>

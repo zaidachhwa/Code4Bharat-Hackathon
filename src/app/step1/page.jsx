@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Upload, Trash2, Download, CheckCircle, ImageDown } from "lucide-react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   const [files, setFiles] = useState({ day1: [], day2: [] });
@@ -11,6 +12,7 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   const [day2Confirmed, setDay2Confirmed] = useState(false);
   const [waitingHours, setWaitingHours] = useState(null);
   const [currentDay, setCurrentDay] = useState("day1");
+  const router = useRouter();
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -25,8 +27,6 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
       });
       console.log("Promotion Data", res.data);
 
-      
-
       const promotion = res.data?.data?.promotion;
       setDay1Confirmed(promotion?.day1Confirmed ?? false);
       setDay2Confirmed(promotion?.day2Confirmed ?? false);
@@ -34,34 +34,41 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
       if (!promotion) return;
 
       // ---------------- NEW NEXT-DAY LOGIC ----------------
-const today = new Date().toDateString();
-const submissionDate = promotion?.submittedAt
-  ? new Date(promotion.submittedAt).toDateString()
-  : null;
+      const today = new Date().toDateString();
+      const submissionDate = promotion?.submittedAt
+        ? new Date(promotion.submittedAt).toDateString()
+        : null;
 
-// FIRST LOGIN → DAY 1 OPEN
-if (!promotion.day1Confirmed) {
-  setCurrentDay("day1");
-  return;
-}
+      // FIRST LOGIN → DAY 1 OPEN
+      if (!promotion.day1Confirmed) {
+        setCurrentDay("day1");
+        return;
+      }
 
-// DAY 1 DONE BUT SAME DAY → LOCK BOTH
-if (submissionDate === today && promotion.day1Confirmed && !promotion.day2Confirmed) {
-  setCurrentDay("lockedDay2");
-  return;
-}
+      // DAY 1 DONE BUT SAME DAY → LOCK BOTH
+      if (
+        submissionDate === today &&
+        promotion.day1Confirmed &&
+        !promotion.day2Confirmed
+      ) {
+        setCurrentDay("lockedDay2");
+        return;
+      }
 
-// NEXT CALENDAR DAY → DAY 2 OPEN
-if (submissionDate !== today && promotion.day1Confirmed && !promotion.day2Confirmed) {
-  setCurrentDay("day2");
-  return;
-}
+      // NEXT CALENDAR DAY → DAY 2 OPEN
+      if (
+        submissionDate !== today &&
+        promotion.day1Confirmed &&
+        !promotion.day2Confirmed
+      ) {
+        setCurrentDay("day2");
+        return;
+      }
 
-// BOTH DONE → STEP COMPLETED
-if (promotion.day1Confirmed && promotion.day2Confirmed) {
-  setCurrentDay("completed");
-}
-
+      // BOTH DONE → STEP COMPLETED
+      if (promotion.day1Confirmed && promotion.day2Confirmed) {
+        setCurrentDay("completed");
+      }
     } catch (err) {
       console.log(err);
       toast.error("Error fetching promotion data");
@@ -70,10 +77,9 @@ if (promotion.day1Confirmed && promotion.day2Confirmed) {
 
   const isCompleted = currentDay === "completed";
   // NEW UI LOGIC
-const isDay1Active = currentDay === "day1";
-const isDay2Active = currentDay === "day2";
-const isLocked = currentDay === "lockedDay2";
-
+  const isDay1Active = currentDay === "day1";
+  const isDay2Active = currentDay === "day2";
+  const isLocked = currentDay === "lockedDay2";
 
   const handleDownloadAssets = () => {
     if (!adminImages.length) {
@@ -124,8 +130,8 @@ const isLocked = currentDay === "lockedDay2";
 
   const removeFile = (day, index) => {
     if (isLocked) return;
-if (day === "day1" && !isDay1Active) return;
-if (day === "day2" && !isDay2Active) return;
+    if (day === "day1" && !isDay1Active) return;
+    if (day === "day2" && !isDay2Active) return;
 
     setFiles((prev) => ({
       ...prev,
@@ -150,7 +156,11 @@ if (day === "day2" && !isDay2Active) return;
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      toast.success("Day 1 submitted — now waiting 24h (simulated).");
+      toast.success("Day 1 submitted!");
+
+      setTimeout(() => {
+        router.push("/ambassador-dashboard");
+      }, 1000);
     } else if (currentDay === "day2") {
       const formData = new FormData();
       files.day2.forEach((file) => formData.append("screenshots", file));
@@ -172,8 +182,10 @@ if (day === "day2" && !isDay2Active) return;
           }
         );
         toast.success("Day 2 submitted successfully! Step 1 Completed.");
-        getPromotionData();
-        setCurrentDay("submitted");
+
+        setTimeout(() => {
+          router.push("/ambassador-dashboard");
+        }, 1000);
       } catch (err) {
         console.log(err);
         toast.error("Day 2 submission failed");
@@ -184,13 +196,12 @@ if (day === "day2" && !isDay2Active) return;
   const canSubmitDay1 = isDay1Active && files.day1.length > 0 && day1Confirmed;
   const canSubmitDay2 = isDay2Active && files.day2.length > 0 && day2Confirmed;
   const buttonDisabled =
-  isCompleted ||
-  isLocked ||
-  (currentDay === "day1" && !canSubmitDay1) ||
-  (currentDay === "day2" && !canSubmitDay2);
+    isCompleted ||
+    isLocked ||
+    (currentDay === "day1" && !canSubmitDay1) ||
+    (currentDay === "day2" && !canSubmitDay2);
 
-  const buttonLabel =
-  isCompleted
+  const buttonLabel = isCompleted
     ? "Step Completed ✔"
     : isLocked
     ? "Come Back Tomorrow ⏳"
@@ -198,7 +209,6 @@ if (day === "day2" && !isDay2Active) return;
     ? "Submit Day 1 Proof"
     : "Submit Day 2 Proof";
 
-    
   const progressWidth = (day1Confirmed ? 50 : 0) + (day2Confirmed ? 50 : 0);
 
   return (

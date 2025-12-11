@@ -15,10 +15,12 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function SeminarPage() {
   const [activeTab, setActiveTab] = useState("seminar");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     college: "",
@@ -70,7 +72,6 @@ export default function SeminarPage() {
 
       // NEW LOGIC: if backend sent a created time, lock UI
       setIsSubmitted(Boolean(res.data?.seminarSubmitted));
-
     } catch (err) {
       console.log("⚠ Error fetching created time:", err);
     }
@@ -145,6 +146,10 @@ export default function SeminarPage() {
 
       console.log("✅ Backend Response:", response.data);
       alert("Seminar proof submitted successfully!");
+
+      setTimeout(() => {
+        router.push("/ambassador-dashboard");
+      }, 1000);
 
       setFormData({
         college: "",
