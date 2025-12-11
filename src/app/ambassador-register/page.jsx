@@ -342,7 +342,7 @@ export default function CampusAmbassadorPage() {
                   Campus Ambassador Application
                 </h1>
                 <p className="mt-2 text-sm text-gray-600">
-                  Help us bring InnovateX to your campus. Fill in the details
+                   Fill in the details
                   below so we can get to know you better.
                 </p>
               </div>
@@ -350,7 +350,7 @@ export default function CampusAmbassadorPage() {
                 <span className="inline-flex items-center gap-1 rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1 text-[11px] font-medium text-indigo-600">
                   ● Applications Open
                 </span>
-                <span>Approx. completion: 5–7 minutes</span>
+                
               </div>
             </div>
           </div>
@@ -375,9 +375,7 @@ export default function CampusAmbassadorPage() {
                       Tell us about yourself and your college background.
                     </p>
                   </div>
-                  <span className="rounded-full bg-indigo-50 px-3 py-1 text-[11px] text-indigo-600 border border-indigo-100">
-                    Basic Information
-                  </span>
+
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -845,7 +843,7 @@ export default function CampusAmbassadorPage() {
                     </label>
                     <FieldError message={errors.agreement?.message} />
                     <p className="text-[11px] text-gray-500">
-                      By submitting, you apply for the InnovateX Campus
+                      By submitting, you apply for the 
                       Ambassador role and agree to be contacted regarding this
                       opportunity.
                     </p>

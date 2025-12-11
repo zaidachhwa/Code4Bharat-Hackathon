@@ -293,7 +293,7 @@ export default function Code4BharatLanding() {
           <div className="grid md:grid-cols-4 gap-5">
 
             {/* Hours */}
-            <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
+            <div className="card-soft  p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
               <div className="rounded-xl bg-indigo-50 text-indigo-600 p-2.5 mb-4">
                 <Clock className="w-5 h-5" />
               </div>
@@ -309,7 +309,7 @@ export default function Code4BharatLanding() {
             </div>
 
             {/* Prize Highlight */}
-            <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
+            <div className="card-soft p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
               <div className="rounded-xl bg-amber-50 text-amber-600 p-2.5 mb-4">
                 <Trophy className="w-5 h-5" />
               </div>
@@ -325,7 +325,7 @@ export default function Code4BharatLanding() {
             </div>
 
             {/* Participants */}
-            <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
+            <div className="card-soft p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
               <div className="rounded-xl bg-sky-50 text-sky-600 p-2.5 mb-4">
                 <Users className="w-5 h-5" />
               </div>
@@ -341,7 +341,7 @@ export default function Code4BharatLanding() {
             </div>
 
             {/* Domains */}
-            <div className="stat-card bg-blue-100 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
+            <div className="card-soft p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start">
               <div className="rounded-xl bg-violet-50 text-violet-600 p-2.5 mb-4">
                 <Code className="w-5 h-5" />
               </div>
@@ -366,7 +366,7 @@ export default function Code4BharatLanding() {
         className="fade-in-section px-4 sm:px-6 lg:px-8 mb-16"
       >
         <div className="max-w-7xl mx-auto">
-          <div className="card-soft p-8 sm:p-10 md:p-12">
+          <div className="card-soft  p-8 sm:p-10 md:p-12">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 mb-5">
               About CODE4BHARAT
             </h2>
@@ -781,7 +781,7 @@ export default function Code4BharatLanding() {
       </section> */}
 
       {/* FAQ */}
-<div className="max-w-7xl mb-20 mx-auto px-4 sm:px-8" id="faq">
+<div className="max-w-7xl mb-20 mx-auto px-4 sm:px-8" id="FAQ">
   {/* Title */}
   <h1 className="text-3xl sm:text-4xl font-black text-center text-slate-900 mb-10">
     Frequently Asked Questions
