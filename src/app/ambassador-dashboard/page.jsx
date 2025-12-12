@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Upload, Calendar, Gift, CheckCircle, Star, Sparkles, Lock, Users, Mail, Phone, MapPin, GraduationCap, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function AmbassadorTimeline() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function AmbassadorTimeline() {
   useEffect(() => {
     getCurrentStep();
     getCoupenCodeUsers();
+    getJwtToken();
   }, []);
 
   const getCurrentStep = async () => {
@@ -53,6 +55,20 @@ export default function AmbassadorTimeline() {
       console.error("Error fetching coupon users", err);
     }
   };
+
+
+  const getJwtToken = async () => {
+    const res = await axios.get(`${API_URL}/jwtauth/checking`, {
+      withCredentials: true
+    })
+
+    console.log("is JWT Available:",res.data.success)
+
+    if(res.data.success === false){
+      router.push("/ambassador-login")
+      toast.error("token is not able to save in browser!")
+    }
+  }
 
   const steps = [
     { id: 1, label: "Promotion", icon: Upload },

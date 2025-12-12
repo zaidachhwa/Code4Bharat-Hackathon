@@ -96,7 +96,7 @@ export default function Register() {
     console.log("=====================================");
     console.log("Complete Data Object:", data);  // here all the data coming form across the form as object
 
-    toast.success("Registration Successful! Check console for data.", {
+    toast.success("Registration Successful!", {
       duration: 4000,
       style: {
         background: "#10b981",
