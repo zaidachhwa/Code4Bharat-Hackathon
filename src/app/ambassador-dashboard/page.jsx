@@ -66,7 +66,7 @@ export default function AmbassadorTimeline() {
 
     if(res.data.success === false){
       router.push("/ambassador-login")
-      toast.error("token is not able to save in browser!")
+      toast.error("Please login to have access!")
     }
   }
 

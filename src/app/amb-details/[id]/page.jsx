@@ -41,14 +41,13 @@ const statusIcon = (s) =>
     locked: <Shield className="w-4 h-4" />,
   }[s] || <Shield className="w-4 h-4" />);
 
-// Helper function to format image URL (moved outside component to prevent recreation)
+// Updated helper function - now all paths come with "uploads/" prefix from DB
 const getImageUrl = (imagePath) => {
   if (!imagePath) return "";
+  // Remove any leading slashes or backslashes
   const cleanPath = imagePath.replace(/^[\\\/]+/, "");
-  const finalPath = cleanPath.startsWith("uploads")
-    ? cleanPath
-    : `uploads/${cleanPath}`;
-  return `${API_URL_IMAGES}/${finalPath.replace(/\\/g, "/")}`;
+  // Path already contains "uploads/" from DB, just clean backslashes
+  return `${API_URL_IMAGES}/${cleanPath.replace(/\\/g, "/")}`;
 };
 
 export default function AmbassadorDetailPage() {
@@ -97,6 +96,7 @@ export default function AmbassadorDetailPage() {
       const res = await axios.get(`${API_URL}/images/get/${id}`, {
         withCredentials: true,
       });
+      console.log("images are:",res.data);
       if (res.data?.success) {
         setImages(res.data.data || { promotion: {}, seminar: {} });
       }
@@ -169,7 +169,18 @@ export default function AmbassadorDetailPage() {
         <div className="bg-white rounded-3xl shadow-2xl border-2 border-yellow-200 p-8 mb-6">
           <div className="flex items-start justify-between flex-wrap gap-6">
             <div className="flex items-start gap-6">
-              <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
+              {ambassador.profilePhoto ? (
+                <img
+                  src={getImageUrl(ambassador.profilePhoto)}
+                  alt={ambassador.fullName}
+                  className="w-24 h-24 rounded-2xl object-cover shadow-lg"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextElementSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg" style={{ display: ambassador.profilePhoto ? 'none' : 'flex' }}>
                 <span className="text-3xl font-black text-white">
                   {ambassador.fullName?.charAt(0)}
                 </span>
@@ -579,8 +590,14 @@ export default function AmbassadorDetailPage() {
 
 /* SUB-COMPONENTS */
 
-// New optimized ImageGrid component
+// Updated ImageGrid component with simplified URL handling
 function ImageGrid({ images, label, iconColor, borderColor, hoverBorderColor, columns = "md:grid-cols-4" }) {
+  const [imageErrors, setImageErrors] = useState({});
+
+  const handleImageError = (index) => {
+    setImageErrors(prev => ({ ...prev, [index]: true }));
+  };
+
   return (
     <div className="mb-6">
       <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
@@ -593,16 +610,21 @@ function ImageGrid({ images, label, iconColor, borderColor, hoverBorderColor, co
             key={`${img}-${i}`}
             className={`border-2 ${borderColor} rounded-xl overflow-hidden shadow-sm hover:shadow-lg ${hoverBorderColor} transition-all`}
           >
-            <img
-              src={getImageUrl(img)}
-              alt={`${label} ${i + 1}`}
-              className="w-full h-40 object-cover"
-              loading="lazy"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Found";
-              }}
-            />
+            {imageErrors[i] ? (
+              <div className="w-full h-40 bg-gray-100 flex flex-col items-center justify-center">
+                <XCircle className="w-12 h-12 text-gray-400 mb-2" />
+                <p className="text-xs text-gray-500 font-medium">Image Not Found</p>
+                <p className="text-xs text-gray-400 mt-1">File may be deleted</p>
+              </div>
+            ) : (
+              <img
+                src={getImageUrl(img)}
+                alt={`${label} ${i + 1}`}
+                className="w-full h-40 object-cover"
+                loading="lazy"
+                onError={() => handleImageError(i)}
+              />
+            )}
           </div>
         ))}
       </div>

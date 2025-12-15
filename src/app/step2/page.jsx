@@ -13,6 +13,7 @@ import {
   UserCheck,
   Sparkles,
   CheckCircle2,
+  ArrowLeft,
 } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -165,6 +166,10 @@ export default function SeminarPage() {
     }
   };
 
+  const handleBackToDashboard = () => {
+    router.push("/ambassador-dashboard");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 p-4 sm:p-6 md:p-12">
       {/* Animated Background Elements */}
@@ -175,6 +180,15 @@ export default function SeminarPage() {
       </div>
 
       <div className="space-y-8 max-w-6xl mx-auto relative z-10">
+        {/* Back Button */}
+        <button
+          onClick={handleBackToDashboard}
+          className="flex items-center gap-2 text-gray-700 hover:text-gray-900 font-semibold transition-colors bg-white/60 backdrop-blur-sm px-4 py-2 rounded-xl hover:bg-white/80"
+        >
+          <ArrowLeft size={20} />
+          Back to Dashboard
+        </button>
+
         {/* Main Card */}
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-6 sm:p-8 md:p-10 hover:shadow-amber-200/50 transition-all duration-500">
           {/* Header Section */}
@@ -348,8 +362,8 @@ export default function SeminarPage() {
                       </p>
                     </div>
                     <button
-                      disabled={isSubmitted} // ⬅️ ADD
-                      onClick={() => !isSubmitted && removeFile(index)} // ⬅️ PREVENT CLICK
+                      disabled={isSubmitted}
+                      onClick={() => !isSubmitted && removeFile(index)}
                       className={`p-2.5 rounded-xl transition-all duration-300 ${
                         isSubmitted
                           ? "opacity-40 cursor-not-allowed"

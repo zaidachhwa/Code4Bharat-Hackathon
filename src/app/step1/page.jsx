@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { Upload, Trash2, Download, CheckCircle, ImageDown } from "lucide-react";
+import { Upload, Trash2, Download, CheckCircle, ImageDown, ArrowLeft } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
@@ -193,6 +193,10 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
     }
   };
 
+  const handleBackToDashboard = () => {
+    router.push("/ambassador-dashboard");
+  };
+
   const canSubmitDay1 = isDay1Active && files.day1.length > 0 && day1Confirmed;
   const canSubmitDay2 = isDay2Active && files.day2.length > 0 && day2Confirmed;
   const buttonDisabled =
@@ -216,6 +220,15 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
       <Toaster position="top-right" />
 
       <div className="max-w-5xl mx-auto">
+        {/* Back Button */}
+        <button
+          onClick={handleBackToDashboard}
+          className="flex items-center gap-2 mb-6 text-gray-700 hover:text-gray-900 font-semibold transition-colors bg-white/60 backdrop-blur-sm px-4 py-2 rounded-xl hover:bg-white/80"
+        >
+          <ArrowLeft size={20} />
+          Back to Dashboard
+        </button>
+
         {/* Header Section */}
         <div className="bg-white rounded-3xl shadow-2xl border-2 border-yellow-200 p-8 mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">

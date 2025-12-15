@@ -51,7 +51,9 @@ export default function Page() {
   const onSubmit = async (data) => {
     try {
       toast.loading("Logging in...");
-      const res = await axios.post(`${API_URL}/admin/login`, data);
+      const res = await axios.post(`${API_URL}/admin/login`, data, {
+        withCredentials: true
+      });
       if (res.data?.success) {
         toast.dismiss();
         toast.success(res.data.message || "Login successful!");

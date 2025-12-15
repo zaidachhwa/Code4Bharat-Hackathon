@@ -43,6 +43,10 @@ export default function Step3Completion() {
     router.push("/ambassador-dashboard")
   }
 
+  const backHome = () => {
+    router.push("/")
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 p-8">
       <div className="max-w-5xl mx-auto">
@@ -117,18 +121,18 @@ export default function Step3Completion() {
             </div>
 
             {/* Confirmation Message */}
-            <div className="bg-orange-50 border-l-4 border-orange-500 rounded-lg p-4 mt-6">
+            {/* <div className="bg-orange-50 border-l-4 border-orange-500 rounded-lg p-4 mt-6">
               <p className="text-sm text-orange-800 font-medium">
                 💌 You will receive an email confirmation once all steps are approved.
               </p>
-            </div>
+            </div> */}
 
             {/* Action Buttons */}
             <div className="flex gap-4 pt-8">
               <button onClick={backDashboard} className="px-8 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 font-semibold shadow-md hover:shadow-lg">
                 Back to dashboard
               </button>
-              <button onClick={backDashboard} className="px-8 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl hover:from-yellow-600 hover:to-orange-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl">
+              <button onClick={backHome} className="px-8 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl hover:from-yellow-600 hover:to-orange-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl">
                 Finish
               </button>
             </div>

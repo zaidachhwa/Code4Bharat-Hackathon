@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import  toast from "react-hot-toast";
 import {
   Users,
   Search,
@@ -20,6 +21,7 @@ import {
   UserCheck,
   Filter,
   TrendingUp,
+  User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -34,10 +36,50 @@ function Page() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [sending, setSending] = useState(false);
+  const [imageErrors, setImageErrors] = useState({});
 
   const router = useRouter();
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+  const API_URL_IMAGES =
+    process.env.NEXT_PUBLIC_IMAGE_BASE_URL || "http://localhost:5002";
+
+  useEffect(() => {
+    auth();
+  }, []);
+
+  const auth = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/admin/auth`, {
+        withCredentials: true,
+      });
+
+      console.log("admin auth status:", res.data.success);
+
+      if (res.data.success === false) {
+        router.push("/admin");
+        toast.error("Please login to have access!");
+      }
+    } catch (error) {
+      // Any error → treat as unauthenticated
+      router.push("/admin");
+      toast.error("Please login to have access!");
+    }
+  };
+
+  // Helper function to get profile image URL
+  const getProfileImageUrl = (profilePhoto) => {
+    if (!profilePhoto) return null;
+    // Remove leading slashes and convert backslashes to forward slashes
+    const cleanPath = profilePhoto.replace(/^[\\\/]+/, "").replace(/\\/g, "/");
+    return `${API_URL_IMAGES}/${cleanPath}`;
+  };
+
+  // Handle image error
+  const handleImageError = (ambassadorId) => {
+    setImageErrors((prev) => ({ ...prev, [ambassadorId]: true }));
+  };
 
   // Fetch ambassadors with step data merged
   useEffect(() => {
@@ -48,7 +90,7 @@ function Page() {
         // Fetch both endpoints in parallel
         const [ambassadorRes, stepsRes] = await Promise.all([
           fetch(`${API_URL}/ambassadors/data/get`),
-          axios.get(`${API_URL}/ambassador/steps`, { withCredentials: true })
+          axios.get(`${API_URL}/ambassador/steps`, { withCredentials: true }),
         ]);
 
         const ambassadorData = await ambassadorRes.json();
@@ -67,21 +109,23 @@ function Page() {
                 isFullyCompleted: step.isFullyCompleted || false,
                 promotion: step.promotion || {},
                 seminar: step.seminar || {},
-                onboarding: step.onboarding || {}
+                onboarding: step.onboarding || {},
               });
             }
           });
         }
 
         // Merge ambassador data with step data
-        const mergedAmbassadors = (ambassadorData.ambassadors || []).map((ambassador) => {
-          const stepData = stepsMap.get(ambassador._id);
-          return {
-            ...ambassador,
-            task: stepData || { currentStep: 0 },
-            stepDetails: stepData || null
-          };
-        });
+        const mergedAmbassadors = (ambassadorData.ambassadors || []).map(
+          (ambassador) => {
+            const stepData = stepsMap.get(ambassador._id);
+            return {
+              ...ambassador,
+              task: stepData || { currentStep: 0 },
+              stepDetails: stepData || null,
+            };
+          }
+        );
 
         setAmbassadors(mergedAmbassadors);
         console.log("Merged ambassadors:", mergedAmbassadors);
@@ -272,10 +316,7 @@ function Page() {
                 <Clock className="w-5 h-5 text-yellow-500" />
               </div>
               <p className="text-4xl font-black text-yellow-600">
-                {
-                  ambassadors.filter((a) => !a.isApproved && !a.rejected)
-                    .length
-                }
+                {ambassadors.filter((a) => !a.isApproved && !a.rejected).length}
               </p>
               <p className="text-xs text-gray-500 mt-2">Awaiting approval</p>
             </div>
@@ -394,9 +435,7 @@ function Page() {
         <div className="bg-white rounded-3xl shadow-lg border-2 border-gray-100 p-6 mb-6">
           <div className="flex items-center gap-3 mb-4">
             <Filter className="w-5 h-5 text-gray-600" />
-            <h3 className="text-lg font-bold text-gray-900">
-              Search & Filter
-            </h3>
+            <h3 className="text-lg font-bold text-gray-900">Search & Filter</h3>
           </div>
 
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
@@ -432,8 +471,12 @@ function Page() {
 
           {/* Results Count */}
           <p className="mt-4 text-sm text-gray-600 font-medium">
-            Showing <span className="text-yellow-600 font-bold">{filteredAmbassadors.length}</span> of{" "}
-            <span className="font-bold">{ambassadors.length}</span> ambassadors
+            Showing{" "}
+            <span className="text-yellow-600 font-bold">
+              {filteredAmbassadors.length}
+            </span>{" "}
+            of <span className="font-bold">{ambassadors.length}</span>{" "}
+            ambassadors
           </p>
         </div>
 
@@ -455,7 +498,9 @@ function Page() {
                 {filteredAmbassadors.map((a, idx) => {
                   const currentStep = a.task?.currentStep || 0;
                   const badgeColor = getStepBadgeColor(currentStep);
-                  
+                  const profileImageUrl = getProfileImageUrl(a.profilePhoto);
+                  const hasImageError = imageErrors[a._id];
+
                   return (
                     <tr
                       key={a._id}
@@ -463,9 +508,18 @@ function Page() {
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center text-white font-black">
-                            {a.fullName?.charAt(0)}
-                          </div>
+                          {profileImageUrl && !hasImageError ? (
+                            <img
+                              src={profileImageUrl}
+                              alt={a.fullName}
+                              className="w-10 h-10 rounded-xl object-cover shadow-md"
+                              onError={() => handleImageError(a._id)}
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center text-white font-black shadow-md">
+                              {a.fullName?.charAt(0)}
+                            </div>
+                          )}
                           <span className="font-semibold text-gray-900">
                             {a.fullName}
                           </span>
@@ -478,20 +532,18 @@ function Page() {
                         {a.college}
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <span className={`px-3 py-1 ${badgeColor} rounded-full text-xs font-bold inline-flex items-center gap-1`}>
+                        <span
+                          className={`px-3 py-1 ${badgeColor} rounded-full text-xs font-bold inline-flex items-center gap-1`}
+                        >
                           {currentStep === 3 ? (
                             <>
                               <CheckCircle className="w-3 h-3" />
                               Completed
                             </>
                           ) : currentStep === 0 ? (
-                            <>
-                              Not Started
-                            </>
+                            <>Not Started</>
                           ) : (
-                            <>
-                              Step {currentStep}/3
-                            </>
+                            <>Step {currentStep}/3</>
                           )}
                         </span>
                       </td>
