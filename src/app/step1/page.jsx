@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { Upload, Trash2, Download, CheckCircle, ImageDown, ArrowLeft } from "lucide-react";
+import {
+  Upload,
+  Trash2,
+  Download,
+  CheckCircle,
+  ImageDown,
+  ArrowLeft,
+  X,
+} from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
@@ -12,13 +20,31 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   const [day2Confirmed, setDay2Confirmed] = useState(false);
   const [waitingHours, setWaitingHours] = useState(null);
   const [currentDay, setCurrentDay] = useState("day1");
+  const [adminPromotionImages, setAdminPromotionImages] = useState([]);
+  const [showImagesModal, setShowImagesModal] = useState(false);
   const router = useRouter();
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+  const API_URL_IMAGES =
+    process.env.NEXT_PUBLIC_IMAGE_BASE_URL || "http://localhost:5002";
 
   useEffect(() => {
     getPromotionData();
+    getAdminImages();
   }, []);
+
+  const getAdminImages = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/admin/promotion/images`);
+      const images = res.data.adminImages[0]?.images || [];
+      console.log("Fetched images:", images);
+      console.log("Number of images:", images.length);
+      setAdminPromotionImages(images);
+    } catch (err) {
+      console.log("Error fetching admin images:", err);
+    }
+  };
 
   const getPromotionData = async () => {
     try {
@@ -33,19 +59,16 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
 
       if (!promotion) return;
 
-      // ---------------- NEW NEXT-DAY LOGIC ----------------
       const today = new Date().toDateString();
       const submissionDate = promotion?.submittedAt
         ? new Date(promotion.submittedAt).toDateString()
         : null;
 
-      // FIRST LOGIN → DAY 1 OPEN
       if (!promotion.day1Confirmed) {
         setCurrentDay("day1");
         return;
       }
 
-      // DAY 1 DONE BUT SAME DAY → LOCK BOTH
       if (
         submissionDate === today &&
         promotion.day1Confirmed &&
@@ -55,7 +78,6 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
         return;
       }
 
-      // NEXT CALENDAR DAY → DAY 2 OPEN
       if (
         submissionDate !== today &&
         promotion.day1Confirmed &&
@@ -65,7 +87,6 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
         return;
       }
 
-      // BOTH DONE → STEP COMPLETED
       if (promotion.day1Confirmed && promotion.day2Confirmed) {
         setCurrentDay("completed");
       }
@@ -76,24 +97,43 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   };
 
   const isCompleted = currentDay === "completed";
-  // NEW UI LOGIC
   const isDay1Active = currentDay === "day1";
   const isDay2Active = currentDay === "day2";
   const isLocked = currentDay === "lockedDay2";
 
   const handleDownloadAssets = () => {
-    if (!adminImages.length) {
+    if (!adminPromotionImages.length) {
       toast.error("No assets available to download yet.");
       return;
     }
-    adminImages.forEach((url, index) => {
+    setShowImagesModal(true);
+  };
+
+  const downloadSingleImage = async (imagePath, index) => {
+    try {
+      const imageUrl = `${API_URL_IMAGES}${imagePath}`;
+
+      // Fetch image as blob
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `promotion-asset-${index + 1}.jpg`;
+      link.download = `promotion-asset-${index + 1}${imagePath.substring(
+        imagePath.lastIndexOf(".")
+      )}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    });
+      window.URL.revokeObjectURL(url);
+
+      toast.success(`Downloaded asset ${index + 1}`);
+    } catch (err) {
+      console.error("Download failed:", err);
+      toast.error('Download failed. Try "Open Full" instead.');
+    }
   };
 
   const handleUpload = (event, day) => {
@@ -219,8 +259,66 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 px-6 py-10">
       <Toaster position="top-right" />
 
+      {/* Images Modal */}
+      {showImagesModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b-2 border-yellow-200 p-6 flex items-center justify-between rounded-t-3xl">
+              <h2 className="text-2xl font-black text-gray-900">
+                Promotion Assets ({adminPromotionImages.length})
+              </h2>
+              <button
+                onClick={() => setShowImagesModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              {adminPromotionImages.map((imagePath, index) => (
+                <div
+                  key={index}
+                  className="border-2 border-gray-200 rounded-2xl p-4 hover:border-yellow-400 transition-all"
+                >
+                  <img
+                    src={`${API_URL_IMAGES}${imagePath}`}
+                    alt={`Asset ${index + 1}`}
+                    className="w-full h-64 object-cover rounded-xl mb-4"
+                  />
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => downloadSingleImage(imagePath, index)}
+                      className="flex-1 flex items-center justify-center gap-2 
+bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 
+text-white px-4 py-3 rounded-xl font-bold 
+shadow-md hover:shadow-xl hover:scale-105 transition-all"
+                    >
+                      <Download size={18} />
+                      Download
+                    </button>
+                    <a
+                      href={`${API_URL_IMAGES}${imagePath}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-2 
+bg-gradient-to-r from-yellow-100 to-orange-100 
+text-orange-700 px-4 py-3 rounded-xl font-bold 
+border-2 border-orange-300 
+hover:bg-gradient-to-r hover:from-yellow-200 hover:to-orange-200 
+hover:shadow-md transition-all"
+                    >
+                      Open Full
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-5xl mx-auto">
-        {/* Back Button */}
         <button
           onClick={handleBackToDashboard}
           className="flex items-center gap-2 mb-6 text-gray-700 hover:text-gray-900 font-semibold transition-colors bg-white/60 backdrop-blur-sm px-4 py-2 rounded-xl hover:bg-white/80"
@@ -229,7 +327,6 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
           Back to Dashboard
         </button>
 
-        {/* Header Section */}
         <div className="bg-white rounded-3xl shadow-2xl border-2 border-yellow-200 p-8 mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
@@ -256,16 +353,15 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
               className="flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-yellow-400 to-orange-500 px-6 py-4 text-base font-bold text-white shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
               <ImageDown size={20} />
-              Download Assets
-              {adminImages.length > 0 && (
+              View & Download Assets
+              {adminPromotionImages.length > 0 && (
                 <span className="rounded-full bg-white text-orange-600 text-xs px-2.5 py-1 font-bold">
-                  {adminImages.length}
+                  {adminPromotionImages.length}
                 </span>
               )}
             </button>
           </div>
 
-          {/* Progress Bar */}
           <div className="mt-8 p-6 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl border-2 border-yellow-200">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
@@ -296,7 +392,6 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
           </div>
         </div>
 
-        {/* Upload Cards */}
         <div className="grid gap-6">
           {["day1", "day2"].map((day) => {
             const isActive =
@@ -321,14 +416,12 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
                     : "border-gray-200 opacity-60 pointer-events-none"
                 }`}
               >
-                {/* Lock Badge for Day 2 */}
                 {day === "day2" && !isActive && !isCompleted && (
                   <span className="absolute -top-3 right-6 rounded-full bg-gray-900 text-white text-xs px-4 py-2 font-bold shadow-lg">
                     🔒 Locked (next day open)
                   </span>
                 )}
 
-                {/* Active Badge for Day 2 */}
                 {day === "day2" && isActive && (
                   <span className="absolute -top-3 right-6 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-xs px-4 py-2 font-bold shadow-lg">
                     ✓ Day 2 Active
@@ -362,7 +455,6 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
                   )}
                 </div>
 
-                {/* Upload Button */}
                 <label className="cursor-pointer inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl text-base font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105">
                   <Upload size={20} />
                   Upload Image(s)
@@ -378,7 +470,6 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
                   JPG, PNG only. Multiple screenshots allowed.
                 </p>
 
-                {/* File List */}
                 {files[day].length > 0 && (
                   <div className="mt-6 space-y-3">
                     {files[day].map((file, i) => (
@@ -411,7 +502,6 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
                   </div>
                 )}
 
-                {/* Confirmation Checkbox */}
                 <label className="flex items-center gap-3 mt-6 text-gray-700 cursor-pointer bg-yellow-50 p-4 rounded-xl border-2 border-yellow-200">
                   <input
                     type="checkbox"
@@ -434,7 +524,6 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
           })}
         </div>
 
-        {/* Submit Button */}
         <button
           onClick={handleSubmit}
           disabled={buttonDisabled}
