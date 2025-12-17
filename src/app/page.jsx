@@ -488,7 +488,7 @@ export default function Code4BharatLanding() {
 
 
             <div className="relative pl-8 md:pl-0">
-              <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-indigo-400 via-indigo-300 to-slate-200" />
+              <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-linear-to-b from-indigo-400 via-indigo-300 to-slate-200" />
 
               {[
                 { num: "1", title: "Registration Window", date: "January 20 – February 5, 2026" },
