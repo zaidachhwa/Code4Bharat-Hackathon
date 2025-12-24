@@ -214,7 +214,7 @@ export default function Navbar() {
                     onClick={(e) => {
                       e.stopPropagation();
                       setParticipateDropdownOpen(false);
-                      window.location.href = "https://www.code4bharat.com/login";
+                      window.location.href = "https://hackathon.code4bharat.com/login";
                     }}
                     className="block w-full text-left px-4 py-2 text-sm hover:bg-indigo-50"
                   >
@@ -292,7 +292,7 @@ export default function Navbar() {
                 Register
               </Link>
               <a
-                href="https://www.code4bharat.com/login"
+                href="https://hackathon.code4bharat.com/login"
                 className="px-3 py-2 rounded-md bg-white"
               >
                 Login
