@@ -24,10 +24,11 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   const [showImagesModal, setShowImagesModal] = useState(false);
   const router = useRouter();
 
-  const API_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
-  const API_URL_IMAGES =
-    process.env.NEXT_PUBLIC_IMAGE_BASE_URL || "http://localhost:5002";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+  const API_URL_IMAGES = process.env.NEXT_PUBLIC_IMAGE_BASE_URL || "http://localhost:5002";
+
+  // const API_URL = "https://code4bharat-hackathon-backend.onrender.com/api"
+  // const API_URL_IMAGES = "https://code4bharat-hackathon-backend.onrender.com"
 
   useEffect(() => {
     getPromotionData();
@@ -256,15 +257,15 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   const progressWidth = (day1Confirmed ? 50 : 0) + (day2Confirmed ? 50 : 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 px-6 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 px-4 sm:px-6 py-6 sm:py-10">
       <Toaster position="top-right" />
 
       {/* Images Modal */}
       {showImagesModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b-2 border-yellow-200 p-6 flex items-center justify-between rounded-t-3xl">
-              <h2 className="text-2xl font-black text-gray-900">
+            <div className="sticky top-0 bg-white border-b-2 border-yellow-200 p-4 sm:p-6 flex items-center justify-between rounded-t-3xl">
+              <h2 className="text-xl sm:text-2xl font-black text-gray-900">
                 Promotion Assets ({adminPromotionImages.length})
               </h2>
               <button
@@ -275,7 +276,7 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
               </button>
             </div>
 
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               {adminPromotionImages.map((imagePath, index) => (
                 <div
                   key={index}
@@ -327,30 +328,30 @@ hover:shadow-md transition-all"
           Back to Dashboard
         </button>
 
-        <div className="bg-white rounded-3xl shadow-2xl border-2 border-yellow-200 p-8 mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div className="bg-white rounded-3xl shadow-2xl border-2 border-yellow-200 p-5 sm:p-8 mb-6 sm:mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6">
             <div>
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-14 h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
-                  <Upload className="w-8 h-8 text-white" />
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+                  <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                 </div>
                 <div>
                   <p className="text-xs uppercase text-yellow-600 tracking-widest font-bold">
                     Step 1 of 3
                   </p>
-                  <h1 className="text-3xl font-black text-gray-900">
+                  <h1 className="text-2xl sm:text-3xl font-black text-gray-900">
                     Promotion Proof
                   </h1>
                 </div>
               </div>
-              <p className="text-base text-gray-600 ml-[68px]">
+              <p className="text-base text-gray-600 ml-0 sm:ml-[68px]">
                 Complete Day 1, then Day 2 opens after 24 hours.
               </p>
             </div>
 
             <button
               onClick={handleDownloadAssets}
-              className="flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-yellow-400 to-orange-500 px-6 py-4 text-base font-bold text-white shadow-lg hover:shadow-xl transition-all hover:scale-105"
+              className="flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-yellow-400 to-orange-500 px-5 sm:px-6 py-3 sm:py-4 text-base font-bold text-white shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
               <ImageDown size={20} />
               View & Download Assets
@@ -362,11 +363,11 @@ hover:shadow-md transition-all"
             </button>
           </div>
 
-          <div className="mt-8 p-6 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl border-2 border-yellow-200">
+          <div className="mt-6 sm:mt-8 p-5 sm:p-6 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl border-2 border-yellow-200">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <CheckCircle className="text-yellow-600 w-6 h-6" />
-                <p className="text-base font-bold text-gray-800">
+                <CheckCircle className="text-yellow-600 w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                <p className="text-sm sm:text-base font-bold text-gray-800">
                   {currentDay === "day1"
                     ? "Currently on Day 1"
                     : currentDay === "day2"
@@ -374,7 +375,7 @@ hover:shadow-md transition-all"
                     : "Step Completed"}
                 </p>
               </div>
-              <p className="text-sm font-bold text-yellow-600">
+              <p className="text-xs sm:text-sm font-bold text-yellow-600 flex-shrink-0">
                 {Math.min(progressWidth, 100)}% Complete
               </p>
             </div>
@@ -410,28 +411,28 @@ hover:shadow-md transition-all"
             return (
               <div
                 key={day}
-                className={`relative bg-white border-2 rounded-3xl p-8 shadow-xl transition-all ${
+                className={`relative bg-white border-2 rounded-3xl p-5 sm:p-8 shadow-xl transition-all ${
                   isActive
                     ? "border-yellow-300 hover:shadow-2xl"
                     : "border-gray-200 opacity-60 pointer-events-none"
                 }`}
               >
                 {day === "day2" && !isActive && !isCompleted && (
-                  <span className="absolute -top-3 right-6 rounded-full bg-gray-900 text-white text-xs px-4 py-2 font-bold shadow-lg">
+                  <span className="absolute -top-3 right-4 sm:right-6 rounded-full bg-gray-900 text-white text-xs px-3 sm:px-4 py-2 font-bold shadow-lg">
                     🔒 Locked (next day open)
                   </span>
                 )}
 
                 {day === "day2" && isActive && (
-                  <span className="absolute -top-3 right-6 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-xs px-4 py-2 font-bold shadow-lg">
+                  <span className="absolute -top-3 right-4 sm:right-6 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 text-white text-xs px-3 sm:px-4 py-2 font-bold shadow-lg">
                     ✓ Day 2 Active
                   </span>
                 )}
 
-                <div className="flex items-start justify-between gap-4 mb-6">
-                  <div className="flex items-start gap-4">
+                <div className="flex items-start justify-between gap-3 sm:gap-4 mb-6">
+                  <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
                     <div
-                      className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg ${
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 ${
                         isActive
                           ? "bg-gradient-to-br from-yellow-400 to-orange-500"
                           : "bg-gray-300"
@@ -441,21 +442,21 @@ hover:shadow-md transition-all"
                         {day === "day1" ? "1" : "2"}
                       </span>
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-black text-gray-900">
+                    <div className="min-w-0">
+                      <h3 className="text-xl sm:text-2xl font-black text-gray-900">
                         {title}
                       </h3>
                       <p className="text-base text-gray-600 mt-1">{subtitle}</p>
                     </div>
                   </div>
                   {files[day].length > 0 && (
-                    <span className="text-sm rounded-full bg-blue-100 text-blue-700 px-4 py-2 border-2 border-blue-200 font-bold">
+                    <span className="text-sm rounded-full bg-blue-100 text-blue-700 px-3 sm:px-4 py-2 border-2 border-blue-200 font-bold flex-shrink-0">
                       {files[day].length} file{files[day].length > 1 ? "s" : ""}
                     </span>
                   )}
                 </div>
 
-                <label className="cursor-pointer inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl text-base font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                <label className="cursor-pointer inline-flex items-center gap-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-5 sm:px-6 py-3 rounded-xl text-base font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105">
                   <Upload size={20} />
                   Upload Image(s)
                   <input
@@ -475,12 +476,12 @@ hover:shadow-md transition-all"
                     {files[day].map((file, i) => (
                       <div
                         key={i}
-                        className="flex justify-between items-center bg-gradient-to-r from-gray-50 to-gray-100 px-5 py-4 border-2 border-gray-200 rounded-xl hover:border-yellow-300 transition-all"
+                        className="flex justify-between items-center bg-gradient-to-r from-gray-50 to-gray-100 px-4 sm:px-5 py-4 border-2 border-gray-200 rounded-xl hover:border-yellow-300 transition-all gap-3"
                       >
-                        <p className="text-base text-gray-800 font-semibold truncate max-w-[60%]">
+                        <p className="text-base text-gray-800 font-semibold truncate max-w-[50%] sm:max-w-[60%] flex-1 min-w-0">
                           {file.name}
                         </p>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
                           <a
                             href={URL.createObjectURL(file)}
                             download={file.name}
@@ -512,7 +513,7 @@ hover:shadow-md transition-all"
                         ? setDay1Confirmed(!day1Confirmed)
                         : setDay2Confirmed(!day2Confirmed)
                     }
-                    className="h-5 w-5 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
+                    className="h-5 w-5 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 flex-shrink-0"
                   />
                   <span className="text-base font-medium">
                     I confirm the post stayed online for{" "}

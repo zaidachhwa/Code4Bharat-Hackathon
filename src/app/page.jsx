@@ -34,7 +34,7 @@ const faqs = [
   },
   {
     q: "Is there any registration fee?",
-    a: "No, participation in CODE4BHARAT is completely free. Simply register your details and you are ready to go.",
+    a: "Participation in CODE4BHARAT requires a registration fee of ₹199. Simply complete the form with your details, submit the fee, and you're ready to begin.",
   },
   {
     q: "Do I need prior hackathon experience?",

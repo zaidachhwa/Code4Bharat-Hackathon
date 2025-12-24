@@ -5,41 +5,48 @@ import Link from "next/link";
 import { Menu, X, Rocket, ChevronDown } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 
-
 export default function Navbar() {
   const router = useRouter();
-const pathname = usePathname();
+  const pathname = usePathname();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [participateDropdownOpen, setParticipateDropdownOpen] = useState(false);
 
   const dropdownRef = useRef(null);
+  const participateDropdownRef = useRef(null);
 
-  const NAV_SECTIONS = ["about", "domains", "timeline", "rules", "prizes", "FAQ"];
+  const NAV_SECTIONS = [
+    "about",
+    "domains",
+    "timeline",
+    "rules",
+    "prizes",
+    "FAQ",
+  ];
 
   useEffect(() => {
-  if (pathname !== "/") return;
+    if (pathname !== "/") return;
 
-  const hash = window.location.hash.replace("#", "");
-  if (!hash) return;
+    const hash = window.location.hash.replace("#", "");
+    if (!hash) return;
 
-  const timeout = setTimeout(() => {
-    const el = document.getElementById(hash);
-    if (!el) return;
+    const timeout = setTimeout(() => {
+      const el = document.getElementById(hash);
+      if (!el) return;
 
-    const navbarHeight = 80;
-    const top = el.getBoundingClientRect().top + window.scrollY - navbarHeight;
+      const navbarHeight = 80;
+      const top =
+        el.getBoundingClientRect().top + window.scrollY - navbarHeight;
 
-    window.scrollTo({ top, behavior: "smooth" });
-  }, 100); // small delay so DOM is ready
+      window.scrollTo({ top, behavior: "smooth" });
+    }, 100);
 
-  return () => clearTimeout(timeout);
-}, [pathname]);
+    return () => clearTimeout(timeout);
+  }, [pathname]);
 
-
-  // Sticky shadow + active section
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -57,41 +64,39 @@ const pathname = usePathname();
       setActiveSection(currentSection);
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setDropdownOpen(false);
       }
+      if (participateDropdownRef.current && !participateDropdownRef.current.contains(e.target)) {
+        setParticipateDropdownOpen(false);
+      }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  // Smooth scroll with offset
- const scrollToSection = (id) => {
-  setMobileMenuOpen(false);
+  const scrollToSection = (id) => {
+    setMobileMenuOpen(false);
 
-  // ✅ If already on home page → smooth scroll
-  if (pathname === "/") {
-    const el = document.getElementById(id);
-    if (!el) return;
+    if (pathname === "/") {
+      const el = document.getElementById(id);
+      if (!el) return;
 
-    const navbarHeight = 80;
-    const top = el.getBoundingClientRect().top + window.scrollY - navbarHeight;
+      const navbarHeight = 80;
+      const top =
+        el.getBoundingClientRect().top + window.scrollY - navbarHeight;
 
-    window.scrollTo({ top, behavior: "smooth" });
-  } 
-  // ✅ If on another page → route to home with hash
-  else {
-    router.push(`/#${id}`);
-  }
-};
-
+      window.scrollTo({ top, behavior: "smooth" });
+    } else {
+      router.push(`/#${id}`);
+    }
+  };
 
   return (
     <header
@@ -104,15 +109,17 @@ const pathname = usePathname();
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
         <div className="flex items-center justify-between gap-6">
           {/* Logo */}
-         <div className="flex items-center gap-3">
-  <Link href="/" className="relative w-55 h-11 flex items-center">
-    <img
-      src="/logo.png"
-      alt="logo"
-      className="rounded-xl cursor-pointer"
-    />
-  </Link>
-</div>
+          <div className="flex items-center gap-3">
+            <Link href="/" className="relative w-55 h-11 flex items-center">
+              <img
+                src={
+                  "https://education.code4bharat.com/_next/image?url=%2F18.jpeg&w=640&q=75"
+                }
+                alt="logo"
+                className="rounded-xl cursor-pointer"
+              />
+            </Link>
+          </div>
 
           {/* Desktop Nav */}
           <nav className="cursor-pointer hidden md:flex items-center gap-6 text-sm font-medium">
@@ -130,7 +137,7 @@ const pathname = usePathname();
               </button>
             ))}
 
-            {/* ✅ Ambassador Dropdown */}
+            {/* Ambassador Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -139,26 +146,35 @@ const pathname = usePathname();
                 Ambassador
                 <ChevronDown
                   size={15}
-                  className={`${dropdownOpen ? "rotate-180" : ""} transition-transform`}
+                  className={`${
+                    dropdownOpen ? "rotate-180" : ""
+                  } transition-transform`}
                 />
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 bg-white border border-gray-200 shadow-lg rounded-xl w-44 py-2 z-50">
-                  <Link
-                    href="/ambassador-register"
-                    className="block px-4 py-2 text-sm hover:bg-indigo-50"
-                    onClick={() => setDropdownOpen(false)}
+                <div className="absolute right-0 mt-2 bg-white border border-gray-200 shadow-lg rounded-xl w-44 py-2 z-[9999]">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDropdownOpen(false);
+                      router.push("/ambassador-register");
+                    }}
+                    className="block w-full text-left px-4 py-2 text-sm hover:bg-indigo-50"
                   >
                     Register
-                  </Link>
-                  <Link
-                    href="/ambassador-login"
-                    className="block px-4 py-2 text-sm hover:bg-indigo-50"
-                    onClick={() => setDropdownOpen(false)}
+                  </button>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDropdownOpen(false);
+                      router.push("/ambassador-login");
+                    }}
+                    className="block w-full text-left px-4 py-2 text-sm hover:bg-indigo-50"
                   >
                     Login
-                  </Link>
+                  </button>
                 </div>
               )}
             </div>
@@ -166,12 +182,47 @@ const pathname = usePathname();
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            <Link
-              href="/register"
-              className="hidden sm:inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-full text-sm font-semibold shadow-lg hover:bg-indigo-700 transition"
-            >
-              <Rocket size={16} /> Register Now
-            </Link>
+            {/* Participate Dropdown */}
+            <div className="hidden sm:block relative" ref={participateDropdownRef}>
+              <button
+                onClick={() => setParticipateDropdownOpen(!participateDropdownOpen)}
+                className="inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-full text-sm font-semibold shadow-lg hover:bg-indigo-700 transition"
+              >
+                <Rocket size={16} /> Participate
+                <ChevronDown
+                  size={15}
+                  className={`${
+                    participateDropdownOpen ? "rotate-180" : ""
+                  } transition-transform`}
+                />
+              </button>
+
+              {participateDropdownOpen && (
+                <div className="absolute right-0 mt-2 bg-white border border-gray-200 shadow-lg rounded-xl w-44 py-2 z-[9999]">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setParticipateDropdownOpen(false);
+                      router.push("/register");
+                    }}
+                    className="block w-full text-left px-4 py-2 text-sm hover:bg-indigo-50"
+                  >
+                    Register
+                  </button>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setParticipateDropdownOpen(false);
+                      window.location.href = "https://www.code4bharat.com/login";
+                    }}
+                    className="block w-full text-left px-4 py-2 text-sm hover:bg-indigo-50"
+                  >
+                    Login
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* Mobile toggle */}
             <button
@@ -184,7 +235,7 @@ const pathname = usePathname();
         </div>
       </div>
 
-      {/* ✅ Mobile Nav */}
+      {/* Mobile Nav */}
       <div
         className={`md:hidden transition-all duration-300 overflow-hidden ${
           mobileMenuOpen ? "max-h-[500px]" : "max-h-0"
@@ -205,7 +256,7 @@ const pathname = usePathname();
             </button>
           ))}
 
-          {/* ✅ Mobile Ambassador Dropdown */}
+          {/* Mobile Ambassador Dropdown */}
           <details className="mt-2 border border-indigo-300 rounded-lg p-2">
             <summary className="cursor-pointer font-semibold text-indigo-700">
               Ambassador
@@ -227,12 +278,27 @@ const pathname = usePathname();
             </div>
           </details>
 
-          <Link
-            href="/register"
-            className="mt-2 flex items-center justify-center gap-2 bg-indigo-600 text-white px-3 py-2.5 rounded-full text-sm font-semibold hover:bg-indigo-700 transition"
-          >
-            <Rocket size={16} /> Register Now
-          </Link>
+          {/* Mobile Participate Dropdown */}
+          <details className="mt-2 border border-indigo-600 rounded-lg p-2 bg-indigo-50">
+            <summary className="cursor-pointer font-semibold text-indigo-700 flex items-center gap-2">
+              <Rocket size={16} /> Participate
+            </summary>
+
+            <div className="mt-2 flex flex-col gap-1">
+              <Link
+                href="/register"
+                className="px-3 py-2 rounded-md bg-white"
+              >
+                Register
+              </Link>
+              <a
+                href="https://www.code4bharat.com/login"
+                className="px-3 py-2 rounded-md bg-white"
+              >
+                Login
+              </a>
+            </div>
+          </details>
         </div>
       </div>
     </header>

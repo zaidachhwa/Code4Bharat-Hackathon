@@ -31,8 +31,10 @@ export default function SeminarPage() {
   });
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [couponCode, setCouponCode] = useState("");
-  const API_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+
+  // const API_URL = "https://code4bharat-hackathon-backend.onrender.com/api"
 
   useEffect(() => {
     getSeminarData();

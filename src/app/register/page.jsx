@@ -26,8 +26,23 @@ const schema = yup.object().shape({
   domain: yup.string().required("Domain is required"),
   skills: yup.string().required("Skills are required"),
   couponCode: yup.string().nullable(),
-  username: yup.string().min(4).required("Username is required"),
-  password: yup.string().min(6).required("Password must be at least 6 chars"),
+  username: yup
+    .string()
+    .required("Username is required")
+    .min(4, "Username must be at least 4 characters")
+    .max(24, "Username must be at most 24 characters")
+    .matches(
+      /^[a-zA-Z0-9]+$/,
+      "Username can contain only letters and numbers (no spaces or symbols)"
+    ),
+  password: yup
+  .string()
+  .required("Password is required")
+  .min(8, "Password must be at least 8 characters")
+  .matches(/[A-Z]/, "Must contain at least one uppercase letter")
+  .matches(/[a-z]/, "Must contain at least one lowercase letter")
+  .matches(/[0-9]/, "Must contain at least one number")
+  .matches(/[@$!%*?&#]/, "Must contain at least one special character"),
   confirmPassword: yup
     .string()
     .oneOf([yup.ref("password")], "Passwords must match"),
@@ -38,7 +53,10 @@ const schema = yup.object().shape({
 
 export default function Register() {
   const [step, setStep] = useState(1);
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+
+  // const API_URL = "https://code4bharat-hackathon-backend.onrender.com/api"
 
   const {
     register,
@@ -79,7 +97,10 @@ export default function Register() {
 
   const prev = () => setStep(step - 1);
 
-  const onSubmit = async(data) => {
+  const onSubmit = async (data) => {
+    // ----------------------------
+    // KEEP ALL YOUR CONSOLE LOGS
+    // ----------------------------
     console.log("=== HACKATHON REGISTRATION DATA ===");
     console.log("Full Name:", data.fullName);
     console.log("Date of Birth:", data.dob);
@@ -94,25 +115,34 @@ export default function Register() {
     console.log("Skills:", data.skills);
     console.log("Username:", data.username);
     console.log("=====================================");
-    console.log("Complete Data Object:", data);  // here all the data coming form across the form as object
+    console.log("Complete Data Object:", data);
 
-    toast.success("Registration Successful!", {
-      duration: 4000,
-      style: {
-        background: "#10b981",
-        color: "#fff",
-      },
-    });
-
-    // form data going to backend
     try {
-      
-      const formData = await axios.post(`${API_URL}/users/register`, {data});
-      console.log("from ui ")
-    } catch (error) {
-      console.log(error)
-    }
+      // 🔹 Call backend
+      const response = await axios.post(`${API_URL}/users/register`, { data });
 
+      // 🔹 SUCCESS (201 / 200)
+      toast.success(response.data.message || "Registration Successful!", {
+        duration: 4000,
+        style: {
+          background: "#10b981",
+          color: "#fff",
+        },
+      });
+
+      console.log("✅ Backend Response:", response.data);
+    } catch (error) {
+      console.error("❌ Registration Error:", error);
+
+      // 🔴 BACKEND ERROR MESSAGE (email exists, username taken, etc.)
+      const errorMessage =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error(errorMessage, {
+        duration: 4000,
+      });
+    }
   };
 
   const handleFormSubmit = (e) => {
@@ -439,20 +469,22 @@ export default function Register() {
                 </div>
 
                 {/* Coupon Code */}
-<div>
-  <label className="block font-medium text-indigo-700 mb-2">
-    Referral / Ambassador Coupon Code <span className="text-red-500"></span>
-  </label>
-  <input
-    {...register("couponCode")}
-    className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none"
-    placeholder="Enter coupon code if applicable"
-  />
-  {errors.couponCode && (
-    <p className="text-red-500 text-sm mt-1">{errors.couponCode.message}</p>
-  )}
-</div>
-
+                <div>
+                  <label className="block font-medium text-indigo-700 mb-2">
+                    Referral / Ambassador Coupon Code{" "}
+                    <span className="text-red-500"></span>
+                  </label>
+                  <input
+                    {...register("couponCode")}
+                    className="w-full bg-indigo-50 border-b-2 border-indigo-200 focus:border-indigo-800 px-4 py-3 transition-colors outline-none"
+                    placeholder="Enter coupon code if applicable"
+                  />
+                  {errors.couponCode && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.couponCode.message}
+                    </p>
+                  )}
+                </div>
 
                 <div className="flex justify-between pt-6">
                   <button

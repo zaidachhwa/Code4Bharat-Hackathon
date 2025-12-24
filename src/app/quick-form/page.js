@@ -16,8 +16,9 @@ export default function HackathonRegistrationForm() {
     socialPresence: "",
   });
 
-  const API_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+  const API_URL =  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+
+  // const API_URL = "https://code4bharat-hackathon-backend.onrender.com/api"
 
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);

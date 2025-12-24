@@ -8,6 +8,10 @@ import { Mail, Lock, Sparkles, ArrowRight, Award, Shield } from "lucide-react";
 
 export default function AmbassadorLoginPage() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+
+  // const API_URL = "https://code4bharat-hackathon-backend.onrender.com/api"
+
+
   const router = useRouter();
   const {
     register,
@@ -51,7 +55,7 @@ export default function AmbassadorLoginPage() {
 
   return (
     <>
-      <Toaster position="top-center" />
+      
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 flex items-center justify-center px-4 py-8">
         {/* MAIN CONTAINER */}
         <div className="w-full max-w-md">

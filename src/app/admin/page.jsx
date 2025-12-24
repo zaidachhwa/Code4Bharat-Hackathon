@@ -39,6 +39,7 @@ const schema = z.object({
 export default function Page() {
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+  // const API_URL = "https://code4bharat-hackathon-backend.onrender.com/api" // for fermion
 
   const {
     register,
@@ -67,7 +68,6 @@ export default function Page() {
 
   return (
     <>
-      <Toaster position="top-right" />
 
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 flex items-center justify-center px-4">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 border border-amber-100">

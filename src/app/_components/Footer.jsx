@@ -16,6 +16,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+
 export default function Footer({ NAV_SECTIONS = [] }) {
   const router = useRouter();
 
@@ -53,7 +54,7 @@ export default function Footer({ NAV_SECTIONS = [] }) {
               <div>
               <div className="relative w-65 h-11 flex items-center">
               <img
-                src="/logo.png"
+                src={"https://education.code4bharat.com/_next/image?url=%2F18.jpeg&w=640&q=75"}
                 alt="logo"
                 className="rounded-xl"
               />
@@ -157,7 +158,10 @@ export default function Footer({ NAV_SECTIONS = [] }) {
             </ul>
 
             <button
-              onClick={() => scrollToSection("submission")}
+              onClick={() => {
+                scrollToSection("submission")
+                router.push("/register")
+              }}
               className="inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-full text-xs font-semibold shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-all"
             >
               <Rocket className="w-4 h-4" />
