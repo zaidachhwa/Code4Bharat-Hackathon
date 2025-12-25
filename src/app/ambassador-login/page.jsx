@@ -24,31 +24,41 @@ export default function AmbassadorLoginPage() {
   setLoading(true);
 
   try {
-    const res = await axios.post(`${API_URL}/ambassador/login`, data, {
+    // ✅ Only success (2xx) comes here
+    await axios.post(`${API_URL}/ambassador/login`, data, {
       withCredentials: true,
     });
-
-    if (res.data.ambassador.isApproved === false) {
-      setLoading(false);
-      toast.error("Your application is under review.");
-      return;
-    }
 
     toast.success("Login Successful 🎉");
     setTimeout(() => router.push("/ambassador-dashboard"), 700);
 
   } catch (error) {
+    // ✅ Backend responded with error (4xx / 5xx)
     if (error.response) {
-      toast.error(error.response.data?.message || "Login failed");
+      const status = error.response.status;
+      const message = error.response.data?.message;
+
+      if (status === 403) {
+        toast.error(message || "Your application is under review.");
+      } else if (status === 401) {
+        toast.error(message || "Invalid email or password.");
+      } else {
+        toast.error(message || "Login failed. Please try again.");
+      }
+
     } else if (error.request) {
+      // ❌ No response from server
       toast.error("Server not responding. Please try again later.");
     } else {
+      // ❌ Axios setup error
       toast.error("Something went wrong. Please try again.");
     }
+
   } finally {
     setLoading(false);
   }
 };
+
 
 
   return (
