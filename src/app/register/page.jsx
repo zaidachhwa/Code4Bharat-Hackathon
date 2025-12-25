@@ -36,13 +36,13 @@ const schema = yup.object().shape({
       "Username can contain only letters and numbers (no spaces or symbols)"
     ),
   password: yup
-  .string()
-  .required("Password is required")
-  .min(8, "Password must be at least 8 characters")
-  .matches(/[A-Z]/, "Must contain at least one uppercase letter")
-  .matches(/[a-z]/, "Must contain at least one lowercase letter")
-  .matches(/[0-9]/, "Must contain at least one number")
-  .matches(/[@$!%*?&#]/, "Must contain at least one special character"),
+    .string()
+    .required("Password is required")
+    .min(8, "Password must be at least 8 characters")
+    .matches(/[A-Z]/, "Must contain at least one uppercase letter")
+    .matches(/[a-z]/, "Must contain at least one lowercase letter")
+    .matches(/[0-9]/, "Must contain at least one number")
+    .matches(/[@$!%*?&#]/, "Must contain at least one special character"),
   confirmPassword: yup
     .string()
     .oneOf([yup.ref("password")], "Passwords must match"),
@@ -53,7 +53,10 @@ const schema = yup.object().shape({
 
 export default function Register() {
   const [step, setStep] = useState(1);
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+  const [loading, setLoading] = useState(false);
+
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
 
   // const API_URL = "https://code4bharat-hackathon-backend.onrender.com/api"
 
@@ -97,43 +100,20 @@ export default function Register() {
   const prev = () => setStep(step - 1);
 
   const onSubmit = async (data) => {
-    // ----------------------------
-    // KEEP ALL YOUR CONSOLE LOGS
-    // ----------------------------
-    console.log("=== HACKATHON REGISTRATION DATA ===");
-    console.log("Full Name:", data.fullName);
-    console.log("Date of Birth:", data.dob);
-    console.log("Gender:", data.gender);
-    console.log("Address:", data.address);
-    console.log("Email:", data.email);
-    console.log("Phone:", data.phone);
-    console.log("College:", data.college);
-    console.log("Course:", data.course);
-    console.log("Year:", data.year);
-    console.log("Domain:", data.domain);
-    console.log("Skills:", data.skills);
-    console.log("Username:", data.username);
-    console.log("=====================================");
-    console.log("Complete Data Object:", data);
+    if (loading) return; // prevent double submit
+    setLoading(true);
 
     try {
-      // 🔹 Call backend
       const response = await axios.post(`${API_URL}/users/register`, { data });
 
-      // 🔹 SUCCESS (201 / 200)
       toast.success(response.data.message || "Registration Successful!", {
         duration: 4000,
-        style: {
-          background: "#10b981",
-          color: "#fff",
-        },
       });
 
       console.log("✅ Backend Response:", response.data);
     } catch (error) {
       console.error("❌ Registration Error:", error);
 
-      // 🔴 BACKEND ERROR MESSAGE (email exists, username taken, etc.)
       const errorMessage =
         error.response?.data?.message ||
         "Something went wrong. Please try again.";
@@ -141,6 +121,8 @@ export default function Register() {
       toast.error(errorMessage, {
         duration: 4000,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -667,9 +649,16 @@ export default function Register() {
                   <button
                     type="button"
                     onClick={handleFormSubmit}
-                    className="px-8 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors shadow-lg"
+                    disabled={loading}
+                    className={`px-8 py-3 rounded-lg font-semibold text-white transition-colors shadow-lg
+    ${
+      loading
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-green-600 hover:bg-green-700"
+    }
+  `}
                   >
-                    Submit Registration
+                    {loading ? "Submitting..." : "Submit Registration"}
                   </button>
                 </div>
               </div>
