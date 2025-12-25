@@ -23,8 +23,8 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50`}
       >
-        {children}
         <ToasterClient />
+        {children}
       </body>
     </html>
   );

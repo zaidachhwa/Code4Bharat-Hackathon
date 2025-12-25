@@ -2,15 +2,15 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, Sparkles, ArrowRight, Award, Shield } from "lucide-react";
 
 export default function AmbassadorLoginPage() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
 
   // const API_URL = "https://code4bharat-hackathon-backend.onrender.com/api"
-
 
   const router = useRouter();
   const {
@@ -21,41 +21,38 @@ export default function AmbassadorLoginPage() {
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (data) => {
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      const res = await axios.post(`${API_URL}/ambassador/login`, data, {
-        withCredentials: true,
-      });
+  try {
+    const res = await axios.post(`${API_URL}/ambassador/login`, data, {
+      withCredentials: true,
+    });
 
-
-      console.log(res);
-      
-
-      if (!res) {
-        toast.error("Login failed. Please try again.");
-        return;
-      }
-
-      if (res.data.ambassador.isApproved === false) {
-        toast.error("Your application is under review.");
-        return;
-      }
-
-      toast.success("Login Successful 🎉");
-      setTimeout(() => {
-        router.push("/ambassador-dashboard");
-      }, 700);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Login failed");
-    } finally {
+    if (res.data.ambassador.isApproved === false) {
       setLoading(false);
+      toast.error("Your application is under review.");
+      return;
     }
-  };
+
+    toast.success("Login Successful 🎉");
+    setTimeout(() => router.push("/ambassador-dashboard"), 700);
+
+  } catch (error) {
+    if (error.response) {
+      toast.error(error.response.data?.message || "Login failed");
+    } else if (error.request) {
+      toast.error("Server not responding. Please try again later.");
+    } else {
+      toast.error("Something went wrong. Please try again.");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <>
-      
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 flex items-center justify-center px-4 py-8">
         {/* MAIN CONTAINER */}
         <div className="w-full max-w-md">
@@ -68,7 +65,9 @@ export default function AmbassadorLoginPage() {
                   <Award className="w-9 h-9 text-white" />
                 </div>
               </div>
-              <h1 className="text-3xl font-bold text-center">Ambassador Login</h1>
+              <h1 className="text-3xl font-bold text-center">
+                Ambassador Login
+              </h1>
               <p className="text-yellow-50 text-center mt-2 text-sm">
                 Access your Ambassador Dashboard
               </p>

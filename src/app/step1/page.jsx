@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import {
   Upload,
   Trash2,
@@ -24,8 +24,10 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
   const [showImagesModal, setShowImagesModal] = useState(false);
   const router = useRouter();
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
-  const API_URL_IMAGES = process.env.NEXT_PUBLIC_IMAGE_BASE_URL || "http://localhost:5002";
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5002/api";
+  const API_URL_IMAGES =
+    process.env.NEXT_PUBLIC_IMAGE_BASE_URL || "http://localhost:5002";
 
   // const API_URL = "https://code4bharat-hackathon-backend.onrender.com/api"
   // const API_URL_IMAGES = "https://code4bharat-hackathon-backend.onrender.com"
@@ -197,11 +199,16 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      toast.success("Day 1 submitted!");
+      toast.dismiss(); // clear any old toasts
+
+      toast.success("Day 1 submitted!", {
+        duration: 2000, // force auto-close
+      });
 
       setTimeout(() => {
+        toast.dismiss(); // ensure toast is gone
         router.push("/ambassador-dashboard");
-      }, 1000);
+      }, 1500);
     } else if (currentDay === "day2") {
       const formData = new FormData();
       files.day2.forEach((file) => formData.append("screenshots", file));
@@ -222,11 +229,16 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
             headers: { "Content-Type": "multipart/form-data" },
           }
         );
-        toast.success("Day 2 submitted successfully! Step 1 Completed.");
+        toast.dismiss();
+
+        toast.success("Day 2 submitted successfully! Step 1 Completed.", {
+          duration: 2000,
+        });
 
         setTimeout(() => {
+          toast.dismiss();
           router.push("/ambassador-dashboard");
-        }, 1000);
+        }, 1500);
       } catch (err) {
         console.log(err);
         toast.error("Day 2 submission failed");
@@ -258,8 +270,6 @@ export default function Step1Promotion({ ambassadorId, adminImages = [] }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 px-4 sm:px-6 py-6 sm:py-10">
-      <Toaster position="top-right" />
-
       {/* Images Modal */}
       {showImagesModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">

@@ -257,7 +257,7 @@ function Page() {
             a._id === id ? { ...a, isApproved: true, rejected: false } : a
           )
         );
-        toast.success("✅ Ambassador approved successfully!");
+        toast.success("Ambassador approved successfully!");
       } else {
         toast.error("❌ Failed to approve ambassador");
       }
