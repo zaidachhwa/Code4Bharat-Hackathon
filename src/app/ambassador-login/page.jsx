@@ -70,7 +70,7 @@ export default function AmbassadorLoginPage() {
               </div>
               <h1 className="text-3xl font-bold text-center">Ambassador Login</h1>
               <p className="text-yellow-50 text-center mt-2 text-sm">
-                Access your internship dashboard
+                Access your Ambassador Dashboard
               </p>
             </div>
 

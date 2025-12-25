@@ -96,7 +96,7 @@ export default function Footer({ NAV_SECTIONS = [] }) {
                     <Linkedin className="w-4 h-4" />
                   </a>
                   <a
-                    href="#"
+                    href="https://x.com/Code4Bharat"
                     className="w-9 h-9 rounded-full bg-slate-100 hover:bg-indigo-50 border border-slate-200 inline-flex items-center justify-center text-slate-600 hover:text-indigo-700 text-sm transition-colors"
                     aria-label="Twitter"
                   >
