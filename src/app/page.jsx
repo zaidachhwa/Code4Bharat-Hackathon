@@ -346,7 +346,7 @@ export default function Code4BharatLanding() {
                 <Code className="w-5 h-5" />
               </div>
               <div className="text-3xl md:text-4xl font-extrabold text-slate-900">
-                3
+                2
               </div>
               <div className="mt-1 text-sm font-semibold text-slate-600">
                 Core Domains
