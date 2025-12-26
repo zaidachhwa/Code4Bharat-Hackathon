@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import axios from "axios";
 import {useRouter} from "next/navigation";
 
@@ -332,7 +332,7 @@ export default function CampusAmbassadorPage() {
 
   return (
     <>
-      <Toaster position="top-right" />
+      
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white text-gray-800 py-8 px-4">
         <div className="mx-auto max-w-4xl">
           {/* Header Card */}
