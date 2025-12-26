@@ -218,7 +218,7 @@ export default function Navbar() {
                     }}
                     className="block w-full text-left px-4 py-2 text-sm hover:bg-indigo-50"
                   >
-                    Login
+                    Go to Hackathon Dashboard
                   </button>
                 </div>
               )}
@@ -295,7 +295,7 @@ export default function Navbar() {
                 href="https://hackathon.code4bharat.com/login"
                 className="px-3 py-2 rounded-md bg-white"
               >
-                Login
+                Go to Hackathon Dashboard
               </a>
             </div>
           </details>
